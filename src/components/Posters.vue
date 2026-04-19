@@ -45,7 +45,7 @@ function selectPoster(poster) {
             
               <a v-for="poster in posters.slice((group - 1) * visible, group * visible)"
               :key="poster.name"
-              class="poster cursor-pointer border bg-[#4f485f] rounded-lg p-4 flex flex-col items-center hover:bg-[#7069a2] transition-transform duration-300 flex-shrink-0"
+              class="poster cursor-pointer bg-[#2b2b2b] rounded-lg p-4 flex flex-col items-center hover:bg-[#FF7230] border-1 border-white transition-transform duration-300 flex-shrink-0"
               style="width: calc(20% - 13px)"
                 @click="selectPoster(poster)"
           >

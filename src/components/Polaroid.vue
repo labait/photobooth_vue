@@ -27,9 +27,13 @@ defineProps({
 
 <style scoped>
 .polaroid {
-    --polaroid-width: 340px;
-    --polaroid-height: 450px;
+    --polaroid-width: 460px;
+    --polaroid-height: 607px;
     --polaroid-padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    background: #f4f4f4;
 }
 
 .polaroid {

@@ -156,12 +156,6 @@ async function shot() {
 
 <template>
   <div class="relative w-full min-h-screen">
-    <!-- Desktop: immagine originale -->
-    <img src="../assets/background.svg" class="hidden sm:block absolute top-0 left-0 w-full h-full object-cover z-0">
-
-    <!-- Mobile: immagine diversa o stessa ma con fit diverso -->
-    <img src="../assets/background-mobile.svg" class="block sm:hidden absolute top-0 left-0 w-full h-full object-cover z-0 pointer-events-none">
-
     <div class="shotOverlay absolute top-0 left-0 w-full h-full z-2 bg-white"></div>
     <div 
       v-if="countDown > 0"

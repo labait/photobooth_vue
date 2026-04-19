@@ -60,10 +60,6 @@ const print = () => {
 <template>
   <div class="">
 
-    <!-- Background -->
-    <img src="../assets/background.svg" class="hidden md:block absolute top-0 left-0 w-full h-full object-fit z-0 pointer-events-none px-4">
-    <img src="../assets/background-mobile.svg" class="block md:hidden absolute top-0 left-0 w-full h-full object-cover z-0 pointer-events-none">
-
     <!-- Contenuto -->
     <div v-if="global.docData" class="polaroids relative z-10 flex flex-col items-center justify-center overflow-visible print:py-16">
       <Polaroid class="original">
