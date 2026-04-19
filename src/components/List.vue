@@ -8,7 +8,7 @@ const global = inject('global')
 const getStorageUrl = inject('getStorageUrl')
 
 const maxItems = 50
-const maxRotation = 30
+const maxRotation = 12
 const safePadding = 200
 const nextInterval = 226000
 const items = ref([])
@@ -80,7 +80,7 @@ const showPolaroid = (docId) => {
     currentPolaroid = document.getElementById(`item-${docId}`)
     if(currentPolaroid || currentPolaroid !== previousPolaroid) {
         hidePreviousPolaroid()
-        currentPolaroid.style.transform = `translate(0, 0) rotate(0deg) scale(1.5)`
+        currentPolaroid.style.transform = `translate(0, 0) rotate(0deg) scale(1.1)`
         currentPolaroid.style.zIndex = 2000
         currentPolaroid.classList.add('active')
         previousPolaroid = currentPolaroid
