@@ -21,7 +21,7 @@ defineProps({
         <div class="flex justify-end md:justify-end">
             <router-link to="/" class="main-header text-white flex items-center">
                 <div class="flex items-center">
-                    <img src="../assets/synapses.png" alt="Loghi" class="mb-4 w-20 md:w-28 lg:w-30">
+                    <img src="../assets/thinkmakefuture.png" alt="Loghi" class="mb-4 w-20 md:w-28 lg:w-30">
                 </div>
             </router-link>
         </div>
