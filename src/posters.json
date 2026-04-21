@@ -58,6 +58,25 @@
     {
     "name": "La Fabbrica di Cioccolato",
     "file_path": "./images/willy-wonka.jpg"
+     },
+    {
+    "name": "Terminator III",
+    "file_path": "./images/terminator.jpg"
+  },
+    {
+    "name": "Il Grande Lebowski",
+    "file_path": "./images/lebowski.jpg"
+  },
+    {
+    "name": "Per un pugno di dollari",
+    "file_path": "./images/pugno.jpg"
+  },
+    {
+    "name": "Il Padrino",
+    "file_path": "./images/padrino.jpg"
+  },
+  {
+    "name": "Apocalypse Now",
+    "file_path": "./images/apocalips.jpg"
   }
-
 ]

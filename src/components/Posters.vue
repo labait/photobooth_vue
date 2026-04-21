@@ -10,7 +10,7 @@ const visible = 5
 const gap = 16
 
 function next() {
-  if (current.value < 2) current.value++
+  if (current.value < 3) current.value++
 }
 function prev() {
   if (current.value > 0) current.value--
@@ -37,7 +37,7 @@ function selectPoster(poster) {
           :style="{ transform: `translateX(calc(-${current * 100}% - ${current * gap}px))`, gap: `${gap}px` }"
         >
           <div
-            v-for="group in 3"
+            v-for="group in 4"
             :key="group"
             class="flex flex-shrink-0 w-full"
             :style="{ gap: `${gap}px` }"
@@ -63,7 +63,7 @@ function selectPoster(poster) {
     </div>
     <div class="flex justify-center gap-3 mt-6">
       <button
-        v-for="(_, index) in 3"
+        v-for="(_, index) in 4"
         :key="index"
         @click="current = index"
         class="w-2 h-2 rounded-full transition-colors duration-300"
