@@ -54,6 +54,10 @@
     {
     "name": "IT",
     "file_path": "./images/it.jpg"
+  },
+    {
+    "name": "La Fabbrica di Cioccolato",
+    "file_path": "./images/willy-wonka.jpg"
   }
 
 ]
