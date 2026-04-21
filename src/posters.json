@@ -36,7 +36,24 @@
     "file_path": "./images/indiana-jones.jpg"
   },
   {
-    "name": "La fabbrica del cioccolato",
-    "file_path": "./images/willy-wonka.jpg"
+    "name": "Mamma ho perso l'aereo",
+    "file_path": "./images/mamma.jpg"
+  },
+   {
+    "name": "Maria Antonietta",
+    "file_path": "./images/maria.jpg"
+  },
+   {
+    "name": "Maleficent",
+    "file_path": "./images/maleficent.jpg"
+  },
+   {
+    "name": "Black Swan",
+    "file_path": "./images/cigno.jpg"
+  },
+    {
+    "name": "IT",
+    "file_path": "./images/it.jpg"
   }
+
 ]

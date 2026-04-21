@@ -74,7 +74,7 @@ const print = () => {
       </Polaroid>
       <Polaroid :url="detailUrl(docId)" class="processed mb-16 active">
         <img v-if="global.docData.image_processed" :src="global.docData.image_processed" class="w-full h-full object-cover block" />
-        <div v-else class="processing absolute p-3 top-0 left-0 w-full h-full flex flex-col items-center justify-center text-white">
+        <div v-else class="processing absolute p-3 top-0 left-0 w-full h-full flex flex-col items-center justify-center text-black">
           <p class="text-center font-bold text-xl">Elaborazione in corso</p>
           fai refresh o attendi qualche secondo...
         </div>

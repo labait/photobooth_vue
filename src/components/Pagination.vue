@@ -13,7 +13,7 @@ const visible = 5
 const gap = 16
 
 function next() {
-  if (current.value < 10 - visible) current.value++
+  if (current.value < 15 - visible) current.value++
 }
 function prev() {
   if (current.value > 0) current.value--
