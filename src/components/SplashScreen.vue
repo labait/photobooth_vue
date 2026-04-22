@@ -14,7 +14,7 @@ const global = inject('global');
       <div class="flex justify-center mb-6 md:mb-8">
         <img src="../assets/croniche-disorganiche.png" class="h-auto object-contain max-w-sm w-full">
       </div>
-    </div>x
+    </div>
     <div class="flex relative z-20 items-center justify-start mb-16">
       <router-link
         v-if="global.features.camera"
