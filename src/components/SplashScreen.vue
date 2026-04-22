@@ -8,11 +8,11 @@ const global = inject('global');
 <template>
   <div class="flex flex-col justify-center w-full h-full">
     <div class="grid grid-cols-2 gap-4 items-center w-full">
-      <p class="text-white font-bold text-[8vw] md:text-[6vw] lg:text-[5vw] py-2">
+      <p class="text-white font-bold text-[8vw] md:text-[6vw] lg:text-[5vw] py-2 justify center">
         LABA'S<br>PHOTOBOOTH
       </p>
       <div class="flex justify-center mb-6 md:mb-8">
-        <img src="../assets/croniche-disorganiche.png" class="h-auto object-contain max-w-sm w-full">
+        <img src="../assets/croniche-disorganiche.png" class="h-auto object-contain max-w-sm w-full justify center">
       </div>
     </div>
     <div class="flex relative z-20 items-center justify-start mb-16">
