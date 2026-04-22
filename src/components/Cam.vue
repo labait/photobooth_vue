@@ -155,7 +155,7 @@ async function shot() {
 </script>
 
 <template>
-  <div class="relative w-full min-h-screen container mx-auto max-w-7xl px-6 md:px-12 lg:px-20 flex flex-col justify-center">
+  <div class="relative w-full h-full flex flex-col items-center justify-center">
     <div class="shotOverlay absolute w-full h-full z-2 bg-white"></div>
     <div 
       v-if="countDown > 0"

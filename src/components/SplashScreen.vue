@@ -6,7 +6,7 @@ const global = inject('global');
 </script>
 
 <template>
-  <div class="flex flex-col justify-center w-full min-h-screen px-6 md:px-12 lg:px-20">
+  <div class="flex flex-col justify-center w-full h-full">
     <div class="grid grid-cols-2 gap-4 items-center w-full">
       <p class="text-white font-bold text-[8vw] md:text-[6vw] lg:text-[5vw] py-2">
         LABA'S<br>PHOTOBOOTH
