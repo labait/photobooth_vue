@@ -23,7 +23,7 @@ function selectPoster(poster) {
 </script>
 
 <template>
-  <div class="posters-container container mx-auto max-w-7xl">
+  <div class="posters-container container mx-auto max-w-7xl h-full">
     <div class="h-20 flex items-center justify-center">
       <h1 class="text-white font-bold text-[6vw] sm:text-[2vw] py-2">Seleziona il tuo poster preferito:</h1>
     </div>
