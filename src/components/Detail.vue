@@ -113,7 +113,7 @@ const print = () => {
 
 @media only print and (min-width: 630px) {
   .polaroid {
-    transform: scale(1.3);
+    transform: scale(1.2);
   }
 }
 
