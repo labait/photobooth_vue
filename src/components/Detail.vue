@@ -58,9 +58,7 @@ const print = () => {
 </script>
 
 <template>
-  <div class="">
-
-    <!-- Contenuto -->
+  <div class="relative w-full min-h-screen container mx-auto max-w-7xl px-6 md:px-12 lg:px-20 flex flex-col justify-center">
     <div v-if="global.docData" class="polaroids relative z-10 flex flex-col items-center justify-center overflow-visible print:py-16">
       <Polaroid class="original">
         <img :src="global.docData.image_source" class="w-full h-full object-cover block" />
