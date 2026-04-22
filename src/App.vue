@@ -142,7 +142,7 @@ provide('getStorageUrl', getStorageUrl);
 
 <template>
   <main class="min-h-screen p-4 md:p-8">
-  <div class="flex flex-col max-w-7xl mx-auto min-h-screen">
+  <div class="flex flex-col max-w-screen max-h-screen mx-auto min-w-screen min-h-screen">
       <Loading v-if="global.isLoading" />
       <div class="flex justify-end w-full print:hidden z-30">
         <div class="auth-btn">

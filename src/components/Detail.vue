@@ -133,7 +133,7 @@ const print = () => {
     margin-top: 0px;
     flex-direction: row;
     .original {
-      transform: translate(-10%, 0%) scale(0.7) rotate(-10deg);
+      transform: translate(-10%, 0%) scale(0.7);
       z-index: 1;
     }
 
