@@ -6,16 +6,23 @@ const global = inject('global');
 </script>
 
 <template>
-  <div class="flex flex-col justify-center w-full h-full">
-    <div class="grid grid-cols-2 gap-4 items-center w-full">
-      <p class="text-white font-bold text-[8vw] md:text-[6vw] lg:text-[5vw] py-2 justify center">
-        LABA'S<br>PHOTOBOOTH
-      </p>
-      <div class="flex justify-center mb-6 md:mb-8">
-        <img src="../assets/croniche-disorganiche.png" class="h-auto object-contain max-w-sm w-full justify center">
+  <div class="flex flex-col w-full h-full min-h-[calc(100svh-8rem)]">
+    
+    <div class="flex-1 flex flex-col justify-center">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center w-full">
+        <p class="text-white font-bold text-[6vw] md:text-[6vw] lg:text-[5vw] py-2">
+          LABA'S<br>PHOTOBOOTH
+        </p>
+        <div class="flex justify-center mb-6 md:mb-8">
+          <img 
+            src="../assets/croniche-disorganiche.png" 
+            class="h-auto object-contain max-w-sm w-full"
+          >
+        </div>
       </div>
     </div>
-    <div class="flex relative z-20 items-center justify-start mb-16">
+
+    <div class="flex relative z-20 items-center justify-start pb-40 pt-4">
       <router-link
         v-if="global.features.camera"
         to="/posters"
@@ -29,5 +36,6 @@ const global = inject('global');
         Vai alla raccolta
       </router-link>
     </div>
+
   </div>
 </template>
