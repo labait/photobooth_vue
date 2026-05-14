@@ -27,33 +27,42 @@ defineProps({
 
 <style scoped>
 .polaroid {
-    --polaroid-width: 460px;
-    --polaroid-height: 607px;
-    --polaroid-padding: 20px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.3);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    background: #f4f4f4;
+  --polaroid-width: 460px;
+  --polaroid-height: 607px;
+  --polaroid-padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  background: #f4f4f4;
+}
+
+/* Mobile: ricalcola tutto in vw */
+@media (max-width: 639px) {
+  .polaroid {
+    --polaroid-width: 80vw;
+    --polaroid-height: calc(80vw * 607 / 460); /* mantiene le proporzioni originali */
+    --polaroid-padding: 12px;
+  }
 }
 
 .polaroid {
-    width: var(--polaroid-width);
-    height: var(--polaroid-height);
-    .polaroid-inner {
-        margin: var(--polaroid-padding);
-        width: calc(var(--polaroid-width) - var(--polaroid-padding) * 2);
-        height: calc(var(--polaroid-height) - var(--polaroid-padding) * 4);
-        overflow: hidden;
-        position: relative;
-    }   
-    .qrcode {
-        position: absolute;
-        transition: opacity 0.3s ease;
-        z-index: 1000;
-        border: 5px solid white;
-        &:hover {
-            opacity: 0.8;
-        }
+  width: var(--polaroid-width);
+  height: var(--polaroid-height);
+  .polaroid-inner {
+    margin: var(--polaroid-padding);
+    width: calc(var(--polaroid-width) - var(--polaroid-padding) * 2);
+    height: calc(var(--polaroid-height) - var(--polaroid-padding) * 4);
+    overflow: hidden;
+    position: relative;
+  }
+  .qrcode {
+    position: absolute;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+    border: 5px solid white;
+    &:hover {
+      opacity: 0.8;
     }
+  }
 }
 </style>

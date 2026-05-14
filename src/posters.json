@@ -5,7 +5,7 @@
   },
   {
     "name": "Pulp Fiction",
-    "file_path": "./images/pulp-fiction.jpg"
+    "file_path": "./images/pulp-fiction.webp"
   },
   {
     "name": "Barbie Fairytopia",
@@ -13,23 +13,23 @@
   },
   {
     "name": "Breaking Bad",
-    "file_path": "./images/breaking-bad.png"
+    "file_path": "./images/breaking-bad.webp"
   },
   {
     "name": "Harry Potter",
-    "file_path": "./images/harry-potter.png"
+    "file_path": "./images/harry-potter.webp"
   },
   {
     "name": "Il Silenzio Degli Innocenti",
-    "file_path": "./images/il-silenzio-degli-innocenti.png"
+    "file_path": "./images/il-silenzio-degli-innocenti.webp"
   },
   {
     "name": "Stranger Things",
-    "file_path": "./images/stranger-things.png"
+    "file_path": "./images/stranger-things.webp"
   },
   {
     "name": "Avatar",
-    "file_path": "./images/avatar.jpg"
+    "file_path": "./images/avatar.webp"
   },
   {
     "name": "Indiana Jones",
@@ -37,7 +37,7 @@
   },
   {
     "name": "Mamma ho perso l'aereo",
-    "file_path": "./images/mamma.jpg"
+    "file_path": "./images/mamma.webp"
   },
    {
     "name": "Maria Antonietta",
@@ -45,7 +45,7 @@
   },
    {
     "name": "Maleficent",
-    "file_path": "./images/maleficent.jpg"
+    "file_path": "./images/maleficent.webp"
   },
    {
     "name": "Black Swan",
@@ -53,11 +53,11 @@
   },
     {
     "name": "IT",
-    "file_path": "./images/it.jpg"
+    "file_path": "./images/it.webp"
   },
     {
     "name": "La Fabbrica di Cioccolato",
-    "file_path": "./images/willy-wonka.jpg"
+    "file_path": "./images/willy-wonka.webp"
      },
     {
     "name": "Terminator III",

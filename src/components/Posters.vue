@@ -16,7 +16,7 @@ onMounted(() => window.addEventListener('resize', onResize))
 onUnmounted(() => window.removeEventListener('resize', onResize))
 
 const visible = computed(() => {
-  if (windowWidth.value < 640) return 2
+  if (windowWidth.value < 640) return 1  // era 2
   if (windowWidth.value < 1024) return 3
   return 5
 })
@@ -53,7 +53,7 @@ function selectPoster(poster) {
         class="absolute left-0 z-10 text-white text-5xl px-4 hover:text-orange-400 transition-colors"
       >‹</button>
 
-      <div class="overflow-hidden w-full px-10">
+      <div class="overflow-hidden w-full px-10 mt-14">
         <div
           class="flex transition-transform duration-500 ease-in-out"
           :style="{ transform: `translateX(calc(-${current * 100}% - ${current * gap}px))`, gap: `${gap}px` }"
@@ -65,22 +65,22 @@ function selectPoster(poster) {
             :style="{ gap: `${gap}px` }"
           >
             <a
-              v-for="poster in posters.slice((group - 1) * visible, group * visible)"
-              :key="poster.name"
-              class="poster cursor-pointer bg-[#2b2b2b] rounded-lg p-4 flex flex-col items-center hover:bg-[#FF7230] border-1 border-white transition-transform duration-300 flex-shrink-0"
-              :style="{ width: cardWidth }"
-              @click="selectPoster(poster)"
-            >
-              <div class="title text-lg font-bold mb-2 text-left w-full h-16 text-white">
-                {{ poster.name }}
-              </div>
-              <div class="w-full h-48 sm:h-64 overflow-hidden rounded">
-                <img
-                  :src="`/posters/${poster.file_path}`"
-                  :alt="poster.name"
-                  class="w-full h-full object-cover">
-              </div>
-            </a>
+                        v-for="poster in posters.slice((group - 1) * visible, group * visible)"
+            :key="poster.name"
+            class="poster cursor-pointer bg-[#2b2b2b] rounded-lg p-3 sm:p-4 flex flex-col items-center hover:bg-[#FF7230] border-1 border-white transition-transform duration-300 flex-shrink-0"
+            :style="{ width: cardWidth }"
+            @click="selectPoster(poster)"
+          >
+            <div class="title text-md font-bold mb-2 text-left w-full h-12 text-white">
+              {{ poster.name }}
+            </div>
+            <div class="w-full h-[60vw] sm:h-64 overflow-hidden rounded">
+              <img
+                :src="`/posters/${poster.file_path}`"
+                :alt="poster.name"
+                class="w-full h-full object-cover">
+            </div>
+          </a>
           </div>
         </div>
       </div>

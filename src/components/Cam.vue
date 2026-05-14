@@ -155,28 +155,32 @@ async function shot() {
 </script>
 
 <template>
-  <div class="relative w-full h-full flex flex-col items-center justify-center">
+  <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
     <div class="shotOverlay absolute w-full h-full z-2 bg-white"></div>
     <div 
       v-if="countDown > 0"
       class="flex justify-center items-center absolute top-0 left-0 w-full h-90 opacity-70 text-[#FF7230] text-[50vw] sm:text-[30vw] font-bold z-9999">
       {{ countDown }}
     </div>
-
-    <div class="relative z-10 flex flex-col items-center w-full">
-      <polaroid class="mb-8">
-        <video ref="video" class="cam object-cover"></video>
-      </polaroid>
+    <div class="relative z-10 flex flex-col items-center w-full px-4">
+      <!-- Contenitore polaroid con altezza massima su mobile -->
+      <div class="w-full max-w-sm max-h-[60vh] sm:max-h-none mb-4">
+        <polaroid>
+          <video ref="video" class="cam object-cover"></video>
+        </polaroid>
+      </div>
       <select v-model="selectedDevice" @change="changeCamera" class="mt-2 p-2 rounded text-white">
         <option v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId">
           {{ device.label || `Camera ${videoDevices.indexOf(device) + 1}` }}
         </option>
       </select>
-      <button class="btn-primary rounded-60 bg-[#FF7230] text-white w-fit mt-4 mb-16" @click="shotPrepare" :disabled="isUploading">
+      <button 
+        class="btn-primary rounded-60 bg-[#FF7230] text-white w-fit mt-4 mb-8" 
+        @click="shotPrepare" 
+        :disabled="isUploading">
         {{ isUploading ? 'Caricamento...' : 'Scatta' }}
       </button>
     </div>
-
   </div>
 </template>
 
