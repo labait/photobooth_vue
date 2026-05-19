@@ -1,15 +1,15 @@
 [
   {
-    "name": "Clockwork Orange",
-    "file_path": "./images/clockworkorange.jpg"
+    "name": "Uomo disperato",
+    "file_path": "./images/disperato.webp"
   },
   {
     "name": "Pulp Fiction",
     "file_path": "./images/pulp-fiction.webp"
   },
   {
-    "name": "Barbie Fairytopia",
-    "file_path": "./images/barbie-fairytopia.png"
+    "name": "Bacco",
+    "file_path": "./images/bacco.webp"
   },
   {
     "name": "Breaking Bad",
@@ -32,24 +32,24 @@
     "file_path": "./images/avatar.webp"
   },
   {
-    "name": "Indiana Jones",
-    "file_path": "./images/indiana-jones.jpg"
+    "name": "Dama con l'ermellino",
+    "file_path": "./images/ermellino.webp"
   },
   {
     "name": "Mamma ho perso l'aereo",
     "file_path": "./images/mamma.webp"
   },
    {
-    "name": "Maria Antonietta",
-    "file_path": "./images/maria.jpg"
+    "name": "Marilyn Monroe",
+    "file_path": "./images/marilyn.webp"
   },
    {
     "name": "Maleficent",
     "file_path": "./images/maleficent.webp"
   },
    {
-    "name": "Black Swan",
-    "file_path": "./images/cigno.jpg"
+    "name": "Autoritratto con collana di spine",
+    "file_path": "./images/collanadispine.webp"
   },
     {
     "name": "IT",
@@ -60,23 +60,23 @@
     "file_path": "./images/willy-wonka.webp"
      },
     {
-    "name": "Terminator III",
-    "file_path": "./images/terminator.jpg"
+    "name": "Autoritratto",
+    "file_path": "./images/vangogh.webp"
   },
     {
-    "name": "Il Grande Lebowski",
-    "file_path": "./images/lebowski.jpg"
+    "name": "Gioconda",
+    "file_path": "./images/gioconda.webp"
   },
     {
-    "name": "Per un pugno di dollari",
-    "file_path": "./images/pugno.jpg"
+    "name": "Ragazza col turbante",
+    "file_path": "./images/ragazzaconturbante.webp"
   },
     {
-    "name": "Il Padrino",
-    "file_path": "./images/padrino.jpg"
+    "name": "Ritratto di Napoleone",
+    "file_path": "./images/napoleone.webp"
   },
   {
-    "name": "Apocalypse Now",
-    "file_path": "./images/apocalipse.jpg"
+    "name": "Ritratto di Adele Bloch- Bauer I",
+    "file_path": "./images/adele.webp"
   }
 ]
