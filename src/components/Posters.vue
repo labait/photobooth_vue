@@ -9,7 +9,7 @@ const current = ref(0)
 const gap = 16
 const windowWidth = ref(window.innerWidth)
 const onResize = () => { windowWidth.value = window.innerWidth }
-onMounted(() => setCategory('film'))
+onMounted(() => setCategory('film', 'painting'))
 onMounted(() => window.addEventListener('resize', onResize))
 onUnmounted(() => window.removeEventListener('resize', onResize))
 
@@ -53,7 +53,7 @@ function selectPoster(poster) {
     <!-- Titolo -->
     <div class="flex items-center justify-center pt-4 pb-2">
       <h1 class="text-white font-bold text-2xl sm:text-3xl md:text-[2vw] text-center leading-tight">
-        Seleziona il tuo poster preferito:
+        Seleziona dove vuoi essere catapultato!
       </h1>
     </div>
 
