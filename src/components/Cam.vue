@@ -15,6 +15,7 @@ const selectedDevice = ref('');
 const isUploading = ref(false);
 
 const uploadImage = inject('uploadImage');
+const getResult = inject('getResult');
 
 const sound1 = new Audio('/click.mp3');
 const countDown = ref(0);
@@ -135,7 +136,9 @@ async function shot() {
     isUploading.value = true;
     const result = await uploadImage(image.value, imageId);
     if (result) {
-      console.log('Image processed successfully with result:', result);
+      console.log('Image processing started, waiting for result:', result);
+      // attende che Replicate finisca davvero (polling), il loader resta attivo
+      await getResult(global.value.docId);
       // go to detail page
       global.value.isUploading = false
       global.value.isLoading = false
