@@ -3,7 +3,7 @@ import { ref, inject, onMounted, onUnmounted } from 'vue'
 
 const getStorageUrl = inject('getStorageUrl')
 
-const maxItems = 10
+const maxItems = 50
 const images = ref([])
 const loaded = ref(false)
 
