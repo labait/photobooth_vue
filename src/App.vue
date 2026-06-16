@@ -1,4 +1,4 @@
-  <script setup>
+<script setup>
 import { ref, provide } from 'vue';
 
 import { storage, db } from './firebase'
@@ -88,41 +88,46 @@ const uploadImage = async (imageDataUrl, imageId) => {
 }
 
 
-const getResult = async (docId) => {
+const getResult = (docId) => {
   const maxChecks = 30;
-  const docRef = doc(db, 'items', docId)
-  const docData = await getDoc(docRef)
-  let checkCount = docData.check_count || 0;  
-  
-  // call process function
-  const getImageProcessedUrl = `/.netlify/functions/getImageProcessed?docId=${docId}`;
-  console.log(`getImageProcessedUrl ${docId}, checkCount ${checkCount}`, getImageProcessedUrl);
-  const response = await fetch(getImageProcessedUrl);
-  const data = await response.json()
-  console.log('getResult data', data)
 
-  checkCount = checkCount + 1;
-  await updateDoc(docRef, {
-    check_count: checkCount,
-  })
+  return new Promise((resolve) => {
+    const check = async () => {
+      const docRef = doc(db, 'items', docId)
+      const docData = await getDoc(docRef)
+      let checkCount = docData.check_count || 0;
 
-  if (data?.process_result?.status == "succeeded") {    
-    global.value.docData = data;
-    console.log('docData', data)
-  } else {
-    if (checkCount < maxChecks) {
-      setTimeout(() => {
-        getResult(docId)
-      }, 5000)
-    } else {
-      console.log(`failed to get result after ${maxChecks} checks`)
+      // call process function
+      const getImageProcessedUrl = `/.netlify/functions/getImageProcessed?docId=${docId}`;
+      console.log(`getImageProcessedUrl ${docId}, checkCount ${checkCount}`, getImageProcessedUrl);
+      const response = await fetch(getImageProcessedUrl);
+      const data = await response.json()
+      console.log('getResult data', data)
+
+      checkCount = checkCount + 1;
       await updateDoc(docRef, {
-        status: 'failed',
+        check_count: checkCount,
       })
+
+      if (data?.process_result?.status == "succeeded") {
+        global.value.docData = data;
+        console.log('docData', data)
+        resolve(data); // pronto: solo ora il chiamante riceve il risultato
+      } else {
+        if (checkCount < maxChecks) {
+          setTimeout(check, 5000) // riprova, senza risolvere ancora
+        } else {
+          console.log(`failed to get result after ${maxChecks} checks`)
+          await updateDoc(docRef, {
+            status: 'failed',
+          })
+          resolve(data); // si arrende dopo maxChecks, ma comunque risolve per non bloccare per sempre
+        }
+      }
     }
-  }
- 
-  return data;
+
+    check()
+  })
 }
 
 
