@@ -63,5 +63,14 @@ onMounted(async () => {
 }
 
 .loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 50;
+  background: #000;
+  opacity: 0.95;
+  overflow: hidden;
 }
 </style>
