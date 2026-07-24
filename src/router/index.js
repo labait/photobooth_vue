@@ -4,6 +4,7 @@ import TestComponent from '../components/TestComponent.vue'
 import List from '../components/List.vue'
 import Cam from '../components/Cam.vue'
 import Detail from '../components/Detail.vue'
+import Posters from '../components/Posters.vue'
 import Admin from '../components/Admin.vue'
 
 const routes = [
@@ -26,6 +27,11 @@ const routes = [
     path: '/list',
     name: 'list',
     component: List,
+  },
+  {
+    path: '/posters',
+    name: 'posters',
+    component: Posters,
   },
   {
     path: '/detail/:docId',

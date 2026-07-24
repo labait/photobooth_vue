@@ -8,7 +8,7 @@ const global = inject('global')
 const getStorageUrl = inject('getStorageUrl')
 
 const maxItems = 50
-const maxRotation = 30
+const maxRotation = 12
 const safePadding = 200
 const nextInterval = 226000
 const items = ref([])
@@ -80,7 +80,7 @@ const showPolaroid = (docId) => {
     currentPolaroid = document.getElementById(`item-${docId}`)
     if(currentPolaroid || currentPolaroid !== previousPolaroid) {
         hidePreviousPolaroid()
-        currentPolaroid.style.transform = `translate(0, 0) rotate(0deg) scale(1.5)`
+        currentPolaroid.style.transform = `translate(0, 0) rotate(0deg) scale(1.1)`
         currentPolaroid.style.zIndex = 2000
         currentPolaroid.classList.add('active')
         previousPolaroid = currentPolaroid
@@ -115,7 +115,7 @@ const clickPolaroid = (item) => {
 
 
 <template>
-    <div v-if="!global.isLoading" class="flex h-screen absolute top-0 left-0 w-full items-center justify-center polaroids">
+    <div v-if="!global.isLoading" class="flex h-screen absolute top-60px left-0 w-full items-center justify-center polaroids">
         <Polaroid v-for="item in items" :url="detailUrl(item.docId)" :key="item.docId" :id="`item-${item.docId}`" :data-image-id="item.image_id" class="polaroid" >
             <img :src="item.image_source" class="absolute top-0 left-0 w-full h-full object-cover block image-source" @click="clickPolaroid(item)" />
             <img :src="item.image_processed" class="absolute top-0 left-0 w-full h-full object-cover block image-processed" @click="clickPolaroid(item)" />
@@ -129,9 +129,10 @@ const clickPolaroid = (item) => {
 </template>
 
 <style>
-body {
-    /* overflow: hidden; */
-}
+
+ /* body {
+    overflow: hidden;
+} */
 
 .polaroid {
     .qrcode {
@@ -151,7 +152,6 @@ body {
     position: absolute;
     transition: transform 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 20px 20px rgba(0, 0, 0, 0.6);
 }
 
 .image-processed {

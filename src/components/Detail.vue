@@ -58,13 +58,7 @@ const print = () => {
 </script>
 
 <template>
-  <div class="">
-
-    <!-- Background -->
-    <img src="../assets/background.svg" class="hidden md:block absolute top-0 left-0 w-full h-full object-fit z-0 pointer-events-none px-4">
-    <img src="../assets/background-mobile.svg" class="block md:hidden absolute top-0 left-0 w-full h-full object-cover z-0 pointer-events-none">
-
-    <!-- Contenuto -->
+  <div class="relative w-full h-full flex flex-col items-center justify-center">
     <div v-if="global.docData" class="polaroids relative z-10 flex flex-col items-center justify-center overflow-visible print:py-16">
       <Polaroid class="original">
         <img :src="global.docData.image_source" class="w-full h-full object-cover block" />
@@ -78,7 +72,7 @@ const print = () => {
       </Polaroid>
       <Polaroid :url="detailUrl(docId)" class="processed mb-16 active">
         <img v-if="global.docData.image_processed" :src="global.docData.image_processed" class="w-full h-full object-cover block" />
-        <div v-else class="processing absolute p-3 top-0 left-0 w-full h-full flex flex-col items-center justify-center text-white">
+        <div v-else class="processing absolute p-3 top-0 left-0 w-full h-full flex flex-col items-center justify-center text-black">
           <p class="text-center font-bold text-xl">Elaborazione in corso</p>
           fai refresh o attendi qualche secondo...
         </div>
@@ -91,8 +85,6 @@ const print = () => {
         <button class="btn-primary" @click="print">Stampa</button>
       </div>
     </div>
-
-    <Debug :data="global.docData" v-if="global.isDebug()" />
   </div>
 </template>
 
@@ -119,7 +111,7 @@ const print = () => {
 
 @media only print and (min-width: 630px) {
   .polaroid {
-    transform: scale(1.3);
+    transform: scale(1.2);
   }
 }
 
@@ -141,7 +133,7 @@ const print = () => {
     margin-top: 0px;
     flex-direction: row;
     .original {
-      transform: translate(-10%, 0%) scale(0.7) rotate(-10deg);
+      transform: translate(-10%, 0%) scale(0.7);
       z-index: 1;
     }
 

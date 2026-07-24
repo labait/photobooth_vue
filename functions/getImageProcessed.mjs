@@ -32,6 +32,7 @@ export default async (request, context) => {
       && processResult.output
       && !docData.image_processed
     ) {
+      console.log("processResult", processResult)
       console.log("save image_processed", docData.image_id)
       const imageRef = storageRef(storage, `images/${docData.image_id}/${docData.image_id}-processed.png`)
       const imageResponse = await fetch(processResult.output);
