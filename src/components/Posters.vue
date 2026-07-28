@@ -14,14 +14,32 @@ const gap = 16
 const windowWidth = ref(window.innerWidth)
 const onResize = () => { windowWidth.value = window.innerWidth }
 
-const category = ref('film')
+const category = ref(null)
 const shuffledItems = ref([])
+
+const categoryLabels = {
+  film: 'Poster di film',
+  painting: 'Quadri',
+}
+
+const categories = computed(() => [
+  ...new Set(posters.value.map((p) => p.category).filter(Boolean)),
+])
+
+function categoryLabel(cat) {
+  return categoryLabels[cat] || cat
+}
 
 onMounted(async () => {
   window.addEventListener('resize', onResize)
   try {
     posters.value = await loadPosters()
-    setCategory('film')
+    const cats = categories.value
+    if (cats.length > 0) {
+      setCategory(cats[0])
+    } else {
+      shuffledItems.value = [...posters.value].sort(() => Math.random() - 0.5)
+    }
   } catch (err) {
     loadError.value = err.message
   } finally {
@@ -80,28 +98,19 @@ function selectPoster(poster) {
     </div>
 
     <template v-else>
-      <div class="flex justify-center items-center gap-3 my-3">
+      <div v-if="categories.length" class="flex justify-center items-center gap-3 my-3">
         <button
-          @click="setCategory('film')"
+          v-for="cat in categories"
+          :key="cat"
+          @click="setCategory(cat)"
           :class="[
             'px-5 py-2 rounded-full font-semibold text-sm transition-colors duration-300',
-            category === 'film'
+            category === cat
               ? 'bg-orange-400 text-white'
               : 'bg-[#2b2b2b] text-gray-300 hover:bg-[#3a3a3a]'
           ]"
         >
-        Poster di film
-        </button>
-        <button
-          @click="setCategory('painting')"
-          :class="[
-            'px-5 py-2 rounded-full font-semibold text-sm transition-colors duration-300',
-            category === 'painting'
-              ? 'bg-orange-400 text-white'
-              : 'bg-[#2b2b2b] text-gray-300 hover:bg-[#3a3a3a]'
-          ]"
-        >
-        Quadri
+          {{ categoryLabel(cat) }}
         </button>
       </div>
 
