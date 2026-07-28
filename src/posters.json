@@ -1,102 +1,102 @@
 [
   {
     "name": "Pulp Fiction",
-    "file_path": "./images/pulp-fiction.webp",
+    "file_path": "pulp-fiction.webp",
     "category": "film"
   },
   {
     "name": "Breaking Bad",
-    "file_path": "./images/breaking-bad.webp",
+    "file_path": "breaking-bad.webp",
     "category": "film"
   },
   {
     "name": "Harry Potter",
-    "file_path": "./images/harry-potter.webp",
+    "file_path": "harry-potter.webp",
     "category": "film"
   },
   {
     "name": "Il Silenzio Degli Innocenti",
-    "file_path": "./images/il-silenzio-degli-innocenti.webp",
+    "file_path": "il-silenzio-degli-innocenti.webp",
     "category": "film"
   },
   {
     "name": "Stranger Things",
-    "file_path": "./images/stranger-things.webp",
+    "file_path": "stranger-things.webp",
     "category": "film"
   },
   {
     "name": "Avatar",
-    "file_path": "./images/avatar.webp",
+    "file_path": "avatar.webp",
     "category": "film"
   },
   {
     "name": "Mamma ho perso l'aereo",
-    "file_path": "./images/mamma.webp",
+    "file_path": "mamma.webp",
     "category": "film"
   },
   {
     "name": "Marilyn Monroe",
-    "file_path": "./images/marilyn.webp",
+    "file_path": "marilyn.webp",
     "category": "painting"
   },
   {
     "name": "Maleficent",
-    "file_path": "./images/maleficent.webp",
+    "file_path": "maleficent.webp",
     "category": "film"
   },
   {
     "name": "IT",
-    "file_path": "./images/it.webp",
+    "file_path": "it.webp",
     "category": "film"
   },
   {
     "name": "La Fabbrica di Cioccolato",
-    "file_path": "./images/willy-wonka.webp",
+    "file_path": "willy-wonka.webp",
     "category": "film"
   },
   {
     "name": "Uomo disperato",
-    "file_path": "./images/disperato.webp",
+    "file_path": "disperato.webp",
     "category": "painting"
   },
   {
     "name": "Bacco",
-    "file_path": "./images/bacco.webp",
+    "file_path": "bacco.webp",
     "category": "painting"
   },
   {
     "name": "Dama con l'ermellino",
-    "file_path": "./images/ermellino.webp",
+    "file_path": "ermellino.webp",
     "category": "painting"
   },
   {
     "name": "Autoritratto con collana di spine",
-    "file_path": "./images/collanadispine.webp",
+    "file_path": "collanadispine.webp",
     "category": "painting"
   },
   {
     "name": "Autoritratto",
-    "file_path": "./images/vangogh.webp",
+    "file_path": "vangogh.webp",
     "category": "painting"
   },
   {
     "name": "Gioconda",
-    "file_path": "./images/gioconda.webp",
+    "file_path": "gioconda.webp",
     "category": "painting"
   },
   {
     "name": "Ragazza col turbante",
-    "file_path": "./images/ragazzaconturbante.webp",
+    "file_path": "ragazzaconturbante.webp",
     "category": "painting"
   },
   {
     "name": "Ritratto di Napoleone",
-    "file_path": "./images/napoleone.webp",
+    "file_path": "napoleone.webp",
     "category": "painting"
   },
   {
     "name": "Ritratto di Adele Bloch-Bauer I",
-    "file_path": "./images/adele.webp",
+    "file_path": "adele.webp",
     "category": "painting"
   }
 ]

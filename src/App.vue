@@ -10,6 +10,7 @@ import Footer from './components/Footer.vue'
 import Loading from './components/Loading.vue'
 import Auth from './components/Auth.vue'
 import Debug from './components/Debug.vue'
+import { posterServerPath } from './posters.js'
 
 
 const edition = import.meta.env.VITE_EDITION 
@@ -43,7 +44,9 @@ const getStorageUrl = async (str) => {
 
 const processImage = async (docId) => {
   // call process function with selected poster from list
-  const posterPath = global.value.poster?.file_path;
+  const posterPath = global.value.poster?.file_path
+    ? posterServerPath(global.value.poster.file_path)
+    : null;
   const processUrl = `/.netlify/functions/processImage?docId=${encodeURIComponent(docId)}${posterPath ? `&poster=${encodeURIComponent(posterPath)}` : ''}`;
   console.log('processUrl', processUrl);
   const response = await fetch(processUrl);

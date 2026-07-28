@@ -3,7 +3,8 @@ import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-import posters from '../../src/posters.json'
+import posters from '../posters.json'
+import { posterPublicUrl } from '../posters.js'
 posters.sort(() => Math.random() - 0.5)
 
 const global = inject('global')
@@ -44,7 +45,7 @@ function prev() {
   @click="() => { global.poster = poster; router.push('/cam'); }"
 >
   <div class="w-full flex-1 overflow-hidden rounded bg-black">
-    <img :src="`/posters/${poster.file_path}`" :alt="poster.name" class="w-full h-full object-contain" />
+    <img :src="posterPublicUrl(poster.file_path)" :alt="poster.name" class="w-full h-full object-contain" />
   </div>
   <div class="text-xs font-bold text-left w-full text-white leading-tight mt-2">{{ poster.name }}</div>
 </a>

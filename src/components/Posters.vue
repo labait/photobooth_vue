@@ -2,7 +2,8 @@
 import { ref, inject, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
-import posters from '../../src/posters.json'
+import posters from '../posters.json'
+import { posterPublicUrl } from '../posters.js'
 
 const global = inject('global')
 const current = ref(0)
@@ -113,7 +114,7 @@ function selectPoster(poster) {
               </div>
               <div class="w-full aspect-[2/3] overflow-hidden rounded">
                 <img
-                  :src="`/posters/${item.file_path}`"
+                  :src="posterPublicUrl(item.file_path)"
                   :alt="item.name"
                   class="w-full h-full object-cover"
                 >
