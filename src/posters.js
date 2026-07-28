@@ -1,5 +1,5 @@
-/** Cartella posters sotto public/posters/, configurabile per edizione */
-export const postersFolder = import.meta.env.VITE_POSTERS_FOLDER || 'synapses';
+/** Cartella posters sotto public/posters/, da VITE_EDITION */
+export const postersFolder = import.meta.env.VITE_EDITION || 'cronache_disorganiche';
 
 /**
  * Path pubblico per il browser: /posters/{folder}/{file}
