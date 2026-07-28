@@ -44,7 +44,7 @@ rm -rf "$(npm root -g)/netlify-cli"
 copy `.env.sample` to `.env` and set keys;
 a version is available in 1p here https://share.1password.com/s#GcYWm88k4NQKtz2vbq2BbHCnE0eGhnVnxOkNNOmS1rk
 
-Posters are stored under `public/posters/{folder}/`. Set `VITE_POSTERS_FOLDER` (default: `synapses`) to switch edition folder at build time.
+Posters live under `public/editions/{VITE_EDITION}/` with a `posters.json` listing the images in that folder. Set `VITE_EDITION` in `.env` (e.g. `cronache_disorganiche`).
 
 ## hosting
 the app is serverv via netlify at 

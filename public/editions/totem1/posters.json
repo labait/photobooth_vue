@@ -1,0 +1,252 @@
+[
+  {
+    "name": "Agnolo Bronzino",
+    "file_path": "Agnolo Bronzino .jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Agnolo Bronzino LucreziaMedici",
+    "file_path": "Agnolo Bronzino_LucreziaMedici.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Angelica Kauffmann",
+    "file_path": "Angelica Kauffmann.webp",
+    "category": "painting"
+  },
+  {
+    "name": "Annibale Carracci",
+    "file_path": "Annibale Carracci.webp",
+    "category": "painting"
+  },
+  {
+    "name": "Artemisia Gentileschi",
+    "file_path": "Artemisia Gentileschi.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Basquiat",
+    "file_path": "Basquiat.jpeg",
+    "category": "painting"
+  },
+  {
+    "name": "Basquiat",
+    "file_path": "Basquiat.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Caravaggio",
+    "file_path": "Caravaggio.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Caravaggio medusa",
+    "file_path": "Caravaggio_medusa.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Cézanne",
+    "file_path": "Cézanne.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Diego Velázquez",
+    "file_path": "Diego Velázquez.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Edgar Degas2",
+    "file_path": "Edgar Degas2.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "El Greco ritrattoJorgeManuel",
+    "file_path": "El_Greco_ritrattoJorgeManuel.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Élisabeth Vigée Le Brun",
+    "file_path": "Élisabeth Vigée Le Brun .jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Élisabeth Vigée Le Brun",
+    "file_path": "Élisabeth Vigée Le Brun.jpeg",
+    "category": "painting"
+  },
+  {
+    "name": "Gauguin",
+    "file_path": "Gauguin.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Gauguin2",
+    "file_path": "Gauguin2.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Giotto",
+    "file_path": "Giotto.png",
+    "category": "painting"
+  },
+  {
+    "name": "Höch1",
+    "file_path": "Höch1.png",
+    "category": "painting"
+  },
+  {
+    "name": "Höch2",
+    "file_path": "Höch2.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Höch3",
+    "file_path": "Höch3.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Johannes Vermeer The Girl With The Pearl Earring (1665)",
+    "file_path": "Johannes_Vermeer_The_Girl_With_The_Pearl_Earring_(1665).jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Kahlo",
+    "file_path": "Kahlo.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Lichtenstein",
+    "file_path": "Lichtenstein.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Lichtenstein2",
+    "file_path": "Lichtenstein2.png",
+    "category": "painting"
+  },
+  {
+    "name": "Magritte",
+    "file_path": "Magritte.jpeg",
+    "category": "painting"
+  },
+  {
+    "name": "Magritte",
+    "file_path": "Magritte.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Magritte2.jpg",
+    "file_path": "Magritte2.jpg.webp",
+    "category": "painting"
+  },
+  {
+    "name": "Morisot",
+    "file_path": "Morisot.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Mucha",
+    "file_path": "Mucha.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Paolo Veronese",
+    "file_path": "Paolo Veronese .jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Paolo Veronese2",
+    "file_path": "Paolo Veronese2 .jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Parmigianino",
+    "file_path": "Parmigianino.webp",
+    "category": "painting"
+  },
+  {
+    "name": "Parmigianino ritratto maschile",
+    "file_path": "Parmigianino_ritratto_maschile.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Renoir",
+    "file_path": "Renoir.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Renoir1",
+    "file_path": "Renoir1.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Sandro Botticelli 2",
+    "file_path": "Sandro Botticelli 2.avif",
+    "category": "painting"
+  },
+  {
+    "name": "Sandro Botticelli primavera",
+    "file_path": "Sandro Botticelli_primavera.avif",
+    "category": "painting"
+  },
+  {
+    "name": "Schiele2",
+    "file_path": "Schiele2.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Schiele3.jpg",
+    "file_path": "Schiele3.jpg.webp",
+    "category": "painting"
+  },
+  {
+    "name": "Schiele4.jpg",
+    "file_path": "Schiele4.jpg.webp",
+    "category": "painting"
+  },
+  {
+    "name": "Tiziano Vecellio 2",
+    "file_path": "Tiziano Vecellio 2.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Toulouse Lautrec",
+    "file_path": "Toulouse-Lautrec.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Toulouse Lautrec2",
+    "file_path": "Toulouse-Lautrec2.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "Warhol.jpg",
+    "file_path": "Warhol.jpg.webp",
+    "category": "painting"
+  },
+  {
+    "name": "William Hogarth",
+    "file_path": "William Hogarth .jpg",
+    "category": "painting"
+  },
+  {
+    "name": "ambrogio lorenzetti",
+    "file_path": "ambrogio-lorenzetti.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "picasso",
+    "file_path": "picasso.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "picasso3",
+    "file_path": "picasso3.jpg",
+    "category": "painting"
+  },
+  {
+    "name": "portrait de madame verninac jacques louis david",
+    "file_path": "portrait-de-madame-verninac-jacques-louis-david.jpg",
+    "category": "painting"
+  }
+]
