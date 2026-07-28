@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import SplashScreen from '../components/SplashScreen.vue'
-import TestComponent from '../components/TestComponent.vue'
+import TestView from '../components/TestView.vue'
 import List from '../components/List.vue'
 import Cam from '../components/Cam.vue'
 import Detail from '../components/Detail.vue'
@@ -16,7 +16,8 @@ const routes = [
   {
     path: '/test',
     name: 'test',
-    component: TestComponent
+    component: TestView,
+    meta: { requiresAuth: true },
   },
   {
     path: '/cam',
