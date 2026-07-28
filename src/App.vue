@@ -10,6 +10,7 @@ import Footer from './components/Footer.vue'
 import Loading from './components/Loading.vue'
 import Auth from './components/Auth.vue'
 import Debug from './components/Debug.vue'
+import Dialog from './components/Dialog.vue'
 import { posterServerPath } from './posters.js'
 
 
@@ -29,6 +30,7 @@ const global = ref({
     'list': true,
     'camera': true,
   },
+  dialog: {},
 })
 window.global = global; // for debug purposes
 
@@ -162,6 +164,7 @@ provide('getStorageUrl', getStorageUrl);
       <Footer />
     </div>
     <Debug v-if="global.isDebug()" />
+    <Dialog v-if="global.dialog.text != null" />
   </main>
 </template>
 
