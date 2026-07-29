@@ -19,15 +19,76 @@ const getResult = inject('getResult')
 const sound1 = new Audio('/click.mp3')
 const countDown = ref(0)
 
+const CAM_STORAGE_KEY = 'photobooth-cam-id'
+
+function getStoredCamId() {
+  return localStorage.getItem(CAM_STORAGE_KEY)
+}
+
+function findDevice(deviceId) {
+  return videoDevices.value.find((device) => device.deviceId === deviceId)
+}
+
+function resolveInitialCamId() {
+  const stored = getStoredCamId()
+
+  if (stored && findDevice(stored)) {
+    return { deviceId: stored, fromStorage: true, storedValue: stored }
+  }
+
+  if (stored) {
+    console.log('[cam] valore in localStorage non trovato tra i device:', stored)
+  }
+
+  if (videoDevices.value.length > 0) {
+    return {
+      deviceId: videoDevices.value[0].deviceId,
+      fromStorage: false,
+      storedValue: stored,
+    }
+  }
+
+  return null
+}
+
+async function selectCamera(deviceId, { source = 'code', fromStorage = false } = {}) {
+  const device = findDevice(deviceId)
+  if (!device) {
+    console.log('[cam] device non valido:', deviceId)
+    return
+  }
+
+  const storedBefore = getStoredCamId()
+  const index = videoDevices.value.indexOf(device)
+
+  selectedDevice.value = deviceId
+  localStorage.setItem(CAM_STORAGE_KEY, deviceId)
+
+  console.log('[cam] fotocamera selezionata:', {
+    deviceId,
+    label: deviceLabel(device, index),
+    source,
+    storedInLocalStorageBefore: storedBefore,
+    restoredFromStorage: fromStorage,
+  })
+
+  stopCamera()
+  await startCamera()
+}
+
 onMounted(async () => {
   if (!global.value.features.camera) {
     router.push('/')
     return
   }
   await getVideoDevices()
-  if (videoDevices.value.length > 0) {
-    selectedDevice.value = videoDevices.value[0].deviceId
-    await startCamera()
+
+  const initial = resolveInitialCamId()
+  if (initial) {
+    await selectCamera(initial.deviceId, {
+      source: initial.fromStorage ? 'localStorage' : 'default',
+      fromStorage: initial.fromStorage,
+    })
   }
 })
 
@@ -72,9 +133,8 @@ function stopCamera() {
   }
 }
 
-async function changeCamera() {
-  stopCamera()
-  await startCamera()
+async function onCameraSelectChange() {
+  await selectCamera(selectedDevice.value, { source: 'select' })
 }
 
 function deviceLabel(device, index) {
@@ -187,7 +247,7 @@ async function shot() {
             v-model="selectedDevice"
             class="cam-select"
             :disabled="isUploading"
-            @change="changeCamera"
+            @change="onCameraSelectChange"
           >
             <option
               v-for="(device, index) in videoDevices"

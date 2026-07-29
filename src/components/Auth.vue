@@ -93,7 +93,7 @@ onUnmounted(() => {
         <button
           type="button"
           @click="logout"
-          class="btn-secondary"
+          class="btn-btl-secondary cursor-pointer"
         >
           Esci
         </button>
@@ -103,7 +103,7 @@ onUnmounted(() => {
       <button
         type="button"
         @click="loginWithGoogle"
-        class="btn-secondary"
+        class="btn-btl-secondary cursor-pointer"
       >
         Accedi con Google
       </button>
