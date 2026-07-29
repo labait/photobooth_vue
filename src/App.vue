@@ -10,6 +10,8 @@ import Footer from './components/Footer.vue'
 import Loading from './components/Loading.vue'
 import Auth from './components/Auth.vue'
 import Debug from './components/Debug.vue'
+import Dialog from './components/Dialog.vue'
+import { posterServerPath } from './posters.js'
 
 
 const edition = import.meta.env.VITE_EDITION 
@@ -28,6 +30,9 @@ const global = ref({
     'list': true,
     'camera': true,
   },
+  dialog: {
+    text: null,
+  },
 })
 window.global = global; // for debug purposes
 
@@ -43,7 +48,9 @@ const getStorageUrl = async (str) => {
 
 const processImage = async (docId) => {
   // call process function with selected poster from list
-  const posterPath = global.value.poster?.file_path;
+  const posterPath = global.value.poster?.file_path
+    ? posterServerPath(global.value.poster.file_path)
+    : null;
   const processUrl = `/.netlify/functions/processImage?docId=${encodeURIComponent(docId)}${posterPath ? `&poster=${encodeURIComponent(posterPath)}` : ''}`;
   console.log('processUrl', processUrl);
   const response = await fetch(processUrl);
@@ -146,19 +153,18 @@ provide('getStorageUrl', getStorageUrl);
 </script>
 
 <template>
-  <main class="min-h-screen p-4 md:p-8">
-  <div class="flex flex-col max-w-screen mx-auto min-h-screen">
-      <Loading v-if="global.isLoading" />
-      <div class="flex justify-end w-full print:hidden z-30">
-        <div class="auth-btn">
-          <Auth/>
-        </div>
-      </div>
+  <main class="app-shell relative bg-[var(--page-bg)]">
+    <Loading v-if="global.isLoading" />
+    <div class="auth-btn z-40 print:hidden mb-8 mt-8 px-8 flex justify-end">
+      <Auth />
+    </div>
+    <div class="flex flex-col">
       <Header />
-      <router-view />
+      <router-view class="flex flex-1 flex-col" />
       <Footer />
     </div>
     <Debug v-if="global.isDebug()" />
+    <Dialog v-if="global.dialog.text != null" />
   </main>
 </template>
 

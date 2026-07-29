@@ -73,7 +73,8 @@ export default async (request, context) => {
         status: 400,
       })
     }
-    const posterUrl = `${process.env.URL}/posters/${normalizedPosterPath}`
+    const posterUrl = `${process.env.VITE_PUBLIC_URL}/editions/${normalizedPosterPath}`
+    console.log('posterUrl', posterUrl)
     const body = {
       "input": {
         "allow_fallback_model": false,
