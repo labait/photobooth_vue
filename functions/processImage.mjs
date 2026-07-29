@@ -61,13 +61,25 @@ export default async (request, context) => {
     }
     */
     const apiUrl = 'https://api.replicate.com/v1/models/google/nano-banana-pro/predictions';
-    const imageReerence = 'https://mbpromag.eu.ngrok.io/posters/images/clockwork-orange.jpg'
+    const posterPathRaw = url.searchParams.get('poster') || ''
+    const normalizedPosterPath = posterPathRaw
+      .replace(/^\.\//, '')
+      .replace(/^\/+/, '')
+      .replace(/\.\./g, '')
+    if (!normalizedPosterPath) {
+      return new Response(JSON.stringify({
+        error: 'Missing poster path',
+      }), {
+        status: 400,
+      })
+    }
+    const posterUrl = `${process.env.URL}/posters/${normalizedPosterPath}`
     const body = {
       "input": {
         "allow_fallback_model": false,
         "aspect_ratio": "4:5",
         "image_input": [
-          imageReerence,
+          posterUrl,
           imageUrl
         ],
         "output_format": "png",
@@ -90,6 +102,8 @@ export default async (request, context) => {
     );
     
     const result = await response.json();
+    console.log('Replicate status:', response.status);
+    console.log('Replicate result:', JSON.stringify(result, null, 2));
     data.result = result;
     // update doc with result
     await updateDoc(doc(db, 'items', docId), {

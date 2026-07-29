@@ -129,9 +129,10 @@ const clickPolaroid = (item) => {
 </template>
 
 <style>
-body {
-    /* overflow: hidden; */
-}
+
+ /* body {
+    overflow: hidden;
+} */
 
 .polaroid {
     .qrcode {

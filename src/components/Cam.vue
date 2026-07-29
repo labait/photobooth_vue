@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, inject } from 'vue';
+import { ref, onMounted, onUnmounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 
 import Header from './Header.vue';
@@ -31,12 +31,16 @@ onMounted(async () => {
   }
 });
 
+onUnmounted(() => {
+  stopCamera();
+});
+
 async function getVideoDevices() {
   try {
     const permission = await navigator.mediaDevices.getUserMedia({ video: true });
     const devices = await navigator.mediaDevices.enumerateDevices();
     videoDevices.value = devices.filter(device => device.kind === 'videoinput');
-    //console.log(videoDevices.value);
+    permission.getTracks().forEach(track => track.stop());
   } catch (error) {
     console.error('Error getting video devices:', error);
   }
@@ -61,12 +65,15 @@ async function startCamera() {
   }
 }
 
-async function changeCamera() {
+function stopCamera() {
   if (video.value && video.value.srcObject) {
-    const tracks = video.value.srcObject.getTracks();
-    tracks.forEach(track => track.stop());
+    video.value.srcObject.getTracks().forEach(track => track.stop());
+    video.value.srcObject = null;
   }
-  
+}
+
+async function changeCamera() {
+  stopCamera();
   await startCamera();
 }
 
@@ -128,7 +135,7 @@ async function shot() {
     isUploading.value = true;
     const result = await uploadImage(image.value, imageId);
     if (result) {
-    console.log('Image processed successfully with result:', result);
+      console.log('Image processed successfully with result:', result);
       // go to detail page
       global.value.isUploading = false
       global.value.isLoading = false
@@ -150,10 +157,10 @@ async function shot() {
 <template>
   <div class="relative w-full min-h-screen">
     <!-- Desktop: immagine originale -->
-<img src="../assets/background.svg" class="hidden sm:block absolute top-0 left-0 w-full h-full object-cover z-0">
+    <img src="../assets/background.svg" class="hidden sm:block absolute top-0 left-0 w-full h-full object-cover z-0">
 
-<!-- Mobile: immagine diversa o stessa ma con fit diverso -->
-<img src="../assets/background-mobile.svg" class="block sm:hidden absolute top-0 left-0 w-full h-full object-cover z-0 pointer-events-none">
+    <!-- Mobile: immagine diversa o stessa ma con fit diverso -->
+    <img src="../assets/background-mobile.svg" class="block sm:hidden absolute top-0 left-0 w-full h-full object-cover z-0 pointer-events-none">
 
     <div class="shotOverlay absolute top-0 left-0 w-full h-full z-2 bg-white"></div>
     <div 

@@ -42,10 +42,16 @@ const getStorageUrl = async (str) => {
 }
 
 const processImage = async (docId) => {
-  // call process function
-  const processUrl = `/.netlify/functions/processImage?docId=${docId}`;
+  // call process function with selected poster from list
+  const posterPath = global.value.poster?.file_path;
+  const processUrl = `/.netlify/functions/processImage?docId=${encodeURIComponent(docId)}${posterPath ? `&poster=${encodeURIComponent(posterPath)}` : ''}`;
   console.log('processUrl', processUrl);
   const response = await fetch(processUrl);
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Error processing image:', errorText);
+    return false;
+  }
   return true;
 }
 
