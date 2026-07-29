@@ -42,8 +42,8 @@ const positions = ['2%', '28%', '54%']
             left: positions[i],
           }"
         >
-          <Polaroid class="">
-            <img :src="item.image_processed" class="w-[30vw]" />
+          <Polaroid :style="{ '--polaroid-width': 'calc(30vw * 460 / 420)' }">
+            <img :src="item.image_processed" class="absolute inset-0 w-full h-full object-cover block" />
           </Polaroid>
         </div>
       </div>
