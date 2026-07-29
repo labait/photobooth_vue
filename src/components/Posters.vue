@@ -1,18 +1,21 @@
 <script setup>
-import { ref, inject, computed, onMounted, onUnmounted } from 'vue'
+import { ref, inject, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Navigation } from 'swiper/modules'
 import { loadPosters, posterPublicUrl } from '../posters.js'
+
+import 'swiper/css'
+import 'swiper/css/navigation'
 
 const router = useRouter()
 const global = inject('global')
 
+const modules = [Navigation]
+
 const posters = ref([])
 const isLoading = ref(true)
 const loadError = ref(null)
-const current = ref(0)
-const gap = 16
-const windowWidth = ref(window.innerWidth)
-const onResize = () => { windowWidth.value = window.innerWidth }
 
 const category = ref(null)
 const shuffledItems = ref([])
@@ -26,12 +29,20 @@ const categories = computed(() => [
   ...new Set(posters.value.map((p) => p.category).filter(Boolean)),
 ])
 
+const swiperKey = computed(() => `${category.value ?? 'all'}-${shuffledItems.value.length}`)
+
+/** slidesPerView per breakpoint — modifica qui */
+const swiperBreakpoints = {
+  0: { slidesPerView: 1, spaceBetween: 16 },
+  640: { slidesPerView: 3, spaceBetween: 16 },
+  1024: { slidesPerView: 4, spaceBetween: 16 },
+}
+
 function categoryLabel(cat) {
   return categoryLabels[cat] || cat
 }
 
 onMounted(async () => {
-  window.addEventListener('resize', onResize)
   try {
     posters.value = await loadPosters()
     const cats = categories.value
@@ -47,36 +58,11 @@ onMounted(async () => {
   }
 })
 
-onUnmounted(() => window.removeEventListener('resize', onResize))
-
 function setCategory(cat) {
   category.value = cat
-  current.value = 0
   shuffledItems.value = [...posters.value]
     .filter((p) => p.category === cat)
     .sort(() => Math.random() - 0.5)
-}
-
-const visible = computed(() => {
-  if (windowWidth.value < 640) return 1
-  if (windowWidth.value < 1024) return 3
-  return 5
-})
-
-const totalGroups = computed(() =>
-  Math.ceil(shuffledItems.value.length / visible.value) || 1,
-)
-
-const cardWidth = computed(() =>
-  `calc(${100 / visible.value}% - ${(gap * (visible.value - 1)) / visible.value}px)`,
-)
-
-function next() {
-  if (current.value < totalGroups.value - 1) current.value++
-}
-
-function prev() {
-  if (current.value > 0) current.value--
 }
 
 function selectPoster(poster) {
@@ -102,7 +88,7 @@ function selectPoster(poster) {
           v-for="cat in categories"
           :key="cat"
           type="button"
-          class="px-5 py-2 text-sm font-semibold transition-colors cursor-pointer"
+          class="cursor-pointer px-5 py-2 text-sm font-semibold transition-colors"
           :class="
             category === cat
               ? 'bg-[var(--btn-primary-color)] text-white'
@@ -127,62 +113,55 @@ function selectPoster(poster) {
       v-else
       class="carousel-band relative left-1/2 w-screen -translate-x-1/2 bg-[#2c2c2c] py-8 md:py-10 lg:py-12"
     >
-      <div class="relative mx-auto max-w-[1693px] px-4 sm:px-8 md:px-12">
+      <div class="posters-carousel relative mx-auto max-w-[1693px] px-4 sm:px-8 md:px-12">
         <button
           type="button"
-          class="carousel-nav carousel-nav-prev"
+          class="posters-carousel-prev carousel-nav carousel-nav-prev"
           aria-label="Poster precedenti"
-          :disabled="current === 0"
-          @click="prev"
         >
           ‹
         </button>
 
-        <div class="overflow-hidden px-10 sm:px-12 md:px-14">
-          <div
-            class="flex transition-transform duration-500 ease-in-out"
-            :style="{
-              transform: `translateX(calc(-${current * 100}% - ${current * gap}px))`,
-              gap: `${gap}px`,
-            }"
+        <Swiper
+          :key="swiperKey"
+          class="posters-swiper px-10 sm:px-12 md:px-14"
+          :modules="modules"
+          :breakpoints="swiperBreakpoints"
+          :navigation="{
+            prevEl: '.posters-carousel-prev',
+            nextEl: '.posters-carousel-next',
+          }"
+        >
+          <SwiperSlide
+            v-for="item in shuffledItems"
+            :key="item.file_path"
+            class="!h-auto"
           >
-            <div
-              v-for="group in totalGroups"
-              :key="group"
-              class="flex w-full shrink-0"
-              :style="{ gap: `${gap}px` }"
+            <button
+              type="button"
+              class="poster-card flex h-full w-full cursor-pointer flex-col rounded-xl bg-[#242424] p-3 text-left transition-colors duration-300 hover:bg-[var(--btn-primary-color)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--btn-primary-color)]"
+              @click="selectPoster(item)"
             >
-              <button
-                v-for="item in shuffledItems.slice((group - 1) * visible, group * visible)"
-                :key="item.file_path"
-                type="button"
-                class="poster-card flex shrink-0 cursor-pointer flex-col rounded-xl bg-[#242424] p-3 text-left transition-colors duration-300 hover:bg-[var(--btn-primary-color)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--btn-primary-color)]"
-                :style="{ width: cardWidth }"
-                @click="selectPoster(item)"
-              >
-                <div class="mb-2 flex min-h-[2.5rem] items-end sm:min-h-[3rem]">
-                  <p class="line-clamp-2 w-full text-left text-sm font-bold leading-snug text-white sm:text-base">
-                    {{ item.name }}
-                  </p>
-                </div>
-                <div class="aspect-[2/3] w-full overflow-hidden rounded-md">
-                  <img
-                    :src="posterPublicUrl(item.file_path)"
-                    :alt="item.name"
-                    class="block h-full w-full object-cover"
-                  >
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
+              <div class="mb-2 flex min-h-[2.5rem] items-end sm:min-h-[3rem]">
+                <p class="line-clamp-2 w-full text-left text-sm font-bold leading-snug text-white sm:text-base">
+                  {{ item.name }}
+                </p>
+              </div>
+              <div class="poster-image w-full overflow-hidden rounded-md">
+                <img
+                  :src="posterPublicUrl(item.file_path)"
+                  :alt="item.name"
+                  class="block h-full w-full object-cover"
+                >
+              </div>
+            </button>
+          </SwiperSlide>
+        </Swiper>
 
         <button
           type="button"
-          class="carousel-nav carousel-nav-next"
+          class="posters-carousel-next carousel-nav carousel-nav-next"
           aria-label="Poster successivi"
-          :disabled="current >= totalGroups - 1"
-          @click="next"
         >
           ›
         </button>
@@ -199,6 +178,27 @@ function selectPoster(poster) {
   overflow: hidden;
 }
 
+.poster-image {
+  aspect-ratio: 2 / 3;
+  min-height: 16rem;
+}
+
+@media (min-width: 640px) {
+  .poster-image {
+    min-height: 22rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .poster-image {
+    min-height: 27rem;
+  }
+}
+
+.posters-swiper :deep(.swiper-slide) {
+  height: auto;
+}
+
 .carousel-nav {
   position: absolute;
   top: 50%;
@@ -210,6 +210,8 @@ function selectPoster(poster) {
   color: white;
   cursor: pointer;
   transition: color 0.2s ease, opacity 0.2s ease;
+  border: none;
+  background: transparent;
 }
 
 @media (min-width: 640px) {
@@ -218,11 +220,11 @@ function selectPoster(poster) {
   }
 }
 
-.carousel-nav:hover:not(:disabled) {
+.carousel-nav:hover:not(.swiper-button-disabled) {
   color: var(--btn-primary-color);
 }
 
-.carousel-nav:disabled {
+.carousel-nav.swiper-button-disabled {
   cursor: not-allowed;
   opacity: 0.25;
 }

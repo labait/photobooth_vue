@@ -18,6 +18,7 @@
     "qrcode.vue": "^3.6.0",
     "replicate": "^1.0.1",
     "sharp": "^0.35.3",
+    "swiper": "^14.0.7",
     "vue": "^3.5.13",
     "vue-router": "^4.5.1"
   },
