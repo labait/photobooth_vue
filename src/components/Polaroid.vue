@@ -114,7 +114,7 @@ const qrcodeSize = computed(() =>
 <template>
   <div ref="polaroidRef" class="polaroid">
     <div ref="innerRef" class="polaroid-inner">
-      <a v-if="url" :href="url" class="qrcode block">
+      <a v-if="url" :href="url" class="qrcode block cursor-pointer">
         <qrcode-vue :value="url" :size="qrcodeSize" level="H" />
       </a>
       <slot />

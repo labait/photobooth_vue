@@ -65,7 +65,7 @@ const print = () => {
         <template v-slot:footer>
           <a 
             href="#"
-            class="w-full h-10 text-center hover:underline text-xl"
+            class="w-full h-10 text-center hover:underline text-xl cursor-pointer"
             @click="reProcess"
           >re-process</a>
         </template>

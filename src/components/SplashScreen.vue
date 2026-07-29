@@ -64,14 +64,14 @@ const rotations = [-17, 6, 12]
           <router-link
             v-if="global.features.camera"
             to="/posters"
-            class="btn-btl-primary"
+            class="btn-btl-primary cursor-pointer"
           >
             Scopri l'esperienza
           </router-link>
           <router-link
             v-if="global.features.list"
             to="/list"
-            class="btn-btl-secondary"
+            class="btn-btl-secondary cursor-pointer"
           >
             Vai alla raccolta
           </router-link>

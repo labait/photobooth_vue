@@ -102,7 +102,7 @@ function selectPoster(poster) {
           v-for="cat in categories"
           :key="cat"
           type="button"
-          class="px-5 py-2 text-sm font-semibold transition-colors"
+          class="px-5 py-2 text-sm font-semibold transition-colors cursor-pointer"
           :class="
             category === cat
               ? 'bg-[var(--btn-primary-color)] text-white'
@@ -223,7 +223,7 @@ function selectPoster(poster) {
 }
 
 .carousel-nav:disabled {
-  cursor: default;
+  cursor: not-allowed;
   opacity: 0.25;
 }
 

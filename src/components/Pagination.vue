@@ -36,7 +36,7 @@ function prev() {
 
     <template v-else>
       <div class="relative flex items-center">
-        <button @click="prev" class="absolute left-0 z-10 text-white text-5xl px-4 hover:text-orange-400 transition-colors">
+        <button @click="prev" class="absolute left-0 z-10 cursor-pointer text-white text-5xl px-4 transition-colors hover:text-orange-400">
           ‹
         </button>
 
@@ -60,7 +60,7 @@ function prev() {
           </div>
         </div>
 
-        <button @click="next" class="absolute right-0 z-10 text-white text-5xl px-4 hover:text-orange-400 transition-colors">
+        <button @click="next" class="absolute right-0 z-10 cursor-pointer text-white text-5xl px-4 transition-colors hover:text-orange-400">
           ›
         </button>
       </div>
@@ -70,7 +70,7 @@ function prev() {
           v-for="(_, index) in posters.slice(0, 10)"
           :key="index"
           @click="current = index"
-          class="w-2 h-2 rounded-full transition-colors duration-300"
+          class="h-2 w-2 cursor-pointer rounded-full transition-colors duration-300"
           :class="current === index ? 'bg-orange-400' : 'bg-gray-500'"
         ></button>
       </div>

@@ -165,7 +165,7 @@ onMounted(loadItems);
           <div class="flex gap-2 w-full">
             <router-link
               :to="`/detail/${item.id}`"
-              class="flex-1 min-w-0 aspect-square rounded overflow-hidden hover:ring-2 hover:ring-[#FF7230] transition-shadow"
+              class="flex-1 min-w-0 aspect-square rounded overflow-hidden hover:ring-2 hover:ring-[#FF7230] transition-shadow cursor-pointer"
             >
               <img
                 v-if="item.image_source_url"
