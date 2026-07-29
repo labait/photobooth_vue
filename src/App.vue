@@ -153,12 +153,12 @@ provide('getStorageUrl', getStorageUrl);
 </script>
 
 <template>
-  <main class="app-shell relative min-h-screen bg-[var(--page-bg)]">
+  <main class="app-shell relative bg-[var(--page-bg)]">
     <Loading v-if="global.isLoading" />
-    <div class="auth-btn fixed top-4 right-4 z-40 print:hidden">
+    <div class="auth-btn z-40 print:hidden mb-8 mt-8 px-8 flex justify-end">
       <Auth />
     </div>
-    <div class="flex min-h-screen flex-col">
+    <div class="flex flex-col">
       <Header />
       <router-view class="flex flex-1 flex-col" />
       <Footer />

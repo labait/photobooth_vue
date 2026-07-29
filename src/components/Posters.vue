@@ -53,7 +53,7 @@ function setCategory(cat) {
   category.value = cat
   current.value = 0
   shuffledItems.value = [...posters.value]
-    .filter(p => p.category === cat)
+    .filter((p) => p.category === cat)
     .sort(() => Math.random() - 0.5)
 }
 
@@ -63,17 +63,22 @@ const visible = computed(() => {
   return 5
 })
 
-const totalGroups = computed(() => Math.ceil(shuffledItems.value.length / visible.value))
+const totalGroups = computed(() =>
+  Math.ceil(shuffledItems.value.length / visible.value) || 1,
+)
+
 const cardWidth = computed(() =>
-  `calc(${100 / visible.value}% - ${(gap * (visible.value - 1)) / visible.value}px)`
+  `calc(${100 / visible.value}% - ${(gap * (visible.value - 1)) / visible.value}px)`,
 )
 
 function next() {
   if (current.value < totalGroups.value - 1) current.value++
 }
+
 function prev() {
   if (current.value > 0) current.value--
 }
+
 function selectPoster(poster) {
   global.value.poster = poster
   router.push('/cam')
@@ -81,94 +86,108 @@ function selectPoster(poster) {
 </script>
 
 <template>
-  <div class="posters-container w-full h-full flex flex-col justify-center px-2 sm:px-0">
-
-    <div class="flex items-center justify-center pt-4 pb-2">
-      <h1 class="text-white font-bold text-2xl sm:text-3xl md:text-[2vw] text-center leading-tight">
-        Seleziona dove vuoi essere catapultato!
+  <div class="posters-page flex flex-1 flex-col">
+    <div class="title-section px-4 pt-10 pb-8 md:pt-14 md:pb-10 lg:pt-16">
+      <h1
+        class="mx-auto max-w-4xl text-center text-3xl font-bold leading-tight tracking-tight text-[var(--text-primary)] sm:text-4xl md:text-5xl lg:text-[60px] lg:leading-[70px] lg:tracking-[-1.2px]"
+      >
+        Quale opera sceglierai?
       </h1>
-    </div>
 
-    <div v-if="isLoading" class="text-white/70 text-center py-12">
-      Caricamento poster...
-    </div>
-
-    <div v-else-if="loadError" class="text-red-400 text-center py-12">
-      {{ loadError }}
-    </div>
-
-    <template v-else>
-      <div v-if="categories.length" class="flex justify-center items-center gap-3 my-3">
+      <div
+        v-if="!isLoading && !loadError && categories.length > 1"
+        class="mt-6 flex flex-wrap items-center justify-center gap-3"
+      >
         <button
           v-for="cat in categories"
           :key="cat"
-          @click="setCategory(cat)"
-          :class="[
-            'px-5 py-2 rounded-full font-semibold text-sm transition-colors duration-300',
+          type="button"
+          class="px-5 py-2 text-sm font-semibold transition-colors"
+          :class="
             category === cat
-              ? 'bg-orange-400 text-white'
-              : 'bg-[#2b2b2b] text-gray-300 hover:bg-[#3a3a3a]'
-          ]"
+              ? 'bg-[var(--btn-primary-color)] text-white'
+              : 'bg-[var(--btn-secondary-bg)] text-[var(--text-primary)] hover:brightness-95'
+          "
+          @click="setCategory(cat)"
         >
           {{ categoryLabel(cat) }}
         </button>
       </div>
+    </div>
 
-      <div class="relative flex items-center py-2">
+    <div v-if="isLoading" class="px-4 py-16 text-center text-[var(--text-primary)]/60">
+      Caricamento poster...
+    </div>
+
+    <div v-else-if="loadError" class="px-4 py-16 text-center text-red-600">
+      {{ loadError }}
+    </div>
+
+    <section
+      v-else
+      class="carousel-band relative left-1/2 w-screen -translate-x-1/2 bg-[#2c2c2c] py-8 md:py-10 lg:py-12"
+    >
+      <div class="relative mx-auto max-w-[1693px] px-4 sm:px-8 md:px-12">
         <button
+          type="button"
+          class="carousel-nav carousel-nav-prev"
+          aria-label="Poster precedenti"
+          :disabled="current === 0"
           @click="prev"
-          class="absolute left-0 z-10 text-white text-4xl sm:text-5xl px-2 sm:px-4 hover:text-orange-400 transition-colors"
-        >‹</button>
+        >
+          ‹
+        </button>
 
-        <div class="overflow-hidden w-full px-8 sm:px-10">
+        <div class="overflow-hidden px-10 sm:px-12 md:px-14">
           <div
             class="flex transition-transform duration-500 ease-in-out"
-            :style="{ transform: `translateX(calc(-${current * 100}% - ${current * gap}px))`, gap: `${gap}px` }"
+            :style="{
+              transform: `translateX(calc(-${current * 100}% - ${current * gap}px))`,
+              gap: `${gap}px`,
+            }"
           >
             <div
               v-for="group in totalGroups"
               :key="group"
-              class="flex flex-shrink-0 w-full"
+              class="flex w-full shrink-0"
               :style="{ gap: `${gap}px` }"
             >
-              <a
+              <button
                 v-for="item in shuffledItems.slice((group - 1) * visible, group * visible)"
                 :key="item.file_path"
-                class="poster cursor-pointer bg-[#2b2b2b] rounded-lg p-3 flex flex-col items-center hover:bg-[#FF7230] border border-white/20 transition-colors duration-300 flex-shrink-0"
+                type="button"
+                class="poster-card flex shrink-0 cursor-pointer flex-col rounded-xl bg-[#242424] p-3 text-left transition-colors duration-300 hover:bg-[var(--btn-primary-color)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--btn-primary-color)]"
                 :style="{ width: cardWidth }"
                 @click="selectPoster(item)"
               >
-                <div class="text-sm sm:text-md font-bold mb-2 text-left w-full text-white line-clamp-2">
-                  {{ item.name }}
+                <div class="mb-2 flex min-h-[2.5rem] items-end sm:min-h-[3rem]">
+                  <p class="line-clamp-2 w-full text-left text-sm font-bold leading-snug text-white sm:text-base">
+                    {{ item.name }}
+                  </p>
                 </div>
-                <div class="w-full aspect-[2/3] overflow-hidden rounded">
+                <div class="aspect-[2/3] w-full overflow-hidden rounded-md">
                   <img
                     :src="posterPublicUrl(item.file_path)"
                     :alt="item.name"
-                    class="w-full h-full object-cover"
+                    class="block h-full w-full object-cover"
                   >
                 </div>
-              </a>
+              </button>
             </div>
           </div>
         </div>
 
         <button
+          type="button"
+          class="carousel-nav carousel-nav-next"
+          aria-label="Poster successivi"
+          :disabled="current >= totalGroups - 1"
           @click="next"
-          class="absolute right-0 z-10 text-white text-4xl sm:text-5xl px-2 sm:px-4 hover:text-orange-400 transition-colors"
-        >›</button>
+        >
+          ›
+        </button>
       </div>
-
-      <div class="flex justify-center gap-3 mt-4 pb-4">
-        <button
-          v-for="(_, index) in totalGroups"
-          :key="index"
-          @click="current = index"
-          class="w-2 h-2 rounded-full transition-colors duration-300"
-          :class="current === index ? 'bg-orange-400' : 'bg-gray-500'"
-        ></button>
-      </div>
-    </template>
+    </section>
   </div>
 </template>
 
@@ -178,5 +197,51 @@ function selectPoster(poster) {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.carousel-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  transform: translateY(-50%);
+  padding: 0 0.25rem;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: white;
+  cursor: pointer;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .carousel-nav {
+    font-size: 3rem;
+  }
+}
+
+.carousel-nav:hover:not(:disabled) {
+  color: var(--btn-primary-color);
+}
+
+.carousel-nav:disabled {
+  cursor: default;
+  opacity: 0.25;
+}
+
+.carousel-nav-prev {
+  left: 0.25rem;
+}
+
+.carousel-nav-next {
+  right: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .carousel-nav-prev {
+    left: 0.5rem;
+  }
+
+  .carousel-nav-next {
+    right: 0.5rem;
+  }
 }
 </style>

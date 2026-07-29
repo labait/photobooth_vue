@@ -9,7 +9,7 @@ defineProps({
 </script>
 
 <template>
-  <header class="site-header w-full px-[3.5%] pt-[5.8vh] pb-4 print:py-0">
+  <header class="site-header w-full px-[3.5%] pb-4 print:py-0">
     <div class="flex items-start justify-between gap-4">
       <router-link to="/" class="shrink-0">
         <img
