@@ -1,203 +1,310 @@
 <script setup>
-import { ref, onMounted, onUnmounted, inject } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, onUnmounted, inject } from 'vue'
+import { useRouter } from 'vue-router'
 
-import Header from './Header.vue';
-import polaroid from './Polaroid.vue';
+const router = useRouter()
+const global = inject('global')
 
-const router = useRouter();
+const video = ref(null)
+const canvas = ref(null)
+const image = ref(null)
+const videoDevices = ref([])
+const selectedDevice = ref('')
+const isUploading = ref(false)
+const shotOverlay = ref(null)
 
-const video = ref(null);
-const canvas = ref(null);
-const image = ref(null);
-const videoDevices = ref([]);
-const selectedDevice = ref('');
-const isUploading = ref(false);
+const uploadImage = inject('uploadImage')
+const getResult = inject('getResult')
 
-const uploadImage = inject('uploadImage');
-const getResult = inject('getResult');
-
-const sound1 = new Audio('/click.mp3');
-const countDown = ref(0);
-
+const sound1 = new Audio('/click.mp3')
+const countDown = ref(0)
 
 onMounted(async () => {
-  await getVideoDevices();
+  if (!global.value.features.camera) {
+    router.push('/')
+    return
+  }
+  await getVideoDevices()
   if (videoDevices.value.length > 0) {
-    selectedDevice.value = videoDevices.value[0].deviceId;
-    await startCamera();
+    selectedDevice.value = videoDevices.value[0].deviceId
+    await startCamera()
   }
-  if(!global.value.features.camera) {
-    router.push('/');
-  }
-});
+})
 
 onUnmounted(() => {
-  stopCamera();
-});
+  stopCamera()
+})
 
 async function getVideoDevices() {
   try {
-    const permission = await navigator.mediaDevices.getUserMedia({ video: true });
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    videoDevices.value = devices.filter(device => device.kind === 'videoinput');
-    permission.getTracks().forEach(track => track.stop());
+    const permission = await navigator.mediaDevices.getUserMedia({ video: true })
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    videoDevices.value = devices.filter((device) => device.kind === 'videoinput')
+    permission.getTracks().forEach((track) => track.stop())
   } catch (error) {
-    console.error('Error getting video devices:', error);
+    console.error('Error getting video devices:', error)
   }
 }
 
 async function startCamera() {
-  if (!selectedDevice.value) return;
-  
+  if (!selectedDevice.value) return
+
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
-        deviceId: selectedDevice.value ? { exact: selectedDevice.value } : undefined
-      }
-    });
-    
+        deviceId: selectedDevice.value ? { exact: selectedDevice.value } : undefined,
+      },
+    })
+
     if (video.value) {
-      video.value.srcObject = stream;
-      video.value.play();
+      video.value.srcObject = stream
+      await video.value.play()
     }
   } catch (error) {
-    console.error('Error accessing camera:', error);
+    console.error('Error accessing camera:', error)
   }
 }
 
 function stopCamera() {
-  if (video.value && video.value.srcObject) {
-    video.value.srcObject.getTracks().forEach(track => track.stop());
-    video.value.srcObject = null;
+  if (video.value?.srcObject) {
+    video.value.srcObject.getTracks().forEach((track) => track.stop())
+    video.value.srcObject = null
   }
 }
 
 async function changeCamera() {
-  stopCamera();
-  await startCamera();
+  stopCamera()
+  await startCamera()
+}
+
+function deviceLabel(device, index) {
+  return device.label || `Fotocamera ${index + 1}`
 }
 
 async function shotPrepare() {
-  countDown.value = global.value.isDebug() ? 1 : global.value.countDownSeconds;
-  const showCount = () => {
-    console.log(countDown.value);
-  }
-  showCount();
+  if (isUploading.value) return
+
+  countDown.value = global.value.isDebug() ? 1 : global.value.countDownSeconds
   const interval = setInterval(() => {
-    countDown.value--;
-    showCount();
-    if (countDown.value == 0) {
-      clearInterval(interval);
-      document.querySelector('.shotOverlay').style.opacity = '1';
-      setTimeout(() => {
-        document.querySelector('.shotOverlay').style.opacity = '0';
-      }, 300);
-      shot();
+    countDown.value -= 1
+    if (countDown.value === 0) {
+      clearInterval(interval)
+      if (shotOverlay.value) {
+        shotOverlay.value.style.opacity = '1'
+        setTimeout(() => {
+          if (shotOverlay.value) shotOverlay.value.style.opacity = '0'
+        }, 300)
+      }
+      shot()
     }
-  }, 1000);
+  }, 1000)
 }
 
-
 async function shot() {
-  if(!global.value.isDebug()) sound1.play();
-  //return; // debug
-  if (!video.value) return;
+  if (!global.value.isDebug()) sound1.play()
+  if (!video.value) return
 
-  const imageId = `${new Date().getTime()}`
+  const imageId = `${Date.now()}`
   const imageExtension = 'jpg'
-  const imageFilename = `${imageId}.${imageExtension}`
-  
-  // Create canvas if it doesn't exist
+
   if (!canvas.value) {
-    canvas.value = document.createElement('canvas');
+    canvas.value = document.createElement('canvas')
   }
-  
-  // Set canvas dimensions to match video
-  canvas.value.width = video.value.videoWidth;
-  canvas.value.height = video.value.videoHeight;
-  
-  // Draw current video frame to canvas
-  const ctx = canvas.value.getContext('2d');
-  ctx.drawImage(video.value, 0, 0, canvas.value.width, canvas.value.height);
-  
-  // Get image as data URL
-  image.value = canvas.value.toDataURL(`image/${imageExtension}`);
-  
-  // Download a local copy
-  if(global.value.isDebug()) {
-    const link = document.createElement('a');
-    link.download = `${imageFilename}`;
-    link.href = image.value;
-    link.click();
+
+  canvas.value.width = video.value.videoWidth
+  canvas.value.height = video.value.videoHeight
+
+  const ctx = canvas.value.getContext('2d')
+  ctx.drawImage(video.value, 0, 0, canvas.value.width, canvas.value.height)
+  image.value = canvas.value.toDataURL(`image/${imageExtension}`)
+
+  if (global.value.isDebug()) {
+    const link = document.createElement('a')
+    link.download = `${imageId}.${imageExtension}`
+    link.href = image.value
+    link.click()
   }
-  
+
   try {
-    isUploading.value = true;
-    const result = await uploadImage(image.value, imageId);
+    isUploading.value = true
+    global.value.isLoading = true
+    const result = await uploadImage(image.value, imageId)
     if (result) {
-      console.log('Image processing started, waiting for result:', result);
-      // attende che Replicate finisca davvero (polling), il loader resta attivo
-      await getResult(global.value.docId);
-      // go to detail page
-      global.value.isUploading = false
-      global.value.isLoading = false
-      router.push(`/detail/${global.value.docId}`);
-    } else {
-      console.error('Error processing image');
+      await getResult(global.value.docId)
+      router.push(`/detail/${global.value.docId}`)
     }
-    
-    isUploading.value = false;
-    global.value.isLoading = false
   } catch (error) {
-    console.error('Error processing image:', error);
-    isUploading.value = false;
+    console.error('Error processing image:', error)
+  } finally {
+    isUploading.value = false
     global.value.isLoading = false
   }
 }
 </script>
 
 <template>
-  <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
-    <div class="shotOverlay absolute w-full h-full z-2 bg-white"></div>
-    <div 
+  <section class="cam-page relative flex flex-1 flex-col items-center justify-center px-4 py-8 md:py-10">
+    <div
+      ref="shotOverlay"
+      class="shot-overlay pointer-events-none absolute inset-0 z-20 bg-white"
+      aria-hidden="true"
+    />
+
+    <div
       v-if="countDown > 0"
-      class="flex justify-center items-center absolute top-0 left-0 w-full h-90 opacity-70 text-[#FF7230] text-[50vw] sm:text-[30vw] font-bold z-9999">
+      class="absolute inset-0 z-30 flex items-center justify-center text-[#FF7230] text-[40vw] font-bold opacity-80 sm:text-[20vw]"
+      aria-live="polite"
+    >
       {{ countDown }}
     </div>
-    <div class="relative z-10 flex flex-col items-center w-full px-4">
-      <!-- Contenitore polaroid con altezza massima su mobile -->
-      <div class="w-full max-w-sm max-h-[60vh] sm:max-h-none mb-4">
-        <polaroid>
-          <video ref="video" class="cam object-cover"></video>
-        </polaroid>
+
+    <div class="relative z-10 flex w-full max-w-lg flex-col items-center gap-6 md:gap-8">
+      <div
+        class="cam-frame relative w-full max-w-[483px] bg-white shadow-[0px_18px_13px_-14px_rgba(0,0,0,0.05),0px_30px_20px_-20px_rgba(0,0,0,0.05)]"
+        style="aspect-ratio: 483 / 627"
+      >
+        <div class="cam-viewport absolute bg-black">
+          <video
+            ref="video"
+            class="cam h-full w-full object-cover"
+            autoplay
+            playsinline
+            muted
+          />
+        </div>
       </div>
-      <select v-model="selectedDevice" @change="changeCamera" class="mt-2 p-2 rounded text-white">
-        <option v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId">
-          {{ device.label || `Camera ${videoDevices.indexOf(device) + 1}` }}
-        </option>
-      </select>
-      <button 
-        class="btn-primary rounded-60 bg-[#FF7230] text-white w-fit mt-4 mb-8" 
-        @click="shotPrepare" 
-        :disabled="isUploading">
-        {{ isUploading ? 'Caricamento...' : 'Scatta' }}
-      </button>
+
+      <div
+        v-if="videoDevices.length > 0"
+        class="cam-select-field w-full max-w-md"
+      >
+        <label for="cam-device" class="cam-select-label">
+          Fotocamera
+        </label>
+        <div class="cam-select-wrap">
+          <select
+            id="cam-device"
+            v-model="selectedDevice"
+            class="cam-select"
+            :disabled="isUploading || videoDevices.length === 0"
+            @change="changeCamera"
+          >
+            <option
+              v-for="(device, index) in videoDevices"
+              :key="device.deviceId"
+              :value="device.deviceId"
+            >
+              {{ deviceLabel(device, index) }}
+            </option>
+          </select>
+        </div>
+        <p v-if="videoDevices.length === 1" class="cam-select-hint">
+          È disponibile una sola fotocamera su questo dispositivo.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-5">
+        <router-link
+          to="/posters"
+          class="btn-btl-secondary cursor-pointer"
+          :class="{ 'pointer-events-none opacity-50': isUploading }"
+        >
+          Torna indietro
+        </router-link>
+        <button
+          type="button"
+          class="btn-btl-primary cursor-pointer"
+          :disabled="isUploading || !selectedDevice"
+          @click="shotPrepare"
+        >
+          {{ isUploading ? 'Caricamento...' : 'Scatta' }}
+        </button>
+      </div>
     </div>
-  </div>
+  </section>
 </template>
 
-
 <style scoped>
-.cam {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scaleX(-1); /* Mirror the webcam image horizontally */
+.cam-viewport {
+  top: 5.58%;
+  left: 7.04%;
+  width: 86.13%;
+  height: 82.78%;
 }
-.shotOverlay {
+
+.cam {
+  transform: scaleX(-1);
+}
+
+.shot-overlay {
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
+}
+
+.cam-select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cam-select-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.cam-select-wrap {
+  position: relative;
+}
+
+.cam-select-wrap::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  width: 0.5rem;
+  height: 0.5rem;
   pointer-events: none;
+  border-right: 2px solid var(--text-primary);
+  border-bottom: 2px solid var(--text-primary);
+  transform: translateY(-65%) rotate(45deg);
+}
+
+.cam-select {
+  width: 100%;
+  appearance: none;
+  border: 1px solid #d4d4d4;
+  border-radius: 0;
+  background-color: #fff;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 0.875rem 2.75rem 0.875rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cam-select:hover:not(:disabled) {
+  border-color: #a3a3a3;
+}
+
+.cam-select:focus {
+  outline: none;
+  border-color: var(--btn-primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 114, 48, 0.2);
+}
+
+.cam-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: #f5f5f5;
+}
+
+.cam-select-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: color-mix(in srgb, var(--text-primary) 60%, transparent);
 }
 </style>
