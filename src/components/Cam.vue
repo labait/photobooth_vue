@@ -175,7 +175,7 @@ async function shot() {
       </div>
 
       <div
-        v-if="videoDevices.length > 0"
+        v-if="videoDevices.length > 1"
         class="cam-select-field w-full max-w-md"
       >
         <label for="cam-device" class="cam-select-label">
@@ -186,7 +186,7 @@ async function shot() {
             id="cam-device"
             v-model="selectedDevice"
             class="cam-select"
-            :disabled="isUploading || videoDevices.length === 0"
+            :disabled="isUploading"
             @change="changeCamera"
           >
             <option
@@ -198,9 +198,6 @@ async function shot() {
             </option>
           </select>
         </div>
-        <p v-if="videoDevices.length === 1" class="cam-select-hint">
-          È disponibile una sola fotocamera su questo dispositivo.
-        </p>
       </div>
 
       <div class="flex flex-wrap items-center justify-center gap-5">
@@ -300,11 +297,5 @@ async function shot() {
   cursor: not-allowed;
   opacity: 0.6;
   background-color: #f5f5f5;
-}
-
-.cam-select-hint {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: color-mix(in srgb, var(--text-primary) 60%, transparent);
 }
 </style>
