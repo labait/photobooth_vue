@@ -74,19 +74,19 @@ onUnmounted(() => {
         />
         <div
           v-else
-          class="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center text-white text-md font-medium"
+          class="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center text-[var(--text-primary)] text-md font-medium"
         >
           {{ (user.displayName || user.email || '?')[0].toUpperCase() }}
         </div>
         <div class="hidden sm:block text-left">
-          <p class="text-white text-md font-medium truncate max-w-[120px]">
+          <p class="text-[var(--text-primary)] text-md font-medium truncate max-w-[120px]">
             {{ user.displayName || user.email }}
           </p>
         </div>
         <router-link
           v-if="isAdmin"
           to="/admin"
-          class="cursor-pointer px-2 py-1 text-md text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors"
+          class="cursor-pointer px-2 py-1 text-md text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] hover:bg-black/5 rounded transition-colors"
         >
           Admin
         </router-link>

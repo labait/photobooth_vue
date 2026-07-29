@@ -4,6 +4,10 @@
     :root {
         --btn-primary-color: #FF7230;
         --btn-primary-color-hover: #ff7230/80;
+        --page-bg: #f1f1f1;
+        --text-primary: #201c28;
+        --btn-secondary-bg: #cfcfcf;
+        --btn-secondary-text: #201c28;
     }
 
     .btn-primary {
@@ -37,12 +41,40 @@
         sm:text-base 
         whitespace-nowrap
 
-        bg-white
-        text-black
-        hover:bg-white/80
+        bg-[var(--btn-secondary-bg)]
+        text-[var(--btn-secondary-text)]
+        hover:brightness-95
         ;
         
         cursor: pointer;
+    }
+
+    .btn-btl-primary,
+    .btn-btl-secondary {
+        @apply
+        font-semibold
+        transition-colors
+        w-fit
+        px-5
+        py-2
+        text-base
+        sm:text-lg
+        whitespace-nowrap
+        tracking-tight
+        hover:brightness-95
+        ;
+        border-radius: 0;
+        cursor: pointer;
+    }
+
+    .btn-btl-primary {
+        background-color: var(--btn-primary-color);
+        color: white;
+    }
+
+    .btn-btl-secondary {
+        background-color: var(--btn-secondary-bg);
+        color: var(--btn-secondary-text);
     }
     
 
@@ -66,5 +98,6 @@
 
 
 body {
-  background-color: #2b2b2b;
+  background-color: var(--page-bg);
+  color: var(--text-primary);
 }
