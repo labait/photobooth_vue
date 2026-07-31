@@ -1,5 +1,5 @@
 <script setup>
-import { ref, provide, onMounted, watch } from 'vue';
+import { ref, provide, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 import { storage, db } from './firebase'
@@ -16,6 +16,7 @@ import MaintenanceNotice from './components/MaintenanceNotice.vue'
 import { posterServerPath } from './posters.js'
 import { isTrue } from './composables/useUtils'
 import { useAuth } from './composables/useAuth'
+import { useGenerationCounts } from './composables/useGenerationCounts'
 
 
 const router = useRouter()
@@ -26,8 +27,15 @@ const edition = import.meta.env.VITE_EDITION
 const urlParams = new URLSearchParams(window.location.search);
 
 const LOCALSTORE_PREFIX = import.meta.env.VITE_LOCALSTORE_KEY_PREFIX || 'photobooth_'
-const LIMIT_NUMBER = Number(import.meta.env.VITE_LIMIT_NUMBER)
-const LIMIT_TIMEFRAME = Number(import.meta.env.VITE_LIMIT_TIMEFRAME)
+const LIMIT_USER_NUMBER = Number(import.meta.env.VITE_LIMIT_USER_NUMBER)
+const LIMIT_USER_TIMEFRAME = Number(import.meta.env.VITE_LIMIT_USER_TIMEFRAME)
+const LIMIT_TOTAL_NUMBER = Number(import.meta.env.VITE_LIMIT_TOTAL_NUMBER)
+const LIMIT_TOTAL_TIMEFRAME = Number(import.meta.env.VITE_LIMIT_TOTAL_TIMEFRAME)
+const limitAdminOverride = isTrue(import.meta.env.VITE_LIMIT_ADMIN_OVERRIDE)
+
+function limitsBypassedForAdmin() {
+  return limitAdminOverride && isAdmin.value
+}
 
 function storeValue(key, value = null) {
   const storageKey = `${LOCALSTORE_PREFIX}${key}`
@@ -53,39 +61,65 @@ function generationsInWindow(raw, windowStartMs) {
 
 function recordGeneration() {
   const now = Date.now()
-  const windowStart = now - (LIMIT_TIMEFRAME || 0) * 1000
+  const windowStart = now - (LIMIT_USER_TIMEFRAME || 0) * 1000
   const raw = storeValue('generations') ?? ''
-  const timestamps = LIMIT_TIMEFRAME
+  const timestamps = LIMIT_USER_TIMEFRAME
     ? generationsInWindow(raw, windowStart)
     : parseGenerations(raw)
   timestamps.push(now)
   storeValue('generations', timestamps.join(','))
+  generationCounts.refreshUserCount()
 }
 
-function validateLimit() {
-  const raw = storeValue('generations') ?? ''
-  const windowStart = LIMIT_TIMEFRAME ? Date.now() - LIMIT_TIMEFRAME * 1000 : 0
-  const timestamps = LIMIT_TIMEFRAME
-    ? generationsInWindow(raw, windowStart)
-    : parseGenerations(raw)
-  const count = timestamps.length; +100 // debug  
-
-  console.log('[validateLimit]', count, timestamps)
-
-  if (!LIMIT_NUMBER || !LIMIT_TIMEFRAME) return true
-
-  if (count < LIMIT_NUMBER) return true
-
+function showLimitDialog(title, limitNumber, limitTimeframe) {
   global.value.dialog = {
-    title: 'Limite raggiunto',
-    text: `max ${LIMIT_NUMBER} generazioni in ${LIMIT_TIMEFRAME} secondi`,
+    title,
+    text: `max ${limitNumber} generazioni in ${limitTimeframe} secondi`,
     confirmText: 'OK',
     onConfirm: () => {
       global.value.dialog = {}
       router.push('/')
     },
   }
-  return false
+}
+
+function validateLimitUser() {
+  if (limitsBypassedForAdmin()) return true
+
+  const raw = storeValue('generations') ?? ''
+  const windowStart = LIMIT_USER_TIMEFRAME ? Date.now() - LIMIT_USER_TIMEFRAME * 1000 : 0
+  const timestamps = LIMIT_USER_TIMEFRAME
+    ? generationsInWindow(raw, windowStart)
+    : parseGenerations(raw)
+  const count = timestamps.length
+
+  console.log('[validateLimitUser]', count, timestamps)
+
+  if (!LIMIT_USER_TIMEFRAME) return true
+  if (!LIMIT_USER_NUMBER && LIMIT_USER_NUMBER !== 0) return true
+
+  if (count >= LIMIT_USER_NUMBER) {
+    showLimitDialog('Limite utente raggiunto', LIMIT_USER_NUMBER, LIMIT_USER_TIMEFRAME)
+    return false
+  }
+
+  return true
+}
+
+function validateLimitTotal() {
+  const count = global.value.generations_count_total_window
+
+  console.log('[validateLimitTotal]', count)
+
+  if (!LIMIT_TOTAL_TIMEFRAME) return true
+  if (!LIMIT_TOTAL_NUMBER && LIMIT_TOTAL_NUMBER !== 0) return true
+
+  if (count >= LIMIT_TOTAL_NUMBER) {
+    showLimitDialog('Limite totale raggiunto', LIMIT_TOTAL_NUMBER, LIMIT_TOTAL_TIMEFRAME)
+    return false
+  }
+
+  return true
 }
 
 const global = ref({
@@ -102,16 +136,35 @@ const global = ref({
     'camera': true,
   },
   dialog: {},
+  generations_count_user: 0,
+  generations_count_total: 0,
+  generations_count_daily: 0,
+  generations_count_total_window: 0,
   storeValue,
-  validateLimit,
+  validateLimitUser,
+  validateLimitTotal,
   recordGeneration,
 })
 window.global = global; // for debug purposes
+
+const generationCounts = useGenerationCounts({
+  global,
+  edition,
+  parseGenerations,
+  storeValue,
+  storageKeyPrefix: LOCALSTORE_PREFIX,
+  limitTotalTimeframe: LIMIT_TOTAL_TIMEFRAME,
+})
 
 onMounted(() => {
   if (storeValue('generations') === null) {
     storeValue('generations', '')
   }
+  generationCounts.init()
+})
+
+onUnmounted(() => {
+  generationCounts.destroy()
 })
 
 watch([isAdmin, authReady, () => route.path], () => {

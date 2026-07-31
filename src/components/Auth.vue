@@ -1,11 +1,13 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, inject } from 'vue';
 import { useRoute } from 'vue-router';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { useAuth } from '../composables/useAuth';
+import { toPlain } from '../composables/useUtils';
 
 const route = useRoute();
+const global = inject('global');
 const { user, isAdmin, authReady } = useAuth();
 const error = ref(null);
 const showLogin = computed(() => 'login' in route.query);
@@ -26,6 +28,10 @@ const logout = async () => {
   } catch (err) {
     console.error('Errore logout:', err);
   }
+};
+
+const logGlobal = () => {
+  console.log(toPlain(global.value));
 };
 </script>
 
@@ -61,6 +67,14 @@ const logout = async () => {
         >
           Admin
         </router-link>
+        <button
+          v-if="isAdmin"
+          type="button"
+          class="cursor-pointer px-2 py-1 text-md text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] hover:bg-black/5 rounded transition-colors"
+          @click="logGlobal"
+        >
+          debug
+        </button>
         <button
           type="button"
           @click="logout"

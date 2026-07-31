@@ -95,7 +95,7 @@ onMounted(async () => {
     router.push('/')
     return
   }
-  if (!global.value.validateLimit()) {
+  if (!global.value.validateLimitUser() || !global.value.validateLimitTotal()) {
     return
   }
   refreshConsentsAccepted()
