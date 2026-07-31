@@ -1,6 +1,6 @@
 <script setup>
-import { ref, provide, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, provide, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 import { storage, db } from './firebase'
 import { ref as storageRef, uploadString, uploadBytes, getDownloadURL } from 'firebase/storage'
@@ -12,10 +12,16 @@ import Loading from './components/Loading.vue'
 import Auth from './components/Auth.vue'
 import Debug from './components/Debug.vue'
 import Dialog from './components/Dialog.vue'
+import MaintenanceNotice from './components/MaintenanceNotice.vue'
 import { posterServerPath } from './posters.js'
+import { isTrue } from './composables/useUtils'
+import { useAuth } from './composables/useAuth'
 
 
 const router = useRouter()
+const route = useRoute()
+const { isAdmin, authReady } = useAuth()
+const maintenanceActive = isTrue(import.meta.env.VITE_MAINTENANCE)
 const edition = import.meta.env.VITE_EDITION
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -105,6 +111,17 @@ window.global = global; // for debug purposes
 onMounted(() => {
   if (storeValue('generations') === null) {
     storeValue('generations', '')
+  }
+})
+
+watch([isAdmin, authReady, () => route.path], () => {
+  if (
+    maintenanceActive &&
+    authReady.value &&
+    isAdmin.value &&
+    route.path === '/maintenance'
+  ) {
+    router.replace('/')
   }
 })
 
@@ -232,8 +249,12 @@ provide('getStorageUrl', getStorageUrl);
 
 <template>
   <main class="app-shell relative flex min-h-screen flex-col bg-[var(--page-bg)]">
+    <MaintenanceNotice v-if="maintenanceActive && isAdmin" />
     <Loading v-if="global.isLoading && $route.path !== '/admin'" />
-    <div class="auth-btn z-40 print:hidden mb-8 mt-8 px-8 flex justify-end">
+    <div
+      class="auth-btn print:hidden mb-8 mt-8 px-8 flex justify-end"
+      :class="maintenanceActive ? 'relative z-[210]' : 'z-40'"
+    >
       <Auth />
     </div>
     <div class="flex flex-1 flex-col">

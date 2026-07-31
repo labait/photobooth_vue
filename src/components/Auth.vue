@@ -1,28 +1,14 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, googleProvider, db } from '../firebase';
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { signInWithPopup, signOut } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
+import { useAuth } from '../composables/useAuth';
 
-const user = ref(null);
-const isLoading = ref(true);
+const route = useRoute();
+const { user, isAdmin, authReady } = useAuth();
 const error = ref(null);
-const isAdmin = ref(false);
-
-const ensureAccountExists = async (uid) => {
-  const accountRef = doc(db, 'accounts', uid);
-  const accountSnap = await getDoc(accountRef);
-  if (!accountSnap.exists()) {
-    await setDoc(accountRef, {
-      uid,
-      roles: [],
-    });
-    isAdmin.value = false;
-  } else {
-    const data = accountSnap.data();
-    isAdmin.value = Array.isArray(data?.roles) && data.roles.includes('admin');
-  }
-};
+const showLogin = computed(() => 'login' in route.query);
 
 const loginWithGoogle = async () => {
   try {
@@ -41,26 +27,11 @@ const logout = async () => {
     console.error('Errore logout:', err);
   }
 };
-
-let unsubscribe;
-onMounted(() => {
-  unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-    user.value = firebaseUser;
-    isLoading.value = false;
-    if (firebaseUser) {
-      await ensureAccountExists(firebaseUser.uid);
-    }
-  });
-});
-
-onUnmounted(() => {
-  if (unsubscribe) unsubscribe();
-});
 </script>
 
 <template>
-  <div class="auth-wrapper flex items-center gap-3">
-    <template v-if="isLoading">
+  <div v-if="user || showLogin" class="auth-wrapper flex items-center gap-3">
+    <template v-if="!authReady">
       <div class="w-8 h-8 rounded-full bg-white/20 animate-pulse" />
     </template>
     <template v-else-if="user">
