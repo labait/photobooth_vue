@@ -3,7 +3,7 @@ import { ref, inject, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation } from 'swiper/modules'
-import { loadPosters, posterPublicUrl } from '../posters.js'
+import { loadPosters, posterPublicUrl } from '../images.js'
 
 import 'swiper/css'
 import 'swiper/css/navigation'

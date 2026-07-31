@@ -44,7 +44,7 @@ rm -rf "$(npm root -g)/netlify-cli"
 copy `.env.sample` to `.env` and set keys;
 a version is available in 1p here https://share.1password.com/s#GcYWm88k4NQKtz2vbq2BbHCnE0eGhnVnxOkNNOmS1rk
 
-Posters live under `public/editions/{VITE_EDITION}/` with a `posters.json` listing the images in that folder. Set `VITE_EDITION` in `.env` (e.g. `cronache_disorganiche`).
+Posters live under `public/editions/{VITE_EDITION}/images/` with an `images.json` listing in the edition folder. Set `VITE_EDITION` in `.env` (e.g. `cronache_disorganiche`).
 
 ## Firebase rules
 
