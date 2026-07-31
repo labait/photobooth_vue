@@ -3,9 +3,11 @@ import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
 import Consents from './Consents.vue'
+import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
 const global = inject('global')
+const { waitForAuth } = useAuth()
 
 const video = ref(null)
 const canvas = ref(null)
@@ -95,7 +97,8 @@ onMounted(async () => {
     router.push('/')
     return
   }
-  if (!global.value.validateLimitUser() || !global.value.validateLimitTotal()) {
+  await waitForAuth()
+  if (!global.value.validateLimits()) {
     return
   }
   refreshConsentsAccepted()
@@ -182,6 +185,8 @@ async function shotPrepare() {
 }
 
 async function shot() {
+  if (!global.value.validateLimits()) return
+
   if (!global.value.isDebug()) sound1.play()
   if (!video.value) return
 

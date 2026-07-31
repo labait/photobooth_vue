@@ -33,10 +33,6 @@ const LIMIT_TOTAL_NUMBER = Number(import.meta.env.VITE_LIMIT_TOTAL_NUMBER)
 const LIMIT_TOTAL_TIMEFRAME = Number(import.meta.env.VITE_LIMIT_TOTAL_TIMEFRAME)
 const limitAdminOverride = isTrue(import.meta.env.VITE_LIMIT_ADMIN_OVERRIDE)
 
-function limitsBypassedForAdmin() {
-  return limitAdminOverride && isAdmin.value
-}
-
 function storeValue(key, value = null) {
   const storageKey = `${LOCALSTORE_PREFIX}${key}`
   const isRead = arguments.length < 2 || value === null
@@ -83,43 +79,38 @@ function showLimitDialog(title, limitNumber, limitTimeframe) {
   }
 }
 
-function validateLimitUser() {
-  if (limitsBypassedForAdmin()) return true
+function checkLimit(count, limitNumber, limitTimeframe, title) {
+  if (!limitTimeframe) return true
+  if (!limitNumber && limitNumber !== 0) return true
+  if (count < limitNumber) return true
+  if (limitAdminOverride && isAdmin.value) return true
 
+  showLimitDialog(title, limitNumber, limitTimeframe)
+  return false
+}
+
+function validateLimitUser() {
   const raw = storeValue('generations') ?? ''
   const windowStart = LIMIT_USER_TIMEFRAME ? Date.now() - LIMIT_USER_TIMEFRAME * 1000 : 0
-  const timestamps = LIMIT_USER_TIMEFRAME
+  const count = (LIMIT_USER_TIMEFRAME
     ? generationsInWindow(raw, windowStart)
     : parseGenerations(raw)
-  const count = timestamps.length
+  ).length
 
-  console.log('[validateLimitUser]', count, timestamps)
-
-  if (!LIMIT_USER_TIMEFRAME) return true
-  if (!LIMIT_USER_NUMBER && LIMIT_USER_NUMBER !== 0) return true
-
-  if (count >= LIMIT_USER_NUMBER) {
-    showLimitDialog('Limite utente raggiunto', LIMIT_USER_NUMBER, LIMIT_USER_TIMEFRAME)
-    return false
-  }
-
-  return true
+  return checkLimit(count, LIMIT_USER_NUMBER, LIMIT_USER_TIMEFRAME, 'Limite utente raggiunto')
 }
 
 function validateLimitTotal() {
-  const count = global.value.generations_count_total_window
+  return checkLimit(
+    global.value.generations_count_total_window,
+    LIMIT_TOTAL_NUMBER,
+    LIMIT_TOTAL_TIMEFRAME,
+    'Limite totale raggiunto'
+  )
+}
 
-  console.log('[validateLimitTotal]', count)
-
-  if (!LIMIT_TOTAL_TIMEFRAME) return true
-  if (!LIMIT_TOTAL_NUMBER && LIMIT_TOTAL_NUMBER !== 0) return true
-
-  if (count >= LIMIT_TOTAL_NUMBER) {
-    showLimitDialog('Limite totale raggiunto', LIMIT_TOTAL_NUMBER, LIMIT_TOTAL_TIMEFRAME)
-    return false
-  }
-
-  return true
+function validateLimits() {
+  return validateLimitUser() && validateLimitTotal()
 }
 
 const global = ref({
@@ -136,6 +127,7 @@ const global = ref({
     'camera': true,
   },
   dialog: {},
+  env: {},
   generations_count_user: 0,
   generations_count_total: 0,
   generations_count_daily: 0,
@@ -143,6 +135,7 @@ const global = ref({
   storeValue,
   validateLimitUser,
   validateLimitTotal,
+  validateLimits,
   recordGeneration,
 })
 window.global = global; // for debug purposes
@@ -156,6 +149,14 @@ const generationCounts = useGenerationCounts({
   limitTotalTimeframe: LIMIT_TOTAL_TIMEFRAME,
 })
 
+function syncEnvForAdmin() {
+  global.value.env = authReady.value && isAdmin.value
+    ? Object.fromEntries(
+        Object.entries(import.meta.env).filter(([key]) => key.startsWith('VITE_'))
+      )
+    : {}
+}
+
 onMounted(() => {
   if (storeValue('generations') === null) {
     storeValue('generations', '')
@@ -166,6 +167,8 @@ onMounted(() => {
 onUnmounted(() => {
   generationCounts.destroy()
 })
+
+watch([isAdmin, authReady], syncEnvForAdmin, { immediate: true })
 
 watch([isAdmin, authReady, () => route.path], () => {
   if (
@@ -316,7 +319,7 @@ provide('getStorageUrl', getStorageUrl);
       <Footer />
     </div>
     <Debug v-if="global.isDebug()" />
-    <Dialog v-if="global.dialog.text != null" />
+    <Dialog v-if="global.dialog.title != null || global.dialog.text != null" />
   </main>
 </template>
 
