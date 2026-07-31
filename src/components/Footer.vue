@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <footer class="site-footer pointer-events-none print:hidden">
+  <footer class="site-footer flex justify-center px-4 py-6 sm:py-8 print:hidden">
     <img
       src="../assets/btl/think-make-future.png"
       alt="Think Make Future"
@@ -10,12 +10,3 @@
     />
   </footer>
 </template>
-
-<style scoped>
-.site-footer {
-  position: fixed;
-  right: 5%;
-  bottom: 6%;
-  z-index: 1;
-}
-</style>
