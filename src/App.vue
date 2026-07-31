@@ -110,12 +110,17 @@ onMounted(() => {
 
 
 const getStorageUrl = async (str) => {
-  if(!str) return null;
-  const url = str.split('\/o\/')[1].split("?")[0].replaceAll("%2F", "/")
-  const imageRef = storageRef(storage, url)
-  const storageUrl = await getDownloadURL(imageRef)
-  console.log(storageUrl)
-  return storageUrl
+  if (!str) return null;
+  // URL già risolto in Firestore: usalo così com'è (evita lookup ridondante sul bucket EU)
+  if (str.startsWith('http://') || str.startsWith('https://')) {
+    return str;
+  }
+  try {
+    const imageRef = storageRef(storage, str);
+    return await getDownloadURL(imageRef);
+  } catch {
+    return null;
+  }
 }
 
 const processImage = async (docId) => {

@@ -1,7 +1,5 @@
 <script setup>
-import { ref, inject, onMounted, onUnmounted } from 'vue'
-
-const getStorageUrl = inject('getStorageUrl')
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const maxItems = 50
 const images = ref([])
@@ -20,9 +18,7 @@ onMounted(async () => {
     }
 
     const sample = data.slice(0, maxItems)
-    images.value = await Promise.all(
-      sample.map(item => getStorageUrl(item.image_processed))
-    )
+    images.value = sample.map(item => item.image_processed).filter(Boolean)
   } catch (e) {
     console.error('Errore nel caricamento delle immagini di anteprima', e)
   } finally {
@@ -41,7 +37,7 @@ onMounted(async () => {
         :key="index"
         class="slide flex-shrink-0 w-40 sm:w-52 aspect-[2/3] rounded-lg overflow-hidden border border-white/20"
       >
-        <img :src="src" class="w-full h-full object-cover" />
+        <img :src="src" class="w-full h-full object-cover" @error="$event.target.parentElement?.remove()" />
       </div>
     </div>
 

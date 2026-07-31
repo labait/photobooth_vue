@@ -42,8 +42,11 @@ onMounted(async () => {
             image_processed: await getStorageUrl(item.image_processed)
         }
     }))
+    items.value = items.value.filter(item => item.image_processed)
     global.value.isLoading = false
-    
+
+    if (!items.value.length) return
+
     // setup the polaroids
     setTimeout(() => {
         setupPolaroids()
