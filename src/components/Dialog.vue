@@ -44,14 +44,14 @@ function onCancel() {
           <button
             v-if="global.dialog.onCancel != null"
             type="button"
-            class="btn btn-secondary !inline-flex max-w-none w-auto px-5 py-2.5 text-xs"
+            class="btn btn-secondary !inline-flex max-w-none w-auto px-5 py-2.5 "
             @click="onCancel"
           >
             {{ global.dialog.cancelText ?? 'Annulla' }}
           </button>
           <button
             type="button"
-            class="btn btn-primary !inline-flex max-w-none w-auto px-5 py-2.5 text-xs"
+            class="btn btn-primary !inline-flex max-w-none w-auto px-5 py-2.5 "
             @click="onConfirm"
           >
             {{ global.dialog.confirmText ?? 'OK' }}

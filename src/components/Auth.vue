@@ -107,7 +107,7 @@ onUnmounted(() => {
       >
         Accedi con Google
       </button>
-      <p v-if="error" class="text-red-400 text-xs">{{ error }}</p>
+      <p v-if="error" class="text-red-400 ">{{ error }}</p>
     </template>
   </div>
 </template>

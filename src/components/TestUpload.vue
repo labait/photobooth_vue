@@ -180,7 +180,7 @@ const reset = () => {
     </p>
 
     <div class="mb-6 p-4 rounded-lg bg-white/5 border border-white/10">
-      <p class="text-xs text-white/60 mb-2">Frame di riferimento</p>
+      <p class=" text-white/60 mb-2">Frame di riferimento</p>
       <img :src="framePath" alt="Frame" class="w-full max-w-xs mx-auto block" />
     </div>
 
@@ -237,7 +237,7 @@ const reset = () => {
     </div>
 
     <div v-if="previewDataUrl" class="mb-4">
-      <p class="text-xs text-white/60 mb-2">Anteprima sorgente</p>
+      <p class=" text-white/60 mb-2">Anteprima sorgente</p>
       <img :src="previewDataUrl" alt="Anteprima" class="w-full max-w-xs mx-auto rounded-lg" />
       <button type="button" class="text-white/60  mt-2 hover:text-white cursor-pointer" @click="reset">
         Cambia immagine
@@ -258,7 +258,7 @@ const reset = () => {
     <div v-if="resultUrl" class="p-4 rounded-lg bg-white/5 border border-white/10">
       <p class=" font-medium mb-3">Risultato composizione</p>
       <img :src="resultUrl" alt="Risultato" class="w-full max-w-md mx-auto rounded-lg" />
-      <p v-if="route.query.path" class="text-xs text-white/50 mt-3 break-all">
+      <p v-if="route.query.path" class=" text-white/50 mt-3 break-all">
         Path: {{ route.query.path }}
       </p>
     </div>

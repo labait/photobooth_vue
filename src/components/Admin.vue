@@ -6,23 +6,66 @@ import { ref as storageRef, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import Pagination from './Pagination.vue';
 
+const EDITION_STORE_KEY = 'admin-filter-edition';
+
 const route = useRoute();
 const router = useRouter();
+const global = inject('global');
 const getStorageUrl = inject('getStorageUrl');
 
-const items = ref([]);
+const allItems = ref([]);
+const selectedEdition = ref(null);
 const isLoading = ref(true);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
+const editions = computed(() => {
+  const byEdition = new Map();
+
+  for (const item of allItems.value) {
+    const edition = item.edition ?? '';
+    const ts = item.timestamp?.toMillis?.() ?? 0;
+    const existing = byEdition.get(edition);
+
+    if (!existing || ts > existing.latestTs) {
+      byEdition.set(edition, { edition, latestTs: ts });
+    }
+  }
+
+  return [...byEdition.values()]
+    .sort((a, b) => b.latestTs - a.latestTs)
+    .map(({ edition }) => edition);
+});
+
+const filteredItems = computed(() => {
+  if (selectedEdition.value === null) return allItems.value;
+  return allItems.value.filter(
+    (item) => (item.edition ?? '') === selectedEdition.value
+  );
+});
+
 const totalPages = computed(() =>
-  Math.ceil(items.value.length / itemsPerPage) || 1
+  Math.ceil(filteredItems.value.length / itemsPerPage) || 1
 );
 
 const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
-  return items.value.slice(start, start + itemsPerPage);
+  return filteredItems.value.slice(start, start + itemsPerPage);
 });
+
+const editionLabel = (edition) => edition || '—';
+
+const initEditionFilter = () => {
+  const list = editions.value;
+  if (!list.length) {
+    selectedEdition.value = null;
+    return;
+  }
+
+  const stored = global.value.storeValue(EDITION_STORE_KEY);
+  selectedEdition.value =
+    stored !== null && list.includes(stored) ? stored : list[0];
+};
 
 const goToPage = (page) => {
   const pageNum = Math.max(1, Math.min(page, totalPages.value));
@@ -52,6 +95,25 @@ const getImageUrl = async (urlOrPath) => {
   }
 };
 
+const syncPageFromUrl = () => {
+  const pageFromUrl = parseInt(route.query.page, 10);
+  if (
+    !isNaN(pageFromUrl) &&
+    pageFromUrl >= 1 &&
+    pageFromUrl <= totalPages.value
+  ) {
+    currentPage.value = pageFromUrl;
+  } else if (route.query.page !== undefined) {
+    currentPage.value = 1;
+    router.replace({
+      path: '/admin',
+      query: totalPages.value > 1 ? { page: 1 } : {},
+    });
+  } else if (totalPages.value > 1) {
+    router.replace({ path: '/admin', query: { page: 1 } });
+  }
+};
+
 const loadItems = async () => {
   isLoading.value = true;
   const snapshot = await getDocs(collection(db, 'items'));
@@ -60,7 +122,7 @@ const loadItems = async () => {
     ...d.data(),
   }));
 
-  items.value = await Promise.all(
+  allItems.value = await Promise.all(
     rawItems.map(async (item) => ({
       ...item,
       image_source_url: await getImageUrl(item.image_source) ?? item.image_source,
@@ -68,31 +130,47 @@ const loadItems = async () => {
     }))
   );
 
-  items.value.sort((a, b) => {
+  allItems.value.sort((a, b) => {
     const ta = a.timestamp?.toMillis?.() ?? 0;
     const tb = b.timestamp?.toMillis?.() ?? 0;
     return tb - ta;
   });
 
+  initEditionFilter();
   isLoading.value = false;
-
-  const pageFromUrl = parseInt(route.query.page, 10);
-  if (!isNaN(pageFromUrl) && pageFromUrl >= 1 && pageFromUrl <= totalPages.value) {
-    currentPage.value = pageFromUrl;
-  } else if (route.query.page !== undefined) {
-    currentPage.value = 1;
-    router.replace({ path: '/admin', query: totalPages.value > 1 ? { page: 1 } : {} });
-  } else if (totalPages.value > 1) {
-    router.replace({ path: '/admin', query: { page: 1 } });
-  }
+  syncPageFromUrl();
 };
+
+watch(selectedEdition, (value) => {
+  if (value === null || isLoading.value) return;
+  global.value.storeValue(EDITION_STORE_KEY, value);
+  currentPage.value = 1;
+  router.replace({
+    path: '/admin',
+    query: totalPages.value > 1 ? { page: 1 } : {},
+  });
+});
+
+watch(editions, (list) => {
+  if (!list.length) {
+    selectedEdition.value = null;
+    return;
+  }
+  if (!list.includes(selectedEdition.value)) {
+    selectedEdition.value = list[0];
+  }
+});
 
 watch(
   () => route.query.page,
   (pageParam) => {
-    if (!pageParam || items.value.length === 0) return;
+    if (!pageParam || filteredItems.value.length === 0) return;
     const pageNum = parseInt(pageParam, 10);
-    if (pageNum >= 1 && pageNum <= totalPages.value && pageNum !== currentPage.value) {
+    if (
+      pageNum >= 1 &&
+      pageNum <= totalPages.value &&
+      pageNum !== currentPage.value
+    ) {
       currentPage.value = pageNum;
     }
   }
@@ -133,7 +211,7 @@ const deleteItem = async (item) => {
       }
     }
 
-    items.value = items.value.filter((i) => i.id !== item.id);
+    allItems.value = allItems.value.filter((i) => i.id !== item.id);
   } catch (err) {
     console.error('Errore eliminazione:', err);
     alert('Errore durante l\'eliminazione');
@@ -146,11 +224,28 @@ onMounted(loadItems);
 <template>
   <div class="admin container mx-auto w-full max-w-7xl px-[3.5%] py-6 sm:py-8">
     <header class="mb-6 sm:mb-8">
-      <h1 class="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
-        Admin
-      </h1>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 mb-4">
+        <h1 class="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
+          Admin
+        </h1>
+        <select
+          v-if="!isLoading && editions.length"
+          v-model="selectedEdition"
+          class="w-full sm:w-auto sm:min-w-[200px] rounded-lg border border-black/10 bg-white px-3 py-2  font-medium text-[var(--text-primary)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
+          aria-label="Filtra per edition"
+        >
+          <option
+            v-for="edition in editions"
+            :key="edition"
+            :value="edition"
+          >
+            {{ editionLabel(edition) }}
+          </option>
+        </select>
+      </div>
       <p v-if="!isLoading" class="mt-1  text-[var(--text-primary)]/60">
-        {{ items.length }} elementi
+        {{ filteredItems.length }} elementi
+        <span v-if="selectedEdition !== null"> · {{ editionLabel(selectedEdition) }}</span>
       </p>
     </header>
 
@@ -163,10 +258,10 @@ onMounted(loadItems);
 
     <template v-else>
       <p
-        v-if="items.length === 0"
+        v-if="filteredItems.length === 0"
         class="py-16 text-center text-[var(--text-primary)]/60"
       >
-        Nessun elemento.
+        Nessun elemento per questa edition.
       </p>
 
       <template v-else>
@@ -201,7 +296,7 @@ onMounted(loadItems);
                   />
                   <span
                     v-else
-                    class="flex h-full min-h-[80px] items-center justify-center text-xs text-[var(--text-primary)]/40"
+                    class="flex h-full min-h-[80px] items-center justify-center  text-[var(--text-primary)]/40"
                   >
                     —
                   </span>
@@ -221,7 +316,7 @@ onMounted(loadItems);
                   />
                   <span
                     v-else
-                    class="flex h-full min-h-[80px] items-center justify-center text-xs text-[var(--text-primary)]/40"
+                    class="flex h-full min-h-[80px] items-center justify-center  text-[var(--text-primary)]/40"
                   >
                     —
                   </span>
@@ -234,12 +329,11 @@ onMounted(loadItems);
               <div class="flex flex-wrap items-center gap-2">
                 <span
                   v-if="item.status"
-                  class="inline-block rounded px-2 py-0.5 text-xs font-medium"
+                  class="inline-block rounded px-2 py-0.5  font-medium"
                   :class="statusClass(item.status)"
                 >
                   {{ item.status }}
                 </span>
-                <span class="text-[var(--text-primary)]/60">{{ item.edition || '—' }}</span>
               </div>
             </div>
 
