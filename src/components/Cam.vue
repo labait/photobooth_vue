@@ -301,7 +301,7 @@ async function shot() {
 
       <button
         type="button"
-        class="text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 cursor-pointer"
+        class=" text-neutral-600 underline underline-offset-2 hover:text-neutral-900 cursor-pointer"
         @click="openConsents"
       >
         Informativa privacy

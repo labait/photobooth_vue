@@ -8,10 +8,10 @@ import Pagination from './Pagination.vue';
 
 const route = useRoute();
 const router = useRouter();
-const global = inject('global');
 const getStorageUrl = inject('getStorageUrl');
 
 const items = ref([]);
+const isLoading = ref(true);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
@@ -36,6 +36,12 @@ const formatTimestamp = (ts) => {
   return date.toLocaleString('it-IT');
 };
 
+const statusClass = (status) => {
+  if (status === 'processed') return 'bg-[#ceeaee] text-[#201c28]';
+  if (status === 'failed') return 'bg-[#f9cade] text-[#201c28]';
+  return 'bg-[#cfcfcf] text-[#201c28]';
+};
+
 const getImageUrl = async (urlOrPath) => {
   if (!urlOrPath) return null;
   if (urlOrPath.startsWith('http')) return urlOrPath;
@@ -47,7 +53,7 @@ const getImageUrl = async (urlOrPath) => {
 };
 
 const loadItems = async () => {
-  global.value.isLoading = true;
+  isLoading.value = true;
   const snapshot = await getDocs(collection(db, 'items'));
   const rawItems = snapshot.docs.map((d) => ({
     id: d.id,
@@ -68,7 +74,7 @@ const loadItems = async () => {
     return tb - ta;
   });
 
-  global.value.isLoading = false;
+  isLoading.value = false;
 
   const pageFromUrl = parseInt(route.query.page, 10);
   if (!isNaN(pageFromUrl) && pageFromUrl >= 1 && pageFromUrl <= totalPages.value) {
@@ -138,74 +144,123 @@ onMounted(loadItems);
 </script>
 
 <template>
-  <div class="admin w-full py-6">
-    <h1 class="text-2xl font-bold text-white mb-6">Admin - Items</h1>
+  <div class="admin container mx-auto w-full max-w-7xl px-[3.5%] py-6 sm:py-8">
+    <header class="mb-6 sm:mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
+        Admin
+      </h1>
+      <p v-if="!isLoading" class="mt-1  text-[var(--text-primary)]/60">
+        {{ items.length }} elementi
+      </p>
+    </header>
 
     <div
-      v-if="global.isLoading"
-      class="text-white/70 py-8"
+      v-if="isLoading"
+      class="py-16 text-center text-[var(--text-primary)]/60"
     >
       Caricamento...
     </div>
 
     <template v-else>
-      <Pagination
-        v-if="totalPages > 1"
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        class="mb-6"
-        @go-to-page="goToPage"
-      />
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <article
-          v-for="item in paginatedItems"
-          :key="item.id"
-          class="flex flex-col gap-3 p-4 rounded-lg bg-white/5 border border-white/10 text-white text-sm"
-        >
-          <div class="flex gap-2 w-full">
-            <router-link
-              :to="`/detail/${item.id}`"
-              class="flex-1 min-w-0 aspect-square rounded overflow-hidden hover:ring-2 hover:ring-[#FF7230] transition-shadow cursor-pointer"
-            >
-              <img
-                v-if="item.image_source_url"
-                :src="item.image_source_url"
-                alt="originale"
-                class="w-full h-full object-cover block"
-              />
-              <span v-else class="flex items-center justify-center w-full h-full min-h-[60px] bg-white/10 text-white/50 text-xs">-</span>
-            </router-link>
-            <div class="flex-1 min-w-0 aspect-square rounded overflow-hidden bg-white/5">
-              <img
-                v-if="item.image_processed_url"
-                :src="item.image_processed_url"
-                alt="processata"
-                class="w-full h-full object-cover block"
-              />
-              <span v-else class="flex items-center justify-center w-full h-full min-h-[60px] text-white/50 text-xs">-</span>
-            </div>
-          </div>
-          <div class="flex flex-col gap-0.5 text-xs sm:text-sm">
-            <span>{{ formatTimestamp(item.timestamp) }}</span>
-            <span class="text-white/70">{{ item.edition || '-' }}</span>
-          </div>
-          <button
-            type="button"
-            @click="deleteItem(item)"
-            class="text-red-400 hover:text-red-300 hover:underline cursor-pointer text-xs sm:text-sm self-start"
-          >
-            delete
-          </button>
-        </article>
-      </div>
+      <p
+        v-if="items.length === 0"
+        class="py-16 text-center text-[var(--text-primary)]/60"
+      >
+        Nessun elemento.
+      </p>
 
-      <Pagination
-        v-if="totalPages > 1"
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        class="mt-6"
-        @go-to-page="goToPage"
-      />
+      <template v-else>
+        <Pagination
+          v-if="totalPages > 1"
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          class="mb-6"
+          @go-to-page="goToPage"
+        />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
+          <article
+            v-for="item in paginatedItems"
+            :key="item.id"
+            class="flex flex-col gap-3 rounded-lg border border-black/10 bg-white p-4 shadow-sm"
+          >
+            <div class="flex gap-2 w-full">
+              <router-link
+                :to="`/detail/${item.id}`"
+                class="group flex-1 min-w-0"
+              >
+                <p class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-primary)]/50">
+                  Originale
+                </p>
+                <div class="aspect-square overflow-hidden rounded-md bg-[var(--page-bg)] ring-1 ring-black/5 transition-shadow group-hover:ring-2 group-hover:ring-[#FF7230]">
+                  <img
+                    v-if="item.image_source_url"
+                    :src="item.image_source_url"
+                    alt="Originale"
+                    class="block h-full w-full object-cover"
+                  />
+                  <span
+                    v-else
+                    class="flex h-full min-h-[80px] items-center justify-center text-xs text-[var(--text-primary)]/40"
+                  >
+                    —
+                  </span>
+                </div>
+              </router-link>
+
+              <div class="flex-1 min-w-0">
+                <p class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-primary)]/50">
+                  Elaborata
+                </p>
+                <div class="aspect-square overflow-hidden rounded-md bg-[var(--page-bg)] ring-1 ring-black/5">
+                  <img
+                    v-if="item.image_processed_url"
+                    :src="item.image_processed_url"
+                    alt="Elaborata"
+                    class="block h-full w-full object-cover"
+                  />
+                  <span
+                    v-else
+                    class="flex h-full min-h-[80px] items-center justify-center text-xs text-[var(--text-primary)]/40"
+                  >
+                    —
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5  text-[var(--text-primary)]">
+              <span class="tabular-nums">{{ formatTimestamp(item.timestamp) }}</span>
+              <div class="flex flex-wrap items-center gap-2">
+                <span
+                  v-if="item.status"
+                  class="inline-block rounded px-2 py-0.5 text-xs font-medium"
+                  :class="statusClass(item.status)"
+                >
+                  {{ item.status }}
+                </span>
+                <span class="text-[var(--text-primary)]/60">{{ item.edition || '—' }}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="self-start  font-medium text-[#ec1874] hover:underline"
+              @click="deleteItem(item)"
+            >
+              Elimina
+            </button>
+          </article>
+        </div>
+
+        <Pagination
+          v-if="totalPages > 1"
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          class="mt-6"
+          @go-to-page="goToPage"
+        />
+      </template>
     </template>
   </div>
 </template>

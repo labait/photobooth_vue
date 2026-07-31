@@ -120,7 +120,7 @@ const clickPolaroid = (item) => {
             <img :src="item.image_source" class="absolute top-0 left-0 w-full h-full object-cover block image-source cursor-pointer" @click="clickPolaroid(item)" />
             <img :src="item.image_processed" class="absolute top-0 left-0 w-full h-full object-cover block image-processed cursor-pointer" @click="clickPolaroid(item)" />
             <template v-slot:footer> 
-                <div class="flex justify-center w-full text-sm hover:underline mb-2 gap-2">
+                <div class="flex justify-center w-full  hover:underline mb-2 gap-2">
                     <a :href="detailUrl(item.docId)" class="w-full h-10 cursor-pointer"></a>
                 </div>
             </template>

@@ -88,7 +88,7 @@ function selectPoster(poster) {
           v-for="cat in categories"
           :key="cat"
           type="button"
-          class="cursor-pointer px-5 py-2 text-sm font-semibold transition-colors"
+          class="cursor-pointer px-5 py-2  font-semibold transition-colors"
           :class="
             category === cat
               ? 'bg-[var(--btn-primary-color)] text-white'
@@ -143,7 +143,7 @@ function selectPoster(poster) {
               @click="selectPoster(item)"
             >
               <div class="mb-2 flex min-h-[2.5rem] items-end sm:min-h-[3rem]">
-                <p class="line-clamp-2 w-full text-left text-sm font-bold leading-snug text-white sm:text-base">
+                <p class="line-clamp-2 w-full text-left  font-bold leading-snug text-white sm:text-base">
                   {{ item.name }}
                 </p>
               </div>

@@ -11,7 +11,7 @@ defineProps({
 </script>
 
 <template>
-  <pre class="debug bg-white absolute  left-0 right-0 z-1000 p-4 text-sm overflow-y-scroll">{{ data }}</pre>
+  <pre class="debug bg-white absolute  left-0 right-0 z-1000 p-4  overflow-y-scroll">{{ data }}</pre>
 </template>
 
 <style scoped>

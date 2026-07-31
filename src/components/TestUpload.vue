@@ -175,7 +175,7 @@ const reset = () => {
 <template>
   <div class="test-upload w-full max-w-2xl mx-auto py-6 text-white">
     <h1 class="text-2xl font-bold mb-2">Test composizione frame</h1>
-    <p class="text-white/70 text-sm mb-6">
+    <p class="text-white/70  mb-6">
       Carica un'immagine o scatta una foto: verrà inserita dietro il frame e salvata in Firebase Storage.
     </p>
 
@@ -208,7 +208,7 @@ const reset = () => {
         ref="fileInput"
         type="file"
         accept="image/*"
-        class="block w-full text-sm text-white/80 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white file:text-black file:cursor-pointer"
+        class="block w-full  text-white/80 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white file:text-black file:cursor-pointer"
         @change="onFileChange"
       />
     </div>
@@ -224,7 +224,7 @@ const reset = () => {
       <select
         v-if="videoDevices.length > 1"
         v-model="selectedDevice"
-        class="p-2 rounded text-black text-sm"
+        class="p-2 rounded text-black "
         @change="changeCamera"
       >
         <option v-for="device in videoDevices" :key="device.deviceId" :value="device.deviceId">
@@ -239,7 +239,7 @@ const reset = () => {
     <div v-if="previewDataUrl" class="mb-4">
       <p class="text-xs text-white/60 mb-2">Anteprima sorgente</p>
       <img :src="previewDataUrl" alt="Anteprima" class="w-full max-w-xs mx-auto rounded-lg" />
-      <button type="button" class="text-white/60 text-sm mt-2 hover:text-white cursor-pointer" @click="reset">
+      <button type="button" class="text-white/60  mt-2 hover:text-white cursor-pointer" @click="reset">
         Cambia immagine
       </button>
     </div>
@@ -253,10 +253,10 @@ const reset = () => {
       {{ isSubmitting ? 'Composizione in corso...' : 'Componi e salva' }}
     </button>
 
-    <p v-if="error" class="text-red-400 text-sm mb-4">{{ error }}</p>
+    <p v-if="error" class="text-red-400  mb-4">{{ error }}</p>
 
     <div v-if="resultUrl" class="p-4 rounded-lg bg-white/5 border border-white/10">
-      <p class="text-sm font-medium mb-3">Risultato composizione</p>
+      <p class=" font-medium mb-3">Risultato composizione</p>
       <img :src="resultUrl" alt="Risultato" class="w-full max-w-md mx-auto rounded-lg" />
       <p v-if="route.query.path" class="text-xs text-white/50 mt-3 break-all">
         Path: {{ route.query.path }}

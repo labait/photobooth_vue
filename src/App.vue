@@ -227,7 +227,7 @@ provide('getStorageUrl', getStorageUrl);
 
 <template>
   <main class="app-shell relative flex min-h-screen flex-col bg-[var(--page-bg)]">
-    <Loading v-if="global.isLoading" />
+    <Loading v-if="global.isLoading && $route.path !== '/admin'" />
     <div class="auth-btn z-40 print:hidden mb-8 mt-8 px-8 flex justify-end">
       <Auth />
     </div>

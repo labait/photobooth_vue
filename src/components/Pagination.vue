@@ -1,82 +1,38 @@
 <script setup>
-import { ref, inject, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { loadPosters, posterPublicUrl } from '../posters.js'
-
-const router = useRouter()
-const global = inject('global')
-
-const posters = ref([])
-const isLoading = ref(true)
-const current = ref(0)
-const visible = 5
-const gap = 16
-
-onMounted(async () => {
-  posters.value = await loadPosters()
-  posters.value.sort(() => Math.random() - 0.5)
-  isLoading.value = false
+defineProps({
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  totalPages: {
+    type: Number,
+    required: true,
+  },
 })
 
-function next() {
-  if (current.value < 15 - visible) current.value++
-}
-function prev() {
-  if (current.value > 0) current.value--
-}
+defineEmits(['goToPage'])
 </script>
 
 <template>
-  <div class="posters-container container mx-auto max-w-7xl">
-    <div class="h-35 flex items-center justify-center">
-      <h1 class="text-white font-bold text-[6vw] sm:text-[2vw] py-2">Seleziona il tuo poster preferito:</h1>
-    </div>
-
-    <div v-if="isLoading" class="text-white/70 text-center py-12">Caricamento poster...</div>
-
-    <template v-else>
-      <div class="relative flex items-center">
-        <button @click="prev" class="absolute left-0 z-10 cursor-pointer text-white text-5xl px-4 transition-colors hover:text-orange-400">
-          ‹
-        </button>
-
-        <div class="overflow-hidden w-full px-10">
-          <div
-            class="flex transition-transform duration-500 ease-in-out"
-            :style="{ transform: `translateX(calc(-${current * (100 / visible)}% - ${current * gap / visible}px))`, gap: `${gap}px` }"
-          >
-            <a
-              v-for="poster in posters.slice(0, 10)"
-              :key="poster.file_path"
-              class="poster cursor-pointer border bg-[#4f485f] rounded-lg p-3 flex flex-col hover:bg-[#7069a2] transition-all duration-300 flex-shrink-0"
-              style="width: 160px; height: 260px;"
-              @click="() => { global.poster = poster; router.push('/cam'); }"
-            >
-              <div class="w-full flex-1 overflow-hidden rounded bg-black">
-                <img :src="posterPublicUrl(poster.file_path)" :alt="poster.name" class="w-full h-full object-contain" />
-              </div>
-              <div class="text-xs font-bold text-left w-full text-white leading-tight mt-2">{{ poster.name }}</div>
-            </a>
-          </div>
-        </div>
-
-        <button @click="next" class="absolute right-0 z-10 cursor-pointer text-white text-5xl px-4 transition-colors hover:text-orange-400">
-          ›
-        </button>
-      </div>
-
-      <div class="flex justify-center gap-2 mt-6">
-        <button
-          v-for="(_, index) in posters.slice(0, 10)"
-          :key="index"
-          @click="current = index"
-          class="h-2 w-2 cursor-pointer rounded-full transition-colors duration-300"
-          :class="current === index ? 'bg-orange-400' : 'bg-gray-500'"
-        ></button>
-      </div>
-    </template>
-  </div>
+  <nav class="flex items-center justify-center gap-3" aria-label="Paginazione">
+    <button
+      type="button"
+      :disabled="currentPage <= 1"
+      class="btn-btl-secondary min-w-[2.5rem] px-3 py-1.5  disabled:opacity-40"
+      @click="$emit('goToPage', currentPage - 1)"
+    >
+      ‹
+    </button>
+    <span class=" font-medium text-[var(--text-primary)] tabular-nums">
+      {{ currentPage }} / {{ totalPages }}
+    </span>
+    <button
+      type="button"
+      :disabled="currentPage >= totalPages"
+      class="btn-btl-secondary min-w-[2.5rem] px-3 py-1.5  disabled:opacity-40"
+      @click="$emit('goToPage', currentPage + 1)"
+    >
+      ›
+    </button>
+  </nav>
 </template>
-
-<style scoped>
-</style>
