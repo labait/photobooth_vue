@@ -1,0 +1,44 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && firestore.get(/databases/(default)/documents/accounts/$(request.auth.uid)).data.roles.hasAny(['admin']);
+    }
+
+    function isValidImage() {
+      return request.resource.size < 15 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Upload photobooth: images/{imageId}/{imageId}.png o {imageId}-processed.png
+    match /images/{imageId}/{fileName} {
+      allow read: if true;
+      allow create: if isValidImage()
+        && (fileName == imageId + '.png' || fileName == imageId + '-processed.png');
+      allow update, delete: if isAdmin();
+    }
+
+    // Upload di test (composeTestFrame)
+    match /test/{fileName} {
+      allow read: if true;
+      allow create: if isValidImage();
+      allow update, delete: if isAdmin();
+    }
+
+    // Poster (solo admin può scrivere)
+    match /posters/{fileName} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // File legacy alla root del bucket
+    match /{fileName} {
+      allow read: if true;
+      allow create: if isValidImage();
+      allow update, delete: if isAdmin();
+    }
+  }
+}

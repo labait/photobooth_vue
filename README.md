@@ -46,6 +46,34 @@ a version is available in 1p here https://share.1password.com/s#GcYWm88k4NQKtz2v
 
 Posters live under `public/editions/{VITE_EDITION}/` with a `posters.json` listing the images in that folder. Set `VITE_EDITION` in `.env` (e.g. `cronache_disorganiche`).
 
+## Firebase rules
+
+Regole in `firestore.rules` e `storage.rules`:
+
+- **Photobooth**: chiunque può creare item e caricare immagini in `images/{id}/` (solo PNG, max 15 MB)
+- **Lettura**: pubblica (galleria, detail, functions Netlify)
+- **Admin**: solo utenti con `roles: ['admin']` in `accounts/{uid}` possono cancellare item/file e modificare storage
+
+### Primo admin
+
+Dopo il primo login Google, in Firebase Console → Firestore crea/aggiorna:
+
+```
+accounts/{uid dell'utente}
+  uid: "<uid>"
+  roles: ["admin"]
+```
+
+### Deploy regole
+
+```bash
+firebase login
+firebase use photobooth-laba-2ca9f
+firebase deploy --only firestore:rules,storage
+```
+
+Per limitare l'accesso solo alla tua app (non solo API key), abilita [Firebase App Check](https://firebase.google.com/docs/app-check) in un secondo momento.
+
 ## hosting
 the app is serverv via netlify at 
 

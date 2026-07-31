@@ -1,0 +1,15 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": [
+    {
+      "bucket": "photobooth-laba-2ca9f",
+      "rules": "storage.rules"
+    },
+    {
+      "bucket": "photobooth-laba-2ca9f.firebasestorage.app",
+      "rules": "storage.rules"
+    }
+  ]
+}

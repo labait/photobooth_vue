@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/accounts/$(request.auth.uid))
+        && get(/databases/$(database)/documents/accounts/$(request.auth.uid)).data.roles.hasAny(['admin']);
+    }
+
+    function isValidItemCreate() {
+      return request.resource.data.keys().hasAll(['timestamp', 'image_id', 'status', 'edition'])
+        && request.resource.data.image_id is string
+        && request.resource.data.image_id.size() > 0
+        && request.resource.data.image_id.size() <= 128
+        && request.resource.data.status == 'created'
+        && request.resource.data.edition is string
+        && request.resource.data.edition.size() > 0
+        && request.resource.data.edition.size() <= 64;
+    }
+
+    function isPhotoboothItemUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['image_source', 'check_count', 'status', 'process_result', 'image_processed']);
+    }
+
+    // Profili utente (login Google). I ruoli admin si impostano da Firebase Console.
+    match /accounts/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.roles == [];
+      allow update, delete: if isAdmin();
+    }
+
+    // Sessioni photobooth: chiunque può creare/leggere/aggiornare durante il flusso;
+    // solo gli admin possono cancellare.
+    match /items/{itemId} {
+      allow read: if true;
+      allow create: if isValidItemCreate();
+      allow update: if isAdmin() || isPhotoboothItemUpdate();
+      allow delete: if isAdmin();
+    }
+  }
+}
