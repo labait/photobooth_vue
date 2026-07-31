@@ -2,6 +2,8 @@
 import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
+import Consents from './Consents.vue'
+
 const router = useRouter()
 const global = inject('global')
 
@@ -20,6 +22,18 @@ const sound1 = new Audio('/click.mp3')
 const countDown = ref(0)
 
 const CAM_STORAGE_KEY = 'photobooth-cam-id'
+
+const showConsents = ref(false)
+const consentsAccepted = ref(false)
+
+function refreshConsentsAccepted() {
+  const value = global.value.storeValue('consents_accepted')
+  consentsAccepted.value = value != null && value !== ''
+}
+
+function openConsents() {
+  showConsents.value = true
+}
 
 function getStoredCamId() {
   return localStorage.getItem(CAM_STORAGE_KEY)
@@ -84,6 +98,10 @@ onMounted(async () => {
   if (!global.value.validateLimit()) {
     return
   }
+  refreshConsentsAccepted()
+  if (!consentsAccepted.value) {
+    showConsents.value = true
+  }
   await getVideoDevices()
 
   const initial = resolveInitialCamId()
@@ -145,7 +163,7 @@ function deviceLabel(device, index) {
 }
 
 async function shotPrepare() {
-  if (isUploading.value) return
+  if (isUploading.value || !consentsAccepted.value) return
 
   countDown.value = global.value.isDebug() ? 1 : global.value.countDownSeconds
   const interval = setInterval(() => {
@@ -274,13 +292,23 @@ async function shot() {
         <button
           type="button"
           class="btn-btl-primary cursor-pointer"
-          :disabled="isUploading || !selectedDevice"
+          :disabled="isUploading || !selectedDevice || !consentsAccepted"
           @click="shotPrepare"
         >
           {{ isUploading ? 'Caricamento...' : 'Scatta' }}
         </button>
       </div>
+
+      <button
+        type="button"
+        class="text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 cursor-pointer"
+        @click="openConsents"
+      >
+        Informativa privacy
+      </button>
     </div>
+
+    <Consents v-model:open="showConsents" @accepted="refreshConsentsAccepted" />
   </section>
 </template>
 
