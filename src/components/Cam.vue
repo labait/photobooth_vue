@@ -81,6 +81,9 @@ onMounted(async () => {
     router.push('/')
     return
   }
+  if (!global.value.validateLimit()) {
+    return
+  }
   await getVideoDevices()
 
   const initial = resolveInitialCamId()

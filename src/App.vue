@@ -1,5 +1,6 @@
 <script setup>
-import { ref, provide } from 'vue';
+import { ref, provide, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { storage, db } from './firebase'
 import { ref as storageRef, uploadString, uploadBytes, getDownloadURL } from 'firebase/storage'
@@ -14,8 +15,72 @@ import Dialog from './components/Dialog.vue'
 import { posterServerPath } from './posters.js'
 
 
-const edition = import.meta.env.VITE_EDITION 
+const router = useRouter()
+const edition = import.meta.env.VITE_EDITION
 const urlParams = new URLSearchParams(window.location.search);
+
+const LOCALSTORE_PREFIX = import.meta.env.VITE_LOCALSTORE_KEY_PREFIX || 'photobooth_'
+const LIMIT_NUMBER = Number(import.meta.env.VITE_LIMIT_NUMBER)
+const LIMIT_TIMEFRAME = Number(import.meta.env.VITE_LIMIT_TIMEFRAME)
+
+function storeValue(key, value = null) {
+  const storageKey = `${LOCALSTORE_PREFIX}${key}`
+  const isRead = arguments.length < 2 || value === null
+
+  if (isRead) {
+    const stored = localStorage.getItem(storageKey)
+    return stored === null ? null : stored
+  }
+
+  localStorage.setItem(storageKey, String(value))
+  return value
+}
+
+function parseGenerations(raw) {
+  if (!raw) return []
+  return raw.split(',').filter(Boolean).map(Number).filter((ts) => !Number.isNaN(ts))
+}
+
+function generationsInWindow(raw, windowStartMs) {
+  return parseGenerations(raw).filter((ts) => ts >= windowStartMs)
+}
+
+function recordGeneration() {
+  const now = Date.now()
+  const windowStart = now - (LIMIT_TIMEFRAME || 0) * 1000
+  const raw = storeValue('generations') ?? ''
+  const timestamps = LIMIT_TIMEFRAME
+    ? generationsInWindow(raw, windowStart)
+    : parseGenerations(raw)
+  timestamps.push(now)
+  storeValue('generations', timestamps.join(','))
+}
+
+function validateLimit() {
+  const raw = storeValue('generations') ?? ''
+  const windowStart = LIMIT_TIMEFRAME ? Date.now() - LIMIT_TIMEFRAME * 1000 : 0
+  const timestamps = LIMIT_TIMEFRAME
+    ? generationsInWindow(raw, windowStart)
+    : parseGenerations(raw)
+  const count = timestamps.length; +100 // debug  
+
+  console.log('[validateLimit]', count, timestamps)
+
+  if (!LIMIT_NUMBER || !LIMIT_TIMEFRAME) return true
+
+  if (count < LIMIT_NUMBER) return true
+
+  global.value.dialog = {
+    title: 'Limite raggiunto',
+    text: `max ${LIMIT_NUMBER} generazioni in ${LIMIT_TIMEFRAME} secondi`,
+    confirmText: 'OK',
+    onConfirm: () => {
+      global.value.dialog = {}
+      router.push('/')
+    },
+  }
+  return false
+}
 
 const global = ref({
   countDownSeconds: 3,
@@ -30,11 +95,18 @@ const global = ref({
     'list': true,
     'camera': true,
   },
-  dialog: {
-    text: null,
-  },
+  dialog: {},
+  storeValue,
+  validateLimit,
+  recordGeneration,
 })
 window.global = global; // for debug purposes
+
+onMounted(() => {
+  if (storeValue('generations') === null) {
+    storeValue('generations', '')
+  }
+})
 
 
 const getStorageUrl = async (str) => {
@@ -65,6 +137,7 @@ const processImage = async (docId) => {
 const uploadImage = async (imageDataUrl, imageId) => {
   try {
     global.value.isLoading = true;
+    global.value.recordGeneration()
 
     const docRef = await addDoc(collection(db, 'items'), {
       timestamp: serverTimestamp(),
