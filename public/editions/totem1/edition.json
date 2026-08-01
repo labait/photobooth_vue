@@ -3,7 +3,7 @@
     "allow_fallback_model": false,
     "aspect_ratio": "4:5",
     "output_format": "png",
-    "prompt": "Use the first image as the base artwork and the second image exclusively as the identity reference. Replace only the main subject with the person from the second image. Keep their distinctive features and identity recognizable, but fully subject them to the visual transformations present in the original artwork. The second image must provide identity only. All visual structure, stylization, and rendering must come from the first image. Recreate the face, hair, beard, and skin using the same medium, brushwork or linework, shapes, contours, palette, texture, detail level, imperfections, and material qualities of the original artwork. If the artwork distorts, simplifies, fragments, shifts, or reconstructs anatomy, perspective, or facial features, apply exactly the same type and degree of transformation to the new face. Do not correct these distortions toward realistic proportions. Use the original subject’s geometry, facial-feature placement, and structural design as the template, replacing only the identity. Avoid any photographic, realistic, digital, clean, or separately rendered appearance. Keep the original pose, body, clothing, composition, background, and all other elements unchanged. The new subject must look as if it was originally created within the same artwork.",
+    "prompt": "Use the first image as the base artwork and the second image exclusively as the identity reference. Replace only the main subject with the person from the second image. Keep their distinctive features and identity recognizable, but fully subject them to the visual transformations present in the original artwork. The second image must provide identity only. All visual structure, stylization, and rendering must come from the first image. Recreate the face, hair, beard, and skin using the same medium, brushwork or linework, shapes, contours, palette, texture, detail level, imperfections, and material qualities of the original artwork. If the artwork distorts, simplifies, fragments, shifts, or reconstructs anatomy, perspective, or facial features, apply exactly the same type and degree of transformation to the new face. Do not correct these distortions toward realistic proportions. Use the original subject's geometry, facial-feature placement, and structural design as the template, replacing only the identity. Avoid any photographic, realistic, digital, clean, or separately rendered appearance. Keep the original pose, body, clothing, composition, background, and all other elements unchanged. The new subject must look as if it was originally created within the same artwork.",
     "resolution": "1K",
     "safety_filter_level": "block_only_high"
   },
@@ -18,8 +18,8 @@
       "category": "painting"
     },
     {
-      "name": "Agnolo Bronzino LucreziaMedici",
-      "file_path": "agnolo-bronzino-lucreziamedici.jpg",
+      "name": "Agnolo Bronzino",
+      "file_path": "agnolo-bronzino-2.jpg",
       "category": "painting"
     },
     {
@@ -44,7 +44,7 @@
     },
     {
       "name": "Basquiat",
-      "file_path": "basquiat.jpg",
+      "file_path": "basquiat-2.jpg",
       "category": "painting"
     },
     {
@@ -53,38 +53,38 @@
       "category": "painting"
     },
     {
-      "name": "Caravaggio medusa",
-      "file_path": "caravaggio-medusa.jpg",
+      "name": "Caravaggio",
+      "file_path": "caravaggio-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Cézanne",
+      "name": "Cezanne",
       "file_path": "cezanne.jpg",
       "category": "painting"
     },
     {
-      "name": "Diego Velázquez",
+      "name": "Diego Velazquez",
       "file_path": "diego-velazquez.jpg",
       "category": "painting"
     },
     {
-      "name": "Edgar Degas2",
-      "file_path": "edgar-degas2.jpg",
+      "name": "Edgar Degas",
+      "file_path": "edgar-degas.jpg",
       "category": "painting"
     },
     {
-      "name": "El Greco ritrattoJorgeManuel",
-      "file_path": "el-greco-ritrattojorgemanuel.jpg",
+      "name": "El Greco",
+      "file_path": "el-greco.jpg",
       "category": "painting"
     },
     {
-      "name": "Élisabeth Vigée Le Brun",
+      "name": "Elisabeth Vigee Le Brun",
       "file_path": "elisabeth-vigee-le-brun.jpg",
       "category": "painting"
     },
     {
-      "name": "Élisabeth Vigée Le Brun",
-      "file_path": "elisabeth-vigee-le-brun.jpeg",
+      "name": "Elisabeth Vigee Le Brun",
+      "file_path": "elisabeth-vigee-le-brun-2.jpeg",
       "category": "painting"
     },
     {
@@ -93,8 +93,8 @@
       "category": "painting"
     },
     {
-      "name": "Gauguin2",
-      "file_path": "gauguin2.jpg",
+      "name": "Gauguin",
+      "file_path": "gauguin-2.jpg",
       "category": "painting"
     },
     {
@@ -103,23 +103,23 @@
       "category": "painting"
     },
     {
-      "name": "Höch1",
-      "file_path": "hoch1.png",
+      "name": "Hoch",
+      "file_path": "hoch.png",
       "category": "painting"
     },
     {
-      "name": "Höch2",
-      "file_path": "hoch2.jpg",
+      "name": "Hoch",
+      "file_path": "hoch-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Höch3",
-      "file_path": "hoch3.jpg",
+      "name": "Hoch",
+      "file_path": "hoch-3.jpg",
       "category": "painting"
     },
     {
-      "name": "Johannes Vermeer The Girl With The Pearl Earring (1665)",
-      "file_path": "johannes-vermeer-the-girl-with-the-pearl-earring-1665.jpg",
+      "name": "Johannes Vermeer",
+      "file_path": "johannes-vermeer.jpg",
       "category": "painting"
     },
     {
@@ -133,8 +133,8 @@
       "category": "painting"
     },
     {
-      "name": "Lichtenstein2",
-      "file_path": "lichtenstein2.png",
+      "name": "Lichtenstein",
+      "file_path": "lichtenstein-2.png",
       "category": "painting"
     },
     {
@@ -144,12 +144,12 @@
     },
     {
       "name": "Magritte",
-      "file_path": "magritte.jpg",
+      "file_path": "magritte-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Magritte2.jpg",
-      "file_path": "magritte2-jpg.webp",
+      "name": "Magritte",
+      "file_path": "magritte-3.webp",
       "category": "painting"
     },
     {
@@ -168,8 +168,8 @@
       "category": "painting"
     },
     {
-      "name": "Paolo Veronese2",
-      "file_path": "paolo-veronese2.jpg",
+      "name": "Paolo Veronese",
+      "file_path": "paolo-veronese-2.jpg",
       "category": "painting"
     },
     {
@@ -178,8 +178,8 @@
       "category": "painting"
     },
     {
-      "name": "Parmigianino ritratto maschile",
-      "file_path": "parmigianino-ritratto-maschile.jpg",
+      "name": "Parmigianino",
+      "file_path": "parmigianino-2.jpg",
       "category": "painting"
     },
     {
@@ -188,53 +188,53 @@
       "category": "painting"
     },
     {
-      "name": "Renoir1",
-      "file_path": "renoir1.jpg",
+      "name": "Renoir",
+      "file_path": "renoir-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Sandro Botticelli 2",
+      "name": "Sandro Botticelli",
+      "file_path": "sandro-botticelli.avif",
+      "category": "painting"
+    },
+    {
+      "name": "Sandro Botticelli",
       "file_path": "sandro-botticelli-2.avif",
       "category": "painting"
     },
     {
-      "name": "Sandro Botticelli primavera",
-      "file_path": "sandro-botticelli-primavera.avif",
+      "name": "Schiele",
+      "file_path": "schiele.jpg",
       "category": "painting"
     },
     {
-      "name": "Schiele2",
-      "file_path": "schiele2.jpg",
+      "name": "Schiele",
+      "file_path": "schiele-2.webp",
       "category": "painting"
     },
     {
-      "name": "Schiele3.jpg",
-      "file_path": "schiele3-jpg.webp",
+      "name": "Schiele",
+      "file_path": "schiele-3.webp",
       "category": "painting"
     },
     {
-      "name": "Schiele4.jpg",
-      "file_path": "schiele4-jpg.webp",
-      "category": "painting"
-    },
-    {
-      "name": "Tiziano Vecellio 2",
+      "name": "Tiziano Vecellio",
       "file_path": "tiziano-vecellio-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Toulouse Lautrec",
+      "name": "Toulouse-Lautrec",
       "file_path": "toulouse-lautrec.jpg",
       "category": "painting"
     },
     {
-      "name": "Toulouse Lautrec2",
-      "file_path": "toulouse-lautrec2.jpg",
+      "name": "Toulouse-Lautrec",
+      "file_path": "toulouse-lautrec-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Warhol.jpg",
-      "file_path": "warhol-jpg.webp",
+      "name": "Warhol",
+      "file_path": "warhol.webp",
       "category": "painting"
     },
     {
@@ -243,24 +243,24 @@
       "category": "painting"
     },
     {
-      "name": "ambrogio lorenzetti",
+      "name": "Ambrogio Lorenzetti",
       "file_path": "ambrogio-lorenzetti.jpg",
       "category": "painting"
     },
     {
-      "name": "picasso",
+      "name": "Picasso",
       "file_path": "picasso.jpg",
       "category": "painting"
     },
     {
-      "name": "picasso3",
-      "file_path": "picasso3.jpg",
+      "name": "Picasso",
+      "file_path": "picasso-2.jpg",
       "category": "painting"
     },
     {
-      "name": "portrait de madame verninac jacques louis david",
-      "file_path": "portrait-de-madame-verninac-jacques-louis-david.jpg",
+      "name": "Jacques-Louis David",
+      "file_path": "jacques-louis-david.jpg",
       "category": "painting"
     }
-  ]  
+  ]
 }
