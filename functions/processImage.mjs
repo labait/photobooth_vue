@@ -84,7 +84,13 @@ export default async (request, context) => {
           imageUrl
         ],
         "output_format": "png",
-        "prompt": "Two images provided: a first is a movie poster and second a person\'s photo.\\nKeep the exact face and facial features of the person.\\nReplace the main character of the poster with this person,\\nif multiple subjects are present, identify and replace only the protagonist.\\nMatch their clothing, lighting and color grading to the poster\'s style and mood.\\nPreserve typography, composition and background.\\nCinematic quality, seamless integration, high detail.",
+        "prompt": `Two images provided: a first is a work of art and second a person's photo.
+        Keep the exact face and facial features of the person.
+        Replace the main character of the poster with this person,
+        if multiple subjects are present, identify and replace only the protagonist.
+        Match their clothing, lighting and color grading to the poster's style and mood.
+        Preserve typography, composition and background.
+        Cinematic quality, seamless integration, high detail.`,
         "resolution": "1K",
         "safety_filter_level": "block_only_high"
       }

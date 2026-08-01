@@ -210,6 +210,20 @@ const deleteItem = async (item) => {
         console.warn('Errore cancellazione storage image_processed:', e);
       }
     }
+    if (item.image_framed && item.image_framed.includes('/o/')) {
+      try {
+        const path = item.image_framed
+          .split('/o/')[1]
+          ?.split('?')[0]
+          ?.replace(/%2F/g, '/');
+        if (path) {
+          const ref = storageRef(storage, path);
+          await deleteObject(ref);
+        }
+      } catch (e) {
+        console.warn('Errore cancellazione storage image_framed:', e);
+      }
+    }
 
     allItems.value = allItems.value.filter((i) => i.id !== item.id);
   } catch (err) {

@@ -1,12 +1,8 @@
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { readFile } from 'node:fs/promises';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../src/firebase';
-import { FrameCompositor, parseImageData } from './lib/FrameCompositor.mjs';
-
-const functionsDir = dirname(fileURLToPath(import.meta.url));
-const DEFAULT_FRAME_PATH = join(functionsDir, 'assets/frame.png');
+import { parseImageData } from './lib/FrameCompositor.mjs';
+import { composeFramedImage } from './lib/composeFramedImage.mjs';
+import { isFrameEnabled } from '../src/itemStorage.js';
 
 export default async (request) => {
   if (request.method === 'OPTIONS') {
@@ -31,10 +27,19 @@ export default async (request) => {
       });
     }
 
-    const frameBuffer = await readFile(DEFAULT_FRAME_PATH);
-    const compositor = FrameCompositor.fromBuffer(frameBuffer);
+    const framePathEnv = isFrameEnabled(process.env.VITE_IMAGE_FRAME)
+      ? process.env.VITE_IMAGE_FRAME
+      : null;
+
+    if (!framePathEnv) {
+      return new Response(JSON.stringify({ error: 'VITE_IMAGE_FRAME is not configured' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const photoBuffer = parseImageData(image);
-    const composed = await compositor.compose(photoBuffer);
+    const composed = await composeFramedImage(photoBuffer, framePathEnv);
 
     const fileId = `${Date.now()}`;
     const storagePath = `test/${fileId}.png`;

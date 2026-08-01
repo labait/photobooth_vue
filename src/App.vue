@@ -14,6 +14,7 @@ import Debug from './components/Debug.vue'
 import Dialog from './components/Dialog.vue'
 import MaintenanceNotice from './components/MaintenanceNotice.vue'
 import { posterServerPath } from './images.js'
+import { itemStoragePath, ITEM_IMAGE_FILES } from './itemStorage.js'
 import { isTrue } from './composables/useUtils'
 import { useAuth } from './composables/useAuth'
 import { useGenerationCounts } from './composables/useGenerationCounts'
@@ -224,7 +225,10 @@ const uploadImage = async (imageDataUrl, imageId) => {
       edition,
     })
 
-    const imageRef = storageRef(storage, `images/${imageId}/${imageId}.png`)
+    const imageRef = storageRef(
+      storage,
+      itemStoragePath(edition, imageId, ITEM_IMAGE_FILES.source),
+    )
     await uploadString(imageRef, imageDataUrl, 'data_url')
     global.value.currentImage = imageDataUrl;
     const downloadURL = await getDownloadURL(imageRef)

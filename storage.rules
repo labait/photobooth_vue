@@ -13,7 +13,15 @@ service firebase.storage {
         && request.resource.contentType.matches('image/.*');
     }
 
-    // Upload photobooth: images/{imageId}/{imageId}.png o {imageId}-processed.png
+    // Upload photobooth: {edition}/images/{imageId}/source|processed|framed.png
+    match /{edition}/images/{imageId}/{fileName} {
+      allow read: if true;
+      allow create: if isValidImage()
+        && fileName in ['source.png', 'processed.png', 'framed.png'];
+      allow update, delete: if isAdmin();
+    }
+
+    // Path legacy
     match /images/{imageId}/{fileName} {
       allow read: if true;
       allow create: if isValidImage()
