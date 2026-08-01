@@ -13,6 +13,7 @@ import Auth from './components/Auth.vue'
 import Debug from './components/Debug.vue'
 import Dialog from './components/Dialog.vue'
 import MaintenanceNotice from './components/MaintenanceNotice.vue'
+import Analytics from './components/Analytics.vue'
 import { posterServerPath } from './images.js'
 import { editionCode, loadEdition } from './editionConfig.js'
 import { itemStoragePath, ITEM_IMAGE_FILES } from './itemStorage.js'
@@ -503,6 +504,7 @@ provide('getStorageUrl', getStorageUrl);
 
 <template>
   <main class="app-shell relative flex min-h-screen flex-col bg-[var(--page-bg)] print:min-h-0 print:bg-white">
+    <Analytics />
     <MaintenanceNotice v-if="maintenanceActive && isAdmin" />
     <Loading v-if="global.isLoading != null && $route.path !== '/admin'" />
     <div

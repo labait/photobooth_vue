@@ -1,6 +1,6 @@
 # photobooth app
 made for the 25th anniversary of laba.edu  
-app available at https://laba-photobooth.netlify.app
+app available at https://photobooth-laba.netlify.app
 
 ## repository
 https://github.com/labait/photoboot_vue  

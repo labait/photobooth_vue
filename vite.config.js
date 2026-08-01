@@ -1,10 +1,32 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
+function injectGoogleAnalytics(measurementId) {
+  return {
+    name: 'inject-google-analytics',
+    transformIndexHtml(html) {
+      const snippet = `
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=${measurementId}"><\/script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${measurementId}');
+    <\/script>`
+      return html.replace('</head>', `${snippet}\n  </head>`)
+    },
+  }
+}
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const gaMeasurementId = env.VITE_GA_MEASUREMENT_ID
+
+  return {
   server: {
     proxy: {
       '/.netlify/functions': {
@@ -17,15 +39,16 @@ export default defineConfig({
       },
     },
     allowedHosts: [
-      'laba-photobooth.netlify.app', 
+      'photobooth-laba.netlify.app', 
       'localhost', 
       '127.0.0.1',
       'mbpromag.eu.ngrok.io',
-      'laba-photobooth.netlify.app',
+      'photobooth-laba.netlify.app',
     ],
   },
   plugins: [
     vue(),
+    ...(gaMeasurementId ? [injectGoogleAnalytics(gaMeasurementId)] : []),
     {
       name: 'netlify-spa-redirects',
       closeBundle() {
@@ -33,4 +56,5 @@ export default defineConfig({
       },
     },
   ],
+  }
 })
