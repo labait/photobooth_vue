@@ -104,7 +104,7 @@ function selectEditionImage(image) {
 </script>
 
 <template>
-  <div class="posters-page flex flex-1 flex-col">
+  <div class="posters-page flex flex-1 flex-col overflow-x-clip overscroll-x-none">
     <div class="title-section px-4 pt-10 pb-8 md:pt-14 md:pb-10 lg:pt-16">
       <h1
         class="mx-auto max-w-4xl text-center text-3xl font-bold leading-tight tracking-tight text-[var(--text-primary)] sm:text-4xl md:text-5xl lg:text-[60px] lg:leading-[70px] lg:tracking-[-1.2px]"
@@ -143,7 +143,7 @@ function selectEditionImage(image) {
 
     <section
       v-else
-      class="carousel-band relative left-1/2 w-screen -translate-x-1/2 bg-[#2c2c2c] py-8 md:py-10 lg:py-12"
+      class="carousel-band relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-x-clip overscroll-contain bg-[#2c2c2c] py-8 touch-pan-y md:py-10 lg:py-12"
     >
       <div class="posters-carousel relative mx-auto max-w-[1693px] px-4 sm:px-8 md:px-12">
         <button
@@ -159,6 +159,14 @@ function selectEditionImage(image) {
           class="posters-swiper px-10 sm:px-12 md:px-14"
           :modules="modules"
           :breakpoints="swiperBreakpoints"
+          :touch-angle="35"
+          :threshold="8"
+          :touch-move-stop-propagation="true"
+          :touch-start-prevent-default="false"
+          :passive-listeners="false"
+          :edge-swipe-detection="true"
+          :edge-swipe-threshold="24"
+          :resistance-ratio="0.82"
           :navigation="{
             prevEl: '.posters-carousel-prev',
             nextEl: '.posters-carousel-next',
@@ -203,6 +211,11 @@ function selectEditionImage(image) {
 </template>
 
 <style scoped>
+.posters-page {
+  width: 100%;
+  max-width: 100%;
+}
+
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -227,8 +240,19 @@ function selectEditionImage(image) {
   }
 }
 
+.posters-swiper :deep(.swiper),
+.posters-swiper :deep(.swiper-wrapper) {
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior: contain;
+}
+
 .posters-swiper :deep(.swiper-slide) {
   height: auto;
+  touch-action: pan-y pinch-zoom;
+}
+
+.poster-card {
+  touch-action: manipulation;
 }
 
 .carousel-nav {
