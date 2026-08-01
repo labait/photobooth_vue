@@ -26,6 +26,7 @@ const { isAdmin, waitForAuth } = useAuth()
 
 const showFramed = ref(true)
 const showQrCode = ref(false)
+const printImageRef = ref(null)
 
 const pageShareUrl = computed(() => detailUrl(docId.value))
 
@@ -44,7 +45,6 @@ const currentImageUrl = computed(() => {
   return sourceImageUrl.value
 })
 
-const toggleHint = 'Tocca per alternare l\'originale e l\'immagine generata'
 
 const shareableImageUrl = computed(() => {
   return global.value.docData?.image_framed
@@ -198,7 +198,7 @@ async function updatePublicationStatus(status) {
 
 function showRejectPublicationDialog() {
   global.value.dialog = {
-    title: 'Annulla pubblicazione',
+    title: 'Rifiuta pubblicazione',
     text: 'Confermi di non voler pubblicare l\'immagine generata?',
     cancelText: 'Annulla',
     confirmText: 'OK',
@@ -238,7 +238,7 @@ function showAcceptPublicationDialog() {
 }
 
 function triggerAutoPrint() {
-  const img = document.querySelector('.detail-image--print')
+  const img = printImageRef.value
   if (!img) {
     print()
     return
@@ -291,36 +291,42 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="detail-page relative flex w-full flex-col items-center px-4 py-6">
+  <div class="relative flex min-h-[calc(100vh-8rem)] w-full flex-col items-center px-4 py-6 print:m-0 print:min-h-0 print:p-0">
     <template v-if="global.docData">
       <div
-        class="detail-image-shell"
-        :class="{ 'detail-image-shell--clickable': canToggle }"
+        class="w-full max-w-2xl print:m-0 print:w-full print:max-w-full print:p-0"
+        :class="{ 'cursor-pointer': canToggle }"
         @click="toggleImage"
       >
         <p
           v-if="canToggle"
-          class="detail-image-hint print:hidden"
+          class="mb-3.5 text-center font-medium text-[#201c28]/65 print:hidden"
         >
-          {{ toggleHint }}
+         
+          Ricordati di <strong>confermare la pubblicazione</strong> dell'immagine generata utilizzando i pulsanti in basso.
         </p>
+
+        <div class="text-center  font-medium text-[#201c28]/65 print:hidden">
+          
+        </div>
 
         <img
           v-if="currentImageUrl"
           :src="currentImageUrl"
           alt="Anteprima photobooth"
-          class="detail-image detail-image--interactive"
+          class="block h-auto w-full print:hidden"
         >
         <img
           v-if="generatedImageUrl"
+          ref="printImageRef"
           :src="generatedImageUrl"
           alt=""
           aria-hidden="true"
-          class="detail-image detail-image--print"
+          class="hidden h-auto w-full print:block print:max-h-screen print:max-w-full print:object-contain print:break-inside-avoid"
         >
         <div
           v-else-if="!currentImageUrl"
-          class="detail-image-placeholder"
+          class="flex min-h-80 flex-col items-center justify-center rounded-lg bg-black/6 p-8 text-[var(--text-primary)] print:hidden"
         >
           <p class="text-center text-lg font-bold">Elaborazione in corso</p>
           <p class="mt-2 text-center opacity-70">fai refresh o attendi qualche secondo...</p>
@@ -329,64 +335,68 @@ onMounted(async () => {
 
       <div
         v-if="awaitingPublication"
-        class="detail-publication-actions print:hidden"
+        class="mx-auto mt-5 flex w-full max-w-2xl flex-nowrap items-center justify-center gap-3 print:hidden"
       >
         <button
           type="button"
-          class="detail-publication-btn detail-publication-btn--secondary"
+          class="cursor-pointer inline-flex flex-1 items-center justify-center rounded-lg border-0 bg-[var(--btn-secondary-bg)] px-6 py-3.5 text-base font-semibold leading-tight whitespace-nowrap text-[var(--btn-secondary-text)] transition-[filter] hover:brightness-95"
           @click="showRejectPublicationDialog"
         >
-          Annulla
+          Rifiuta
         </button>
         <button
           type="button"
-          class="detail-publication-btn detail-publication-btn--primary"
+          class="cursor-pointer inline-flex flex-1 items-center justify-center rounded-lg border-0 bg-[var(--btn-primary-color)] px-6 py-3.5 text-base font-semibold leading-tight whitespace-nowrap text-white transition-[filter] hover:brightness-95"
           @click="showAcceptPublicationDialog"
         >
-          Conferma
+          Conferma pubblicazione
         </button>
       </div>
 
       <div
         v-else-if="showShareActions"
-        class="detail-actions print:hidden"
+        class="mx-auto mt-5 flex w-full max-w-2xl flex-nowrap items-center justify-center gap-3 print:hidden"
       >
         <button
           type="button"
-          class="detail-action-btn"
+          class="inline-flex shrink-0 items-center justify-center gap-2.5 rounded-lg border-0 bg-[var(--btn-primary-color)] px-5 py-3 text-base font-medium leading-tight whitespace-nowrap text-white no-underline transition-[filter] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="shareDisabled"
           @click="shareImage"
         >
-          <ShareIcon class="detail-action-icon" aria-hidden="true" />
+          <ShareIcon class="h-5 w-5 shrink-0" aria-hidden="true" />
           Condividi
         </button>
         <a
           :href="framedDownloadUrl || undefined"
           :download="downloadFileName"
-          class="detail-action-btn detail-action-btn--icon"
-          :class="{ 'detail-action-btn--disabled': downloadDisabled }"
+          class="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border-0 bg-[var(--btn-primary-color)] p-3 text-white no-underline transition-[filter] hover:brightness-95"
+          :class="downloadDisabled ? 'pointer-events-none cursor-not-allowed opacity-50' : ''"
           :aria-disabled="downloadDisabled ? 'true' : undefined"
           aria-label="Scarica"
           @click="onDownloadClick"
         >
-          <ArrowDownTrayIcon class="detail-action-icon" aria-hidden="true" />
+          <ArrowDownTrayIcon class="h-5 w-5 shrink-0" aria-hidden="true" />
         </a>
         <button
           type="button"
-          class="detail-action-btn detail-action-btn--icon"
+          class="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border-0 bg-[var(--btn-primary-color)] p-3 text-white transition-[filter] hover:brightness-95"
           aria-label="Mostra codice QR"
           @click="showQrCode = true"
         >
-          <QrCodeIcon class="detail-action-icon" aria-hidden="true" />
+          <QrCodeIcon class="h-5 w-5 shrink-0" aria-hidden="true" />
         </button>
         <button
           type="button"
-          class="detail-action-btn detail-action-btn--icon"
+          class="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border-0 bg-[var(--btn-primary-color)] p-3 text-white transition-[filter] hover:brightness-95"
           aria-label="Stampa"
           @click="print"
         >
-          <PrinterIcon class="detail-action-icon" aria-hidden="true" />
+          <PrinterIcon class="h-5 w-5 shrink-0" aria-hidden="true" />
         </button>
+      </div>
+
+      <div class="mt-4 text-center text-gray-300 font-medium print:hidden">
+        Tocca per alternare l'originale e l'immagine generata
       </div>
 
       <QrCode
@@ -394,188 +404,7 @@ onMounted(async () => {
         :url="pageShareUrl"
         @close="showQrCode = false"
       />
+      
     </template>
   </div>
 </template>
-
-<style scoped>
-.detail-page {
-  min-height: calc(100vh - 8rem);
-}
-
-.detail-image-shell {
-  width: min(96vw, 42rem);
-  max-width: 100%;
-}
-
-.detail-image-shell--clickable {
-  cursor: pointer;
-}
-
-.detail-image {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.detail-image--print {
-  display: none;
-}
-
-.detail-image-placeholder {
-  display: flex;
-  min-height: 20rem;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.5rem;
-  background: rgb(0 0 0 / 0.06);
-  color: var(--text-primary);
-  padding: 2rem;
-}
-
-.detail-image-hint {
-  margin-bottom: 0.875rem;
-  text-align: center;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: rgb(32 28 40 / 0.65);
-}
-
-.detail-publication-actions {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  width: min(96vw, 42rem);
-  max-width: 100%;
-  margin-top: 1.25rem;
-  margin-inline: auto;
-}
-
-.detail-publication-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1 1 0;
-  max-width: 12rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.25;
-  padding: 0.875rem 1.5rem;
-  white-space: nowrap;
-  transition: filter 0.2s ease;
-}
-
-.detail-publication-btn--secondary {
-  background-color: var(--btn-secondary-bg);
-  color: var(--btn-secondary-text);
-}
-
-.detail-publication-btn--primary {
-  background-color: var(--btn-primary-color);
-  color: #fff;
-}
-
-.detail-publication-btn:hover {
-  filter: brightness(0.95);
-}
-
-.detail-actions {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  width: min(96vw, 42rem);
-  max-width: 100%;
-  margin-top: 1.25rem;
-  margin-inline: auto;
-}
-
-.detail-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.625rem;
-  flex: 0 0 auto;
-  border: none;
-  border-radius: 0.5rem;
-  background-color: var(--btn-primary-color);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.25;
-  padding: 0.75rem 1.25rem;
-  white-space: nowrap;
-  text-decoration: none;
-  transition: filter 0.2s ease;
-}
-
-.detail-action-btn:hover:not(:disabled):not(.detail-action-btn--disabled) {
-  filter: brightness(0.95);
-}
-
-.detail-action-btn:disabled,
-.detail-action-btn--disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.detail-action-btn--icon {
-  gap: 0;
-  padding: 0.75rem;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-}
-
-.detail-action-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  flex-shrink: 0;
-}
-
-@media print {
-  .detail-page {
-    min-height: 0;
-    padding: 0;
-    margin: 0;
-  }
-
-  .detail-image-shell {
-    width: 100%;
-    max-width: 100%;
-    padding: 0;
-    margin: 0;
-  }
-
-  .detail-image-hint,
-  .detail-actions,
-  .detail-publication-actions,
-  .detail-image-placeholder {
-    display: none !important;
-  }
-
-  .detail-image--interactive {
-    display: none !important;
-  }
-
-  .detail-image--print {
-    display: block !important;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    max-height: 100vh;
-    object-fit: contain;
-    page-break-before: avoid;
-    page-break-after: avoid;
-    page-break-inside: avoid;
-  }
-}
-</style>
