@@ -19,8 +19,6 @@ import { isTrue, timeframeHuman } from './composables/useUtils'
 import { useAuth } from './composables/useAuth'
 import { useGenerationCounts } from './composables/useGenerationCounts'
 
-myUndefinedFunction();
-
 const router = useRouter()
 const route = useRoute()
 const { isAdmin, authReady } = useAuth()
