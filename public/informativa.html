@@ -9,7 +9,13 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-095ZWPCW75');
+    gtag('config', 'G-095ZWPCW75', {
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+      anonymize_ip: true,
+      client_storage: 'none',
+      send_page_view: true,
+    });
   </script>
   <title>Informativa privacy - LABA Photobooth</title>
   <style>

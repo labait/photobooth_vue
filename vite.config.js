@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { buildGtagConfigScript } from './analytics.gtag.config.mjs'
 
 function injectGoogleAnalytics(measurementId) {
   return {
@@ -14,7 +15,7 @@ function injectGoogleAnalytics(measurementId) {
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '${measurementId}');
+      ${buildGtagConfigScript(measurementId)}
     <\/script>`
       return html.replace('</head>', `${snippet}\n  </head>`)
     },
