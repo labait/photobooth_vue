@@ -3,11 +3,19 @@ import {
   query,
   where,
   getDocs,
-  doc,
-  getDoc,
 } from 'firebase/firestore'
 import { db } from '../../src/firebase.js'
 import { Support } from './Support.mjs'
+
+const PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID || 'photobooth-laba-2ca9f'
+
+function parseFirestoreStringArray(field) {
+  const values = field?.arrayValue?.values
+  if (!Array.isArray(values)) return []
+  return values
+    .map((entry) => entry.stringValue)
+    .filter((value) => typeof value === 'string')
+}
 
 function buildLimitError(title, limitNumber, limitTimeframe) {
   return {
@@ -37,7 +45,7 @@ export async function resolveIsAdmin(idToken) {
   if (!apiKey) return false
 
   try {
-    const response = await fetch(
+    const lookupResponse = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`,
       {
         method: 'POST',
@@ -45,13 +53,21 @@ export async function resolveIsAdmin(idToken) {
         body: JSON.stringify({ idToken }),
       },
     )
-    const data = await response.json()
-    const uid = data.users?.[0]?.localId
+    const lookupData = await lookupResponse.json()
+    const uid = lookupData.users?.[0]?.localId
     if (!uid) return false
 
-    const accountSnap = await getDoc(doc(db, 'accounts', uid))
-    const roles = accountSnap.data()?.roles
-    return Array.isArray(roles) && roles.includes('admin')
+    const accountResponse = await fetch(
+      `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/accounts/${uid}`,
+      {
+        headers: { Authorization: `Bearer ${idToken}` },
+      },
+    )
+    if (!accountResponse.ok) return false
+
+    const accountData = await accountResponse.json()
+    const roles = parseFirestoreStringArray(accountData.fields?.roles)
+    return roles.includes('admin')
   } catch {
     return false
   }
