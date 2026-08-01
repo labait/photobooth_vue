@@ -2,7 +2,7 @@
 import { ref, provide, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
-import { storage, db } from './firebase'
+import { storage, db, auth } from './firebase'
 import { ref as storageRef, uploadString, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { collection, addDoc, serverTimestamp, updateDoc, doc, getDoc } from 'firebase/firestore'
 
@@ -218,19 +218,42 @@ const getStorageUrl = async (str) => {
 }
 
 const processImage = async (docId) => {
-  // call process function with selected poster from list
   const posterPath = global.value.poster?.file_path
     ? posterServerPath(global.value.poster.file_path)
     : null;
-  const processUrl = `/.netlify/functions/processImage?docId=${encodeURIComponent(docId)}${posterPath ? `&poster=${encodeURIComponent(posterPath)}` : ''}`;
-  console.log('processUrl', processUrl);
-  const response = await fetch(processUrl);
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Error processing image:', errorText);
-    return false;
+  const generationsRaw = storeValue('generations') ?? ''
+  const params = new URLSearchParams({ docId, generations: generationsRaw })
+  if (posterPath) params.set('poster', posterPath)
+
+  const headers = {}
+  if (auth.currentUser) {
+    headers.Authorization = `Bearer ${await auth.currentUser.getIdToken()}`
   }
-  return true;
+
+  const processUrl = `/.netlify/functions/processImage?${params.toString()}`
+  console.log('processUrl', processUrl);
+
+  let data = null
+  try {
+    const response = await fetch(processUrl, { headers })
+    data = await response.json()
+    if (!response.ok || data?.error) {
+      if (data?.limitNumber != null && data?.limitTimeframe != null) {
+        showLimitDialog(data.error, data.limitNumber, data.limitTimeframe)
+      } else {
+        showGenerationErrorDialog(data?.error || data?.message || 'Errore processamento immagine', {
+          docId,
+          phase: 'processImage',
+        })
+      }
+      return false
+    }
+    return true
+  } catch (error) {
+    console.error('Error processing image:', error)
+    showGenerationErrorDialog(error, { docId, phase: 'processImage' })
+    return false
+  }
 }
 
 const uploadImage = async (imageDataUrl, imageId) => {

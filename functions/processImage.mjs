@@ -2,7 +2,7 @@
 
 import { getDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '../src/firebase'
-
+import { validateLimits } from './lib/validateLimits.mjs'
 
 export default async (request, context) => {
   try {
@@ -12,6 +12,23 @@ export default async (request, context) => {
     const docData = await getDoc(docRef)
     const docDataJson = docData.data()
     const imageUrl = docDataJson.image_source
+
+    const idToken = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '') || null
+    const generationsRaw = url.searchParams.get('generations') ?? ''
+    const edition = docDataJson.edition || process.env.VITE_EDITION
+
+    const limitError = await validateLimits({
+      generationsRaw,
+      edition,
+      idToken,
+    })
+
+    if (limitError) {
+      return new Response(JSON.stringify(limitError), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
     
     const data = {
       docId: docData.id, 
