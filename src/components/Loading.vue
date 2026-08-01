@@ -1,5 +1,6 @@
 <script setup>
 import { computed, inject } from 'vue'
+import ProgressBar from './ProgressBar.vue'
 
 const global = inject('global')
 
@@ -7,6 +8,8 @@ const loadingMessage = computed(() => {
   const value = global.value.isLoading
   return typeof value === 'string' ? value : ''
 })
+
+const showProgress = computed(() => global.value.loading_progress != null)
 </script>
 
 <template>
@@ -24,6 +27,12 @@ const loadingMessage = computed(() => {
     >
       {{ loadingMessage }}
     </p>
+
+    <ProgressBar
+      v-if="showProgress"
+      class="loading-progress mt-6"
+      :progress="global.loading_progress"
+    />
   </div>
 </template>
 
@@ -31,7 +40,7 @@ const loadingMessage = computed(() => {
 .loading-overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 300;
   background: rgb(0 0 0 / 0.94);
 }
 
@@ -60,5 +69,9 @@ const loadingMessage = computed(() => {
 
 .loading-message {
   text-wrap: balance;
+}
+
+.loading-progress {
+  width: min(90vw, 20rem);
 }
 </style>

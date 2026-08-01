@@ -26,7 +26,7 @@ service cloud.firestore {
 
     function isPhotoboothItemUpdate() {
       return request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['image_source', 'check_count', 'status', 'process_result', 'image_processed', 'image_framed']);
+        .hasOnly(['image_source', 'check_count', 'status', 'process_result', 'image_processed', 'image_framed', 'error']);
     }
 
     // Profili utente (login Google). I ruoli admin si impostano da Firebase Console.

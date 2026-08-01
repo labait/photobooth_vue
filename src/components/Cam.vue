@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted, onUnmounted, inject } from 'vue'
+import { ref, computed, onMounted, onUnmounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { CameraIcon } from '@heroicons/vue/24/outline'
 
 import Consents from './Consents.vue'
 import { useAuth } from '../composables/useAuth'
@@ -22,6 +23,9 @@ const getResult = inject('getResult')
 
 const sound1 = new Audio('/click.mp3')
 const countDown = ref(0)
+const countdownTimer = ref(null)
+
+const isCaptureActive = computed(() => countDown.value > 0 || isUploading.value)
 
 const showConsents = ref(false)
 const consentsAccepted = ref(false)
@@ -33,6 +37,22 @@ function refreshConsentsAccepted() {
 
 function openConsents() {
   showConsents.value = true
+}
+
+function hasSelectedPoster() {
+  return Boolean(global.value.poster?.file_path)
+}
+
+function showMissingPosterDialog() {
+  global.value.dialog = {
+    title: 'Errore',
+    text: 'È necessario scegliere un\'immagine di riferimento',
+    confirmText: 'OK',
+    onConfirm: () => {
+      global.value.dialog = {}
+      router.push('/posters')
+    },
+  }
 }
 
 function getStoredCamId() {
@@ -99,6 +119,10 @@ onMounted(async () => {
   if (!global.value.validateLimits()) {
     return
   }
+  if (!hasSelectedPoster()) {
+    showMissingPosterDialog()
+    return
+  }
   refreshConsentsAccepted()
   if (!consentsAccepted.value) {
     showConsents.value = true
@@ -115,6 +139,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  clearCountdownTimer()
   stopCamera()
 })
 
@@ -163,14 +188,34 @@ function deviceLabel(device, index) {
   return device.label || `Fotocamera ${index + 1}`
 }
 
-async function shotPrepare() {
-  if (isUploading.value || !consentsAccepted.value) return
+function clearCountdownTimer() {
+  if (countdownTimer.value) {
+    clearInterval(countdownTimer.value)
+    countdownTimer.value = null
+  }
+}
 
+function cancelCapture() {
+  clearCountdownTimer()
+  countDown.value = 0
+  global.value.cancelGeneration()
+  isUploading.value = false
+}
+
+async function shotPrepare() {
+  if (!hasSelectedPoster()) {
+    showMissingPosterDialog()
+    return
+  }
+  if (isUploading.value || !consentsAccepted.value || countDown.value > 0) return
+
+  global.value.resetGenerationCancellation()
   countDown.value = global.value.isDebug() ? 1 : global.value.countDownSeconds
-  const interval = setInterval(() => {
+  clearCountdownTimer()
+  countdownTimer.value = setInterval(() => {
     countDown.value -= 1
     if (countDown.value === 0) {
-      clearInterval(interval)
+      clearCountdownTimer()
       if (shotOverlay.value) {
         shotOverlay.value.style.opacity = '1'
         setTimeout(() => {
@@ -183,6 +228,7 @@ async function shotPrepare() {
 }
 
 async function shot() {
+  if (global.value.generationCancelled) return
   if (!global.value.validateLimits()) return
 
   if (!global.value.isDebug()) sound1.play()
@@ -212,17 +258,26 @@ async function shot() {
   try {
     isUploading.value = true
     const result = await uploadImage(image.value, imageId)
+    if (global.value.generationCancelled) return
+
     if (result) {
       const data = await getResult(global.value.docId)
+      if (global.value.generationCancelled) return
+
       if (data?.process_result?.status === 'succeeded') {
         router.push(`/detail/${global.value.docId}`)
       }
     }
   } catch (error) {
-    console.error('Error processing image:', error)
+    if (!global.value.generationCancelled) {
+      console.error('Error processing image:', error)
+    }
   } finally {
     isUploading.value = false
-    global.value.isLoading = null
+    if (!global.value.generationCancelled) {
+      global.value.stopGenerationProgress()
+      global.value.isLoading = null
+    }
   }
 }
 </script>
@@ -237,10 +292,10 @@ async function shot() {
 
     <div
       v-if="countDown > 0"
-      class="absolute inset-0 z-30 flex items-center justify-center text-[#FF7230] text-[40vw] font-bold opacity-80 sm:text-[20vw]"
+      class="countdown-overlay"
       aria-live="polite"
     >
-      {{ countDown }}
+      <span class="countdown-number">{{ countDown }}</span>
     </div>
 
     <div class="relative z-10 flex w-full max-w-lg flex-col items-center gap-5 md:gap-6">
@@ -256,7 +311,7 @@ async function shot() {
             id="cam-device"
             v-model="selectedDevice"
             class="cam-select"
-            :disabled="isUploading"
+            :disabled="isCaptureActive"
             @change="onCameraSelectChange"
           >
             <option
@@ -272,9 +327,9 @@ async function shot() {
 
       <div
         class="cam-frame relative w-full max-w-[483px] bg-white shadow-[0px_18px_13px_-14px_rgba(0,0,0,0.05),0px_30px_20px_-20px_rgba(0,0,0,0.05)]"
-        style="aspect-ratio: 483 / 627"
+        :class="{ 'cam-frame--capture': isCaptureActive }"
       >
-        <div class="cam-viewport absolute bg-black">
+        <div class="cam-viewport bg-black">
           <video
             ref="video"
             class="cam h-full w-full object-cover"
@@ -283,22 +338,35 @@ async function shot() {
             muted
           />
         </div>
-      </div>
 
-      <button
-        type="button"
-        class="btn-btl-primary cam-shot-btn cursor-pointer"
-        :disabled="isUploading || !selectedDevice || !consentsAccepted"
-        @click="shotPrepare"
-      >
-        {{ isUploading ? 'Caricamento...' : 'Scatta' }}
-      </button>
+        <div class="cam-frame-actions">
+          <button
+            v-if="!isCaptureActive"
+            type="button"
+            class="btn-btl-primary cam-shot-btn cursor-pointer inline-flex items-center justify-center gap-3"
+            :disabled="!selectedDevice || !consentsAccepted"
+            @click="shotPrepare"
+          >
+            <CameraIcon class="h-6 w-6 shrink-0 sm:h-7 sm:w-7" aria-hidden="true" />
+            Scatta
+          </button>
+
+          <button
+            v-else
+            type="button"
+            class="cam-cancel-btn cursor-pointer"
+            @click="cancelCapture"
+          >
+            Annulla
+          </button>
+        </div>
+      </div>
 
       <div class="flex flex-wrap items-center justify-center gap-5">
         <router-link
           to="/posters"
           class="btn-btl-secondary cursor-pointer"
-          :class="{ 'pointer-events-none opacity-50': isUploading }"
+          :class="{ 'pointer-events-none opacity-50': isCaptureActive }"
         >
           Torna indietro
         </router-link>
@@ -318,11 +386,26 @@ async function shot() {
 </template>
 
 <style scoped>
+.cam-frame {
+  display: flex;
+  flex-direction: column;
+  padding: 5.58% 7.04% 3.5%;
+  gap: 0.75rem;
+}
+
 .cam-viewport {
-  top: 5.58%;
-  left: 7.04%;
-  width: 86.13%;
-  height: 82.78%;
+  width: 100%;
+  aspect-ratio: 416 / 519;
+  overflow: hidden;
+}
+
+.cam-frame-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.cam-frame--capture {
+  z-index: 35;
 }
 
 .cam {
@@ -332,6 +415,24 @@ async function shot() {
 .shot-overlay {
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
+}
+
+.countdown-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.countdown-number {
+  color: #ff7230;
+  font-size: clamp(7rem, 52vw, 24rem);
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.85;
 }
 
 .cam-select-field {
@@ -395,20 +496,34 @@ async function shot() {
   background-color: #f5f5f5;
 }
 
-.cam-shot-btn {
+.cam-shot-btn,
+.cam-cancel-btn {
   width: 100%;
-  max-width: 483px;
-  padding: 1.125rem 2rem;
-  font-size: 1.375rem;
+  padding: 0.875rem 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.2;
-  min-height: 3.75rem;
+  min-height: 3rem;
+}
+
+.cam-cancel-btn {
+  border: 1px solid #d4d4d4;
+  border-radius: 0;
+  background-color: #e5e5e5;
+  color: #525252;
+  transition: background-color 0.2s ease;
+}
+
+.cam-cancel-btn:hover {
+  background-color: #d4d4d4;
 }
 
 @media (min-width: 640px) {
-  .cam-shot-btn {
-    font-size: 1.5rem;
-    min-height: 4rem;
+  .cam-shot-btn,
+  .cam-cancel-btn {
+    padding: 1rem 1.5rem;
+    font-size: 1.25rem;
+    min-height: 3.25rem;
   }
 }
 </style>

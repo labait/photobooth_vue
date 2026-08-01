@@ -34,6 +34,56 @@ const LIMIT_TOTAL_NUMBER = Number(import.meta.env.VITE_LIMIT_TOTAL_NUMBER)
 const LIMIT_TOTAL_TIMEFRAME = Number(import.meta.env.VITE_LIMIT_TOTAL_TIMEFRAME)
 const limitAdminOverride = isTrue(import.meta.env.VITE_LIMIT_ADMIN_OVERRIDE)
 const LOADING_GENERATION = 'Generazione in corso, NON chiudere la finestra del browser'
+const GENERATION_DURATION_MEDIAN = Number(import.meta.env.VITE_GENERATION_DURATION_MEDIAN) || 60
+
+let generationStartedAt = null
+let generationProgressTimer = null
+
+function stopGenerationProgress() {
+  if (generationProgressTimer) {
+    clearInterval(generationProgressTimer)
+    generationProgressTimer = null
+  }
+  generationStartedAt = null
+  global.value.loading_progress = null
+}
+
+function startGenerationProgress() {
+  stopGenerationProgress()
+  global.value.generationCancelled = false
+  generationStartedAt = Date.now()
+  global.value.isLoading = `${LOADING_GENERATION}, la generazione richiederà circa ${GENERATION_DURATION_MEDIAN} secondi`
+  global.value.loading_progress = 0
+
+  generationProgressTimer = setInterval(() => {
+    if (!generationStartedAt) return
+
+    const elapsed = Date.now() - generationStartedAt
+    const totalMs = GENERATION_DURATION_MEDIAN * 1000
+    const progress = Math.min(99, Math.round((elapsed / totalMs) * 100))
+    global.value.loading_progress = progress
+  }, 250)
+}
+
+let activeGetResultTimer = null
+
+function cancelGeneration() {
+  global.value.generationCancelled = true
+  if (activeGetResultTimer) {
+    clearTimeout(activeGetResultTimer)
+    activeGetResultTimer = null
+  }
+  stopGenerationProgress()
+  global.value.isLoading = null
+}
+
+function resetGenerationCancellation() {
+  global.value.generationCancelled = false
+  if (activeGetResultTimer) {
+    clearTimeout(activeGetResultTimer)
+    activeGetResultTimer = null
+  }
+}
 
 function storeValue(key, value = null) {
   const storageKey = `${LOCALSTORE_PREFIX}${key}`
@@ -101,6 +151,24 @@ function showGenerationErrorDialog(errorMessage, context = {}) {
   }
 }
 
+async function recordGenerationFailure(docRef, errorMessage) {
+  await updateDoc(docRef, {
+    status: 'failed',
+    error: String(errorMessage),
+  })
+}
+
+function failGeneration(errorMessage, context = {}) {
+  if (global.value.generationCancelled) {
+    stopGenerationProgress()
+    global.value.isLoading = null
+    return
+  }
+  stopGenerationProgress()
+  global.value.isLoading = null
+  showGenerationErrorDialog(errorMessage, context)
+}
+
 function checkLimit(count, limitNumber, limitTimeframe, title) {
   if (!limitTimeframe) return true
   if (!limitNumber && limitNumber !== 0) return true
@@ -142,6 +210,8 @@ const global = ref({
     return urlParams.has('debug') || false;
   },
   isLoading: null,
+  loading_progress: null,
+  generationCancelled: false,
   currentImage: null,
   docData: null,
   features: {
@@ -159,6 +229,10 @@ const global = ref({
   validateLimitTotal,
   validateLimits,
   recordGeneration,
+  startGenerationProgress,
+  stopGenerationProgress,
+  cancelGeneration,
+  resetGenerationCancellation,
 })
 window.global = global; // for debug purposes
 
@@ -188,6 +262,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   generationCounts.destroy()
+  stopGenerationProgress()
 })
 
 watch([isAdmin, authReady], syncEnvForAdmin, { immediate: true })
@@ -239,6 +314,7 @@ const processImage = async (docId) => {
     const response = await fetch(processUrl, { headers })
     data = await response.json()
     if (!response.ok || data?.error) {
+      if (global.value.generationCancelled) return false
       if (data?.limitNumber != null && data?.limitTimeframe != null) {
         showLimitDialog(data.error, data.limitNumber, data.limitTimeframe)
       } else {
@@ -252,6 +328,7 @@ const processImage = async (docId) => {
     return true
   } catch (error) {
     console.error('Error processing image:', error)
+    if (global.value.generationCancelled) return false
     showGenerationErrorDialog(error, { docId, phase: 'processImage' })
     return false
   }
@@ -259,7 +336,7 @@ const processImage = async (docId) => {
 
 const uploadImage = async (imageDataUrl, imageId) => {
   try {
-    global.value.isLoading = LOADING_GENERATION
+    startGenerationProgress()
     global.value.recordGeneration()
 
     const docRef = await addDoc(collection(db, 'items'), {
@@ -279,11 +356,15 @@ const uploadImage = async (imageDataUrl, imageId) => {
     await updateDoc(docRef, {
       image_source: downloadURL,
     })
+
+    if (global.value.generationCancelled) return false
     
     const docData = (await getDoc(docRef)).data();
     global.value.docData = docData;
     global.value.docId = docRef.id;
     console.log('docData',global.value)
+
+    if (global.value.generationCancelled) return false
 
     return processImage(docRef.id)
 
@@ -299,6 +380,11 @@ const getResult = (docId) => {
 
   return new Promise((resolve) => {
     const check = async () => {
+      if (global.value.generationCancelled) {
+        resolve(null)
+        return
+      }
+
       const docRef = doc(db, 'items', docId)
       const docData = await getDoc(docRef)
       let checkCount = docData.data()?.check_count || 0;
@@ -312,15 +398,30 @@ const getResult = (docId) => {
         data = await response.json()
         console.log('getResult data', data)
       } catch (error) {
-        showGenerationErrorDialog(error, { docId, phase: 'fetch' })
-        global.value.isLoading = null
+        const errorMessage = error?.message || String(error)
+        try {
+          await recordGenerationFailure(docRef, errorMessage)
+        } catch (updateError) {
+          console.error('Failed to save generation error on item', updateError)
+        }
+        failGeneration(errorMessage, { docId, phase: 'fetch' })
         resolve(null)
         return
       }
 
-      if (data?.error) {
-        showGenerationErrorDialog(data.error, { docId, checkCount })
-        global.value.isLoading = null
+      const processStatus = data?.process_result?.status
+      const errorMessage = data?.error
+        || (processStatus === 'failed' || processStatus === 'canceled'
+          ? (data?.process_result?.error || 'Generazione fallita')
+          : null)
+
+      if (errorMessage) {
+        try {
+          await recordGenerationFailure(docRef, errorMessage)
+        } catch (updateError) {
+          console.error('Failed to save generation error on item', updateError)
+        }
+        failGeneration(errorMessage, { docId, checkCount, processStatus })
         resolve(null)
         return
       }
@@ -331,17 +432,22 @@ const getResult = (docId) => {
       })
 
       if (data?.process_result?.status == "succeeded") {
+        global.value.loading_progress = 100
         global.value.docData = data;
         console.log('docData', data)
         resolve(data);
       } else {
         if (checkCount < maxChecks) {
-          setTimeout(check, 5000)
+          activeGetResultTimer = setTimeout(check, 5000)
         } else {
           console.log(`failed to get result after ${maxChecks} checks`)
-          await updateDoc(docRef, {
-            status: 'failed',
-          })
+          const timeoutError = data?.process_result?.error
+            || `Timeout: generazione non completata dopo ${maxChecks} tentativi`
+          try {
+            await recordGenerationFailure(docRef, timeoutError)
+          } catch (updateError) {
+            console.error('Failed to save generation timeout on item', updateError)
+          }
           resolve(data);
         }
       }

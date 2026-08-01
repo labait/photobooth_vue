@@ -8,12 +8,37 @@ import {
 } from '../src/itemStorage.js';
 import { composeFramedImage } from './lib/composeFramedImage.mjs';
 
+function predictionErrorMessage(processResult) {
+  return processResult?.error || `Prediction ${processResult?.status || 'failed'}`;
+}
+
+async function markItemFailed(docRef, errorMessage) {
+  await updateDoc(docRef, {
+    status: 'failed',
+    error: errorMessage,
+  });
+}
+
 export default async (request) => {
+  const url = new URL(request.url);
+  const docId = url.searchParams.get('docId');
+
+  if (!docId) {
+    return new Response(JSON.stringify({ error: 'Missing docId' }), {
+      status: 400,
+    });
+  }
+
+  const docRef = doc(db, 'items', docId);
+
   try {
-    const url = new URL(request.url);
-    const docId = url.searchParams.get('docId');
-    const docRef = doc(db, 'items', docId);
     let docData = (await getDoc(docRef)).data();
+    if (!docData?.process_result?.urls?.get) {
+      const errorMessage = 'Missing Replicate prediction URL';
+      await markItemFailed(docRef, errorMessage);
+      return new Response(JSON.stringify({ error: errorMessage }));
+    }
+
     const processUrl = docData.process_result.urls.get;
     const processResponse = await fetch(processUrl, {
       method: 'GET',
@@ -21,12 +46,25 @@ export default async (request) => {
         Authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}`,
       },
     });
+
+    if (!processResponse.ok) {
+      const errorMessage = `Replicate poll failed: HTTP ${processResponse.status}`;
+      await markItemFailed(docRef, errorMessage);
+      return new Response(JSON.stringify({ error: errorMessage }));
+    }
+
     const processResult = await processResponse.json();
     await updateDoc(docRef, {
       process_result: processResult,
     });
 
     console.log('processResult', docData.image_id);
+
+    if (processResult.status === 'failed' || processResult.status === 'canceled') {
+      const errorMessage = predictionErrorMessage(processResult);
+      await markItemFailed(docRef, errorMessage);
+      return new Response(JSON.stringify({ error: errorMessage }));
+    }
 
     if (
       processResult.status === 'succeeded'
@@ -74,8 +112,15 @@ export default async (request) => {
 
     return new Response(JSON.stringify(docData));
   } catch (error) {
+    const errorMessage = error?.message || String(error);
+    try {
+      await markItemFailed(docRef, errorMessage);
+    } catch (updateError) {
+      console.error('Failed to save error on item', updateError);
+    }
+
     return new Response(JSON.stringify({
-      error: error.toString(),
+      error: errorMessage,
     }));
   }
 };

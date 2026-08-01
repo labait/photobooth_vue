@@ -38,11 +38,22 @@ const currentImageUrl = computed(() => {
 
 const toggleHint = 'Tocca per alternare l\'originale e l\'immagine generata'
 
-const actionsDisabled = computed(() => !framedImageUrl.value)
+const shareableImageUrl = computed(() => {
+  return global.value.docData?.image_framed
+    || global.value.docData?.image_processed
+    || null
+})
+
+const actionsDisabled = computed(() => !shareableImageUrl.value)
 
 const loadData = async () => {
   const docRef = doc(db, 'items', docId.value)
   global.value.docData = (await getDoc(docRef)).data()
+
+  if (!global.value.docData?.image_processed) {
+    global.value.startGenerationProgress()
+  }
+
   await getResult(docId.value)
 
   global.value.docData.image_source = await getStorageUrl(global.value.docData.image_source)
@@ -50,6 +61,7 @@ const loadData = async () => {
   global.value.docData.image_framed = await getStorageUrl(global.value.docData.image_framed)
 
   showFramed.value = Boolean(generatedImageUrl.value)
+  global.value.stopGenerationProgress()
   global.value.isLoading = null
 }
 
@@ -59,7 +71,7 @@ function toggleImage() {
 }
 
 async function shareImage() {
-  const url = framedImageUrl.value
+  const url = shareableImageUrl.value
   if (!url) return
 
   if (navigator.share) {
