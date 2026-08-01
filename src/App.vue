@@ -17,13 +17,14 @@ import { posterServerPath } from './images.js'
 import { editionCode, loadEdition } from './editionConfig.js'
 import { itemStoragePath, ITEM_IMAGE_FILES } from './itemStorage.js'
 import { isTrue, timeframeHuman } from './composables/useUtils'
+import { checkOpening as isWithinOpeningHours, getOpeningConfig } from './composables/useOpening'
 import { useAuth } from './composables/useAuth'
 import { useGenerationCounts } from './composables/useGenerationCounts'
 import * as Sentry from '@sentry/vue'
 
 const router = useRouter()
 const route = useRoute()
-const { isAdmin, authReady } = useAuth()
+const { isAdmin, authReady, waitForAuth } = useAuth()
 const maintenanceActive = isTrue(import.meta.env.VITE_MAINTENANCE)
 const edition = editionCode
 const urlParams = new URLSearchParams(window.location.search);
@@ -255,6 +256,20 @@ function syncEnvForAdmin() {
     : {}
 }
 
+function checkOpening() {
+  if (maintenanceActive) return true
+  if (authReady.value && isAdmin.value) return true
+
+  const { isConfigured } = getOpeningConfig()
+  if (!isConfigured) return true
+
+  const isOpen = isWithinOpeningHours({ maintenanceActive: false })
+  if (!isOpen && route.path !== '/opening') {
+    router.replace('/opening')
+  }
+  return isOpen
+}
+
 onMounted(async () => {
   if (storeValue('generations') === null) {
     storeValue('generations', '')
@@ -265,6 +280,8 @@ onMounted(async () => {
     console.error('Failed to load edition.json:', error)
   }
   generationCounts.init()
+  await waitForAuth()
+  checkOpening()
 })
 
 onUnmounted(() => {
@@ -282,6 +299,11 @@ watch([isAdmin, authReady, () => route.path], () => {
     route.path === '/maintenance'
   ) {
     router.replace('/')
+    return
+  }
+
+  if (authReady.value && !maintenanceActive && !isAdmin.value) {
+    checkOpening()
   }
 })
 

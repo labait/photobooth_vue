@@ -60,7 +60,8 @@ const swiperKey = computed(() => `${category.value ?? 'all'}-${shuffleSeed.value
 const swiperBreakpoints = {
   0: { slidesPerView: 1, spaceBetween: 16 },
   640: { slidesPerView: 2, spaceBetween: 16 },
-  1024: { slidesPerView: 4, spaceBetween: 16 },
+  1024: { slidesPerView: 3, spaceBetween: 16 },
+  1280: { slidesPerView: 4, spaceBetween: 16 },
 }
 
 function categoryLabel(cat) {

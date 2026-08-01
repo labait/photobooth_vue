@@ -393,7 +393,7 @@ onMounted(loadItems);
                 :to="`/detail/${item.id}`"
                 class="group flex-1 min-w-0"
               >
-                <p class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-primary)]/50">
+                <p class="mb-1 text-sm font-semibold  tracking-wide text-[var(--text-primary)]/50">
                   Originale
                 </p>
                 <div class="aspect-square overflow-hidden rounded-md bg-[var(--page-bg)] ring-1 ring-black/5 transition-shadow group-hover:ring-2 group-hover:ring-[#FF7230]">
@@ -413,7 +413,7 @@ onMounted(loadItems);
               </router-link>
 
               <div class="flex-1 min-w-0">
-                <p class="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-primary)]/50">
+                <p class="mb-1 text-sm font-semibold  tracking-wide text-[var(--text-primary)]/50">
                   Elaborata
                 </p>
                 <div class="aspect-square overflow-hidden rounded-md bg-[var(--page-bg)] ring-1 ring-black/5">

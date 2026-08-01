@@ -7,7 +7,9 @@ import Detail from '../components/Detail.vue'
 import Posters from '../components/Posters.vue'
 import Admin from '../components/Admin.vue'
 import MaintenanceView from '../components/MaintenanceView.vue'
+import OpeningView from '../components/OpeningView.vue'
 import { isTrue } from '../composables/useUtils'
+import { checkOpening, getOpeningConfig } from '../composables/useOpening'
 import { useAuth } from '../composables/useAuth'
 
 const routes = [
@@ -20,6 +22,11 @@ const routes = [
     path: '/maintenance',
     name: 'maintenance',
     component: MaintenanceView,
+  },
+  {
+    path: '/opening',
+    name: 'opening',
+    component: OpeningView,
   },
   {
     path: '/test',
@@ -62,12 +69,26 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const maintenance = isTrue(import.meta.env.VITE_MAINTENANCE)
 
-  if (!maintenance) {
-    if (to.path === '/maintenance') {
-      next('/')
+  if (maintenance) {
+    const { waitForAuth, isAdmin } = useAuth()
+    await waitForAuth()
+
+    if (isAdmin.value) {
+      next()
       return
     }
-    next()
+
+    if (to.path === '/maintenance') {
+      next()
+      return
+    }
+
+    next('/maintenance')
+    return
+  }
+
+  if (to.path === '/maintenance') {
+    next('/')
     return
   }
 
@@ -79,12 +100,24 @@ router.beforeEach(async (to, from, next) => {
     return
   }
 
-  if (to.path === '/maintenance') {
+  const openingConfigured = getOpeningConfig().isConfigured
+  const isOpen = checkOpening({ maintenanceActive: false })
+
+  if (!openingConfigured || isOpen) {
+    if (to.path === '/opening') {
+      next('/')
+      return
+    }
     next()
     return
   }
 
-  next('/maintenance')
+  if (to.path === '/opening') {
+    next()
+    return
+  }
+
+  next('/opening')
 })
 
 export default router
