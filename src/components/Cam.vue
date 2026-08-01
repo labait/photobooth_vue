@@ -211,7 +211,6 @@ async function shot() {
 
   try {
     isUploading.value = true
-    global.value.isLoading = true
     const result = await uploadImage(image.value, imageId)
     if (result) {
       const data = await getResult(global.value.docId)
@@ -223,7 +222,7 @@ async function shot() {
     console.error('Error processing image:', error)
   } finally {
     isUploading.value = false
-    global.value.isLoading = false
+    global.value.isLoading = null
   }
 }
 </script>

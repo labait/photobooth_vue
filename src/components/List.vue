@@ -23,8 +23,8 @@ onMounted(async () => {
     global.value.isLoading = true
     const response = await fetch('/.netlify/functions/list')
     const data = await response.json()
-    if(!data?.length) {
-        global.value.isLoading = false
+    if (!data?.length) {
+        global.value.isLoading = null
         return
     }
     // Shuffle the array using Fisher-Yates algorithm
@@ -43,7 +43,7 @@ onMounted(async () => {
         }
     }))
     items.value = items.value.filter(item => item.image_processed)
-    global.value.isLoading = false
+    global.value.isLoading = null
 
     if (!items.value.length) return
 
@@ -118,7 +118,7 @@ const clickPolaroid = (item) => {
 
 
 <template>
-    <div v-if="!global.isLoading" class="flex h-screen absolute top-60px left-0 w-full items-center justify-center polaroids">
+    <div v-if="global.isLoading == null" class="flex h-screen absolute top-60px left-0 w-full items-center justify-center polaroids">
         <Polaroid v-for="item in items" :url="detailUrl(item.docId)" :key="item.docId" :id="`item-${item.docId}`" :data-image-id="item.image_id" class="polaroid" >
             <img :src="item.image_source" class="absolute top-0 left-0 w-full h-full object-cover block image-source cursor-pointer" @click="clickPolaroid(item)" />
             <img :src="item.image_processed" class="absolute top-0 left-0 w-full h-full object-cover block image-processed cursor-pointer" @click="clickPolaroid(item)" />

@@ -1,9 +1,16 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, inject, onMounted, onUnmounted } from 'vue'
+
+const global = inject('global')
 
 const maxItems = 50
 const images = ref([])
 const loaded = ref(false)
+
+const loadingMessage = computed(() => {
+  const value = global.value.isLoading
+  return typeof value === 'string' ? value : ''
+})
 
 onMounted(async () => {
   try {
@@ -11,14 +18,13 @@ onMounted(async () => {
     const data = await response.json()
     if (!data?.length) return
 
-    // Fisher-Yates shuffle
     for (let i = data.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[data[i], data[j]] = [data[j], data[i]]
     }
 
     const sample = data.slice(0, maxItems)
-    images.value = sample.map(item => item.image_processed).filter(Boolean)
+    images.value = sample.map((item) => item.image_processed).filter(Boolean)
   } catch (e) {
     console.error('Errore nel caricamento delle immagini di anteprima', e)
   } finally {
@@ -28,22 +34,34 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="loading-overlay flex flex-col justify-center items-center h-screen opacity-95 absolute top-0 left-0 w-full z-50 bg-black overflow-hidden">
-
-    <!-- Slideshow scorrevole -->
-    <div v-if="loaded && images.length" class="slideshow-track flex items-center gap-4 mb-12">
+  <div
+    class="loading-overlay flex flex-col items-center justify-center overflow-hidden"
+    role="status"
+    aria-live="polite"
+    :aria-label="loadingMessage || 'Caricamento in corso'"
+  >
+    <div v-if="loaded && images.length" class="slideshow-track mb-12 flex items-center gap-4">
       <div
         v-for="(src, index) in [...images, ...images]"
         :key="index"
-        class="slide flex-shrink-0 w-40 sm:w-52 aspect-[2/3] rounded-lg overflow-hidden border border-white/20"
+        class="slide aspect-[2/3] w-40 flex-shrink-0 overflow-hidden rounded-lg border border-white/20 sm:w-52"
       >
-        <img :src="src" class="w-full h-full object-cover" @error="$event.target.parentElement?.remove()" />
+        <img
+          :src="src"
+          class="h-full w-full object-cover"
+          @error="$event.target.parentElement?.remove()"
+        >
       </div>
     </div>
 
-    <!-- Spinner -->
-    <div class="w-32 h-32 border-t-8 border-b-8 border-white rounded-full animate-spin"></div>
+    <div class="loading-spinner" aria-hidden="true" />
 
+    <p
+      v-if="loadingMessage"
+      class="loading-message mt-8 max-w-lg px-6 text-center text-base font-semibold leading-relaxed text-white sm:text-lg"
+    >
+      {{ loadingMessage }}
+    </p>
   </div>
 </template>
 
@@ -60,13 +78,35 @@ onMounted(async () => {
 
 .loading-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
+  inset: 0;
   z-index: 50;
-  background: #000;
-  opacity: 0.95;
-  overflow: hidden;
+  background: rgb(0 0 0 / 0.94);
+}
+
+.loading-spinner {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 9999px;
+  border: 6px solid rgb(255 255 255 / 0.18);
+  border-top-color: #fff;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
+  animation: loading-spin 0.85s linear infinite;
+}
+
+@media (min-width: 640px) {
+  .loading-spinner {
+    width: 5.5rem;
+    height: 5.5rem;
+    border-width: 7px;
+  }
+}
+
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-message {
+  text-wrap: balance;
 }
 </style>

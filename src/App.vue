@@ -33,6 +33,7 @@ const LIMIT_USER_TIMEFRAME = Number(import.meta.env.VITE_LIMIT_USER_TIMEFRAME)
 const LIMIT_TOTAL_NUMBER = Number(import.meta.env.VITE_LIMIT_TOTAL_NUMBER)
 const LIMIT_TOTAL_TIMEFRAME = Number(import.meta.env.VITE_LIMIT_TOTAL_TIMEFRAME)
 const limitAdminOverride = isTrue(import.meta.env.VITE_LIMIT_ADMIN_OVERRIDE)
+const LOADING_GENERATION = 'Generazione in corso, NON chiudere la finestra del browser'
 
 function storeValue(key, value = null) {
   const storageKey = `${LOCALSTORE_PREFIX}${key}`
@@ -140,7 +141,7 @@ const global = ref({
   isDebug: () =>{
     return urlParams.has('debug') || false;
   },
-  isLoading: false,
+  isLoading: null,
   currentImage: null,
   docData: null,
   features: {
@@ -258,7 +259,7 @@ const processImage = async (docId) => {
 
 const uploadImage = async (imageDataUrl, imageId) => {
   try {
-    global.value.isLoading = true;
+    global.value.isLoading = LOADING_GENERATION
     global.value.recordGeneration()
 
     const docRef = await addDoc(collection(db, 'items'), {
@@ -312,14 +313,14 @@ const getResult = (docId) => {
         console.log('getResult data', data)
       } catch (error) {
         showGenerationErrorDialog(error, { docId, phase: 'fetch' })
-        global.value.isLoading = false
+        global.value.isLoading = null
         resolve(null)
         return
       }
 
       if (data?.error) {
         showGenerationErrorDialog(data.error, { docId, checkCount })
-        global.value.isLoading = false
+        global.value.isLoading = null
         resolve(null)
         return
       }
@@ -368,7 +369,7 @@ provide('getStorageUrl', getStorageUrl);
 <template>
   <main class="app-shell relative flex min-h-screen flex-col bg-[var(--page-bg)]">
     <MaintenanceNotice v-if="maintenanceActive && isAdmin" />
-    <Loading v-if="global.isLoading && $route.path !== '/admin'" />
+    <Loading v-if="global.isLoading != null && $route.path !== '/admin'" />
     <div
       class="auth-btn print:hidden mb-8 mt-8 px-8 flex justify-end"
       :class="maintenanceActive ? 'relative z-[210]' : 'z-40'"

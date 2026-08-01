@@ -32,7 +32,7 @@ const loadData = async () => {
   global.value.docData.image_source = await getStorageUrl(global.value.docData.image_source)
   global.value.docData.image_processed = await getStorageUrl(global.value.docData.image_processed)
 
-  global.value.isLoading = false
+  global.value.isLoading = null
 }
 
 
