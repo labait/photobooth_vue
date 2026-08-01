@@ -1,6 +1,6 @@
 import { buildGtagConfig } from '../analytics.gtag.config.mjs'
 
-export const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || ''
+export const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-095ZWPCW75'
 
 export function isAnalyticsEnabled() {
   return GA_MEASUREMENT_ID.length > 0

@@ -1,33 +1,10 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { buildGtagConfigScript } from './analytics.gtag.config.mjs'
-
-function injectGoogleAnalytics(measurementId) {
-  return {
-    name: 'inject-google-analytics',
-    transformIndexHtml(html) {
-      const snippet = `
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=${measurementId}"><\/script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      ${buildGtagConfigScript(measurementId)}
-    <\/script>`
-      return html.replace('</head>', `${snippet}\n  </head>`)
-    },
-  }
-}
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  const gaMeasurementId = env.VITE_GA_MEASUREMENT_ID
-
-  return {
+export default defineConfig({
   server: {
     proxy: {
       '/.netlify/functions': {
@@ -49,7 +26,6 @@ export default defineConfig(({ mode }) => {
   },
   plugins: [
     vue(),
-    ...(gaMeasurementId ? [injectGoogleAnalytics(gaMeasurementId)] : []),
     {
       name: 'netlify-spa-redirects',
       closeBundle() {
@@ -57,5 +33,4 @@ export default defineConfig(({ mode }) => {
       },
     },
   ],
-  }
 })
