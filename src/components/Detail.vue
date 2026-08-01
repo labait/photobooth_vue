@@ -265,23 +265,23 @@ onMounted(async () => {
       <div class="detail-actions print:hidden">
         <button
           type="button"
-          class="detail-action-btn"
+          class="detail-action-btn detail-action-btn--icon"
           :disabled="shareDisabled"
+          aria-label="Condividi"
           @click="shareImage"
         >
           <ShareIcon class="detail-action-icon" aria-hidden="true" />
-          Condividi
         </button>
         <a
           :href="framedDownloadUrl || undefined"
           :download="downloadFileName"
-          class="detail-action-btn"
+          class="detail-action-btn detail-action-btn--icon"
           :class="{ 'detail-action-btn--disabled': downloadDisabled }"
           :aria-disabled="downloadDisabled ? 'true' : undefined"
+          aria-label="Scarica"
           @click="onDownloadClick"
         >
           <ArrowDownTrayIcon class="detail-action-icon" aria-hidden="true" />
-          Scarica
         </a>
         <button
           type="button"
@@ -357,9 +357,9 @@ onMounted(async () => {
 .detail-actions {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 0.75rem;
   width: min(96vw, 42rem);
   max-width: 100%;
@@ -370,17 +370,11 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.625rem;
-  width: auto;
+  flex: 0 0 auto;
   border: none;
   border-radius: 0.5rem;
   background-color: var(--btn-primary-color);
   color: #fff;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.25;
-  padding: 0.75rem 1.25rem;
-  white-space: nowrap;
   text-decoration: none;
   transition: filter 0.2s ease;
 }
@@ -400,6 +394,22 @@ onMounted(async () => {
   padding: 0.75rem;
   min-width: 2.75rem;
   min-height: 2.75rem;
+}
+
+@media (min-width: 480px) {
+  .detail-actions {
+    justify-content: space-evenly;
+  }
+
+  .detail-action-btn--icon {
+    min-width: 3rem;
+    min-height: 3rem;
+  }
+
+  .detail-action-icon {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
 }
 
 .detail-action-icon {
