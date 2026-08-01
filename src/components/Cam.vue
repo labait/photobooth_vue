@@ -23,8 +23,6 @@ const getResult = inject('getResult')
 const sound1 = new Audio('/click.mp3')
 const countDown = ref(0)
 
-const CAM_STORAGE_KEY = 'photobooth-cam-id'
-
 const showConsents = ref(false)
 const consentsAccepted = ref(false)
 
@@ -38,7 +36,7 @@ function openConsents() {
 }
 
 function getStoredCamId() {
-  return localStorage.getItem(CAM_STORAGE_KEY)
+  return global.value.storeValue('cam_id')
 }
 
 function findDevice(deviceId) {
@@ -78,7 +76,7 @@ async function selectCamera(deviceId, { source = 'code', fromStorage = false } =
   const index = videoDevices.value.indexOf(device)
 
   selectedDevice.value = deviceId
-  localStorage.setItem(CAM_STORAGE_KEY, deviceId)
+  global.value.storeValue('cam_id', deviceId)
 
   console.log('[cam] fotocamera selezionata:', {
     deviceId,
