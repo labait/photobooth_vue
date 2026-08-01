@@ -40,7 +40,10 @@ export default async (request, context) => {
     }
 
     const apiUrl = 'https://api.replicate.com/v1/models/google/nano-banana-pro/predictions'
-    const posterPathRaw = url.searchParams.get('poster') || ''
+    const posterPathRaw = url.searchParams.get('poster')
+      || (docDataJson.edition_image?.file_path
+        ? `${edition}/images/${docDataJson.edition_image.file_path.replace(/^\.\//, '').replace(/^\/+/, '')}`
+        : '')
     const normalizedPosterPath = posterPathRaw
       .replace(/^\.\//, '')
       .replace(/^\/+/, '')

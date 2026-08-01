@@ -39,11 +39,11 @@ function openConsents() {
   showConsents.value = true
 }
 
-function hasSelectedPoster() {
-  return Boolean(global.value.poster?.file_path)
+function hasSelectedEditionImage() {
+  return Boolean(global.value.edition_image?.file_path)
 }
 
-function showMissingPosterDialog() {
+function showMissingEditionImageDialog() {
   global.value.dialog = {
     title: 'Errore',
     text: 'È necessario scegliere un\'immagine di riferimento',
@@ -119,8 +119,8 @@ onMounted(async () => {
   if (!global.value.validateLimits()) {
     return
   }
-  if (!hasSelectedPoster()) {
-    showMissingPosterDialog()
+  if (!hasSelectedEditionImage()) {
+    showMissingEditionImageDialog()
     return
   }
   refreshConsentsAccepted()
@@ -203,8 +203,8 @@ function cancelCapture() {
 }
 
 async function shotPrepare() {
-  if (!hasSelectedPoster()) {
-    showMissingPosterDialog()
+  if (!hasSelectedEditionImage()) {
+    showMissingEditionImageDialog()
     return
   }
   if (isUploading.value || !consentsAccepted.value || countDown.value > 0) return

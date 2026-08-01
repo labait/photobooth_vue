@@ -97,8 +97,8 @@ function setCategory(cat) {
   refreshShuffledItems()
 }
 
-function selectPoster(poster) {
-  global.value.poster = poster
+function selectEditionImage(image) {
+  global.value.edition_image = image
   router.push('/cam')
 }
 </script>
@@ -172,7 +172,7 @@ function selectPoster(poster) {
             <button
               type="button"
               class="poster-card flex h-full w-full cursor-pointer flex-col rounded-xl bg-[#242424] p-3 text-left transition-colors duration-300 hover:bg-[var(--btn-primary-color)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--btn-primary-color)]"
-              @click="selectPoster(item)"
+              @click="selectEditionImage(item)"
             >
               <div class="mb-2 flex min-h-[2.5rem] items-end sm:min-h-[3rem]">
                 <p class="line-clamp-2 w-full text-left  font-bold leading-snug text-white sm:text-base">

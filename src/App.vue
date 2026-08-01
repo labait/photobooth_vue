@@ -209,7 +209,7 @@ function validateLimits() {
 const global = ref({
   countDownSeconds: 3,
   edition: null,
-  poster: null,
+  edition_image: null,
   isDebug: () =>{
     return urlParams.has('debug') || false;
   },
@@ -324,8 +324,8 @@ const getStorageUrl = async (str) => {
 }
 
 const processImage = async (docId) => {
-  const posterPath = global.value.poster?.file_path
-    ? posterServerPath(global.value.poster.file_path)
+  const posterPath = global.value.edition_image?.file_path
+    ? posterServerPath(global.value.edition_image.file_path)
     : null;
   const generationsRaw = storeValue('generations') ?? ''
   const params = new URLSearchParams({ docId, generations: generationsRaw, edition })
@@ -369,11 +369,14 @@ const uploadImage = async (imageDataUrl, imageId) => {
     startGenerationProgress()
     global.value.recordGeneration()
 
+    const editionImage = global.value.edition_image
+
     const docRef = await addDoc(collection(db, 'items'), {
       timestamp: serverTimestamp(),
       image_id: imageId,
       status: 'created',
       edition,
+      ...(editionImage ? { edition_image: editionImage } : {}),
     })
 
     const imageRef = storageRef(
