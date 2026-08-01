@@ -13,7 +13,7 @@ onMounted(async () => {
   try {
     const response = await fetch('/.netlify/functions/list')
     const data = await response.json()
-    if (!data?.length) return
+    if (!response.ok || data?.error || !Array.isArray(data) || !data.length) return
     for (let i = data.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[data[i], data[j]] = [data[j], data[i]]
