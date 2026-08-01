@@ -88,7 +88,7 @@ export default async (request) => {
         processedBuffer = await composeProcessedImage(
           photoBuffer,
           process.env.VITE_WATERMARK_AI,
-          process.env.VITE_WATERMARK_AI_OFFSET,
+          process.env.VITE_WATERMARK_AI_WIDTH,
         );
       }
 
