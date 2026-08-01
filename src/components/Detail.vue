@@ -84,16 +84,25 @@ const loadData = async () => {
 
   global.value.docData = snapshot.data()
 
-  if (!isAdmin.value && !isDetailStatusPublic(global.value.docData?.status)) {
+  if (
+    !isAdmin.value
+    && !isDetailStatusPublic(global.value.docData?.status)
+    && !global.value.docData?.image_processed
+    && !global.value.docData?.image_framed
+  ) {
     showUnavailableDialog()
     return
   }
 
-  if (!global.value.docData?.image_processed) {
-    global.value.startGenerationProgress()
-  }
+  const isGenerationComplete = Boolean(
+    global.value.docData?.image_processed
+    || global.value.docData?.status === 'processed',
+  )
 
-  await getResult(docId.value)
+  if (!isGenerationComplete) {
+    global.value.startGenerationProgress()
+    await getResult(docId.value)
+  }
 
   global.value.docData.image_source = await getStorageUrl(global.value.docData.image_source)
   global.value.docData.image_processed = await getStorageUrl(global.value.docData.image_processed)

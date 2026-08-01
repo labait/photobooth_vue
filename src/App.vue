@@ -154,6 +154,14 @@ function showGenerationErrorDialog(errorMessage, context = {}) {
   }
 }
 
+function formatFetchError(error) {
+  const message = error?.message || String(error)
+  if (message === 'Failed to fetch') {
+    return 'Impossibile contattare il server di generazione. Controlla la connessione e riprova.'
+  }
+  return message
+}
+
 async function recordGenerationFailure(docRef, errorMessage) {
   await updateDoc(docRef, {
     status: 'failed',
@@ -431,7 +439,19 @@ const getResult = (docId) => {
         data = await response.json()
         console.log('getResult data', data)
       } catch (error) {
-        const errorMessage = error?.message || String(error)
+        const errorMessage = formatFetchError(error)
+        const latestSnap = await getDoc(docRef)
+        const latestData = latestSnap.data()
+
+        if (latestData?.image_processed || latestData?.status === 'processed') {
+          global.value.docData = latestData
+          global.value.loading_progress = 100
+          stopGenerationProgress()
+          global.value.isLoading = null
+          resolve(latestData)
+          return
+        }
+
         try {
           await recordGenerationFailure(docRef, errorMessage)
         } catch (updateError) {
