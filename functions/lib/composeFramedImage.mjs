@@ -1,5 +1,5 @@
 import { FrameCompositor } from './FrameCompositor.mjs';
-import { resolveFramePath } from './resolveFramePath.mjs';
+import { loadFrameBuffer } from './resolveFramePath.mjs';
 
 /**
  * Composes a processed photo with the edition frame from VITE_IMAGE_FRAME.
@@ -8,6 +8,7 @@ import { resolveFramePath } from './resolveFramePath.mjs';
  * @returns {Promise<Buffer>} framed PNG
  */
 export async function composeFramedImage(photoBuffer, framePathEnv) {
-  const compositor = await FrameCompositor.fromFile(resolveFramePath(framePathEnv));
+  const frameBuffer = await loadFrameBuffer(framePathEnv);
+  const compositor = FrameCompositor.fromBuffer(frameBuffer);
   return compositor.compose(photoBuffer);
 }
