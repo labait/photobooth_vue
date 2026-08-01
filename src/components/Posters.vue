@@ -1,6 +1,6 @@
 <script setup>
-import { ref, inject, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, inject, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation } from 'swiper/modules'
 import { loadPosters, posterPublicUrl } from '../images.js'
@@ -9,6 +9,7 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 
 const router = useRouter()
+const route = useRoute()
 const global = inject('global')
 
 const modules = [Navigation]
@@ -19,6 +20,30 @@ const loadError = ref(null)
 
 const category = ref(null)
 const shuffledItems = ref([])
+const shuffleSeed = ref(0)
+
+function shuffleArray(items) {
+  const arr = [...items]
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
+}
+
+function refreshShuffledItems() {
+  if (!posters.value.length) {
+    shuffledItems.value = []
+    return
+  }
+
+  const pool = category.value
+    ? posters.value.filter((p) => p.category === category.value)
+    : posters.value
+
+  shuffledItems.value = shuffleArray(pool)
+  shuffleSeed.value += 1
+}
 
 const categoryLabels = {
   film: 'Poster di film',
@@ -29,7 +54,7 @@ const categories = computed(() => [
   ...new Set(posters.value.map((p) => p.category).filter(Boolean)),
 ])
 
-const swiperKey = computed(() => `${category.value ?? 'all'}-${shuffledItems.value.length}`)
+const swiperKey = computed(() => `${category.value ?? 'all'}-${shuffleSeed.value}`)
 
 /** slidesPerView per breakpoint — modifica qui */
 const swiperBreakpoints = {
@@ -47,10 +72,9 @@ onMounted(async () => {
     posters.value = await loadPosters()
     const cats = categories.value
     if (cats.length > 0) {
-      setCategory(cats[0])
-    } else {
-      shuffledItems.value = [...posters.value].sort(() => Math.random() - 0.5)
+      category.value = cats[0]
     }
+    refreshShuffledItems()
   } catch (err) {
     loadError.value = err.message
   } finally {
@@ -58,11 +82,18 @@ onMounted(async () => {
   }
 })
 
+watch(
+  () => route.name,
+  (name) => {
+    if (name === 'posters' && posters.value.length) {
+      refreshShuffledItems()
+    }
+  },
+)
+
 function setCategory(cat) {
   category.value = cat
-  shuffledItems.value = [...posters.value]
-    .filter((p) => p.category === cat)
-    .sort(() => Math.random() - 0.5)
+  refreshShuffledItems()
 }
 
 function selectPoster(poster) {
