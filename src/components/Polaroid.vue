@@ -11,6 +11,11 @@ const props = defineProps({
     type: Number,
     default: null,
   },
+  /** No border, shadow or padding — for images that already include a frame */
+  plain: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const polaroidRef = ref(null)
@@ -112,7 +117,7 @@ const qrcodeSize = computed(() =>
 </script>
 
 <template>
-  <div ref="polaroidRef" class="polaroid">
+  <div ref="polaroidRef" class="polaroid" :class="{ 'polaroid--plain': plain }">
     <div ref="innerRef" class="polaroid-inner">
       <a v-if="url" :href="url" class="qrcode block cursor-pointer">
         <qrcode-vue :value="url" :size="qrcodeSize" level="H" />
@@ -170,5 +175,34 @@ const qrcodeSize = computed(() =>
 
 .polaroid .qrcode:hover {
   opacity: 0.8;
+}
+
+.polaroid--plain {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  height: auto;
+  --pad: 0;
+  --footer-h: 0;
+}
+
+.polaroid--plain .polaroid-inner {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.polaroid--plain .polaroid-inner :deep(img) {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.polaroid--plain .polaroid-footer {
+  display: none;
 }
 </style>

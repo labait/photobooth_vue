@@ -103,9 +103,9 @@
         background-color: #000;
     }
     .btn-primary,
-    .polaroid.original,
     h1,
-    .btn-wrapper {
+    .btn-wrapper,
+    .detail-actions {
         display: none;
     }
 }

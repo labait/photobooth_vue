@@ -141,7 +141,7 @@ const global = ref({
   isDebug: () =>{
     return urlParams.has('debug') || false;
   },
-  isLoading: "Generazione in corso, NON chiudere la finestra del browser",
+  isLoading: null,
   currentImage: null,
   docData: null,
   features: {
