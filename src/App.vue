@@ -473,7 +473,7 @@ provide('getStorageUrl', getStorageUrl);
 </script>
 
 <template>
-  <main class="app-shell relative flex min-h-screen flex-col bg-[var(--page-bg)]">
+  <main class="app-shell relative flex min-h-screen flex-col bg-[var(--page-bg)] print:min-h-0 print:bg-white">
     <MaintenanceNotice v-if="maintenanceActive && isAdmin" />
     <Loading v-if="global.isLoading != null && $route.path !== '/admin'" />
     <div

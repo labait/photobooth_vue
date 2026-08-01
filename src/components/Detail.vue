@@ -5,12 +5,14 @@ import {
   ShareIcon,
   ArrowDownTrayIcon,
   PrinterIcon,
+  QrCodeIcon,
 } from '@heroicons/vue/24/outline'
 
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { isDetailStatusPublic } from '../itemStorage.js'
 import { useAuth } from '../composables/useAuth'
+import QrCode from './QrCode.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,9 +21,13 @@ const docId = ref(route.params.docId)
 const global = inject('global')
 const getResult = inject('getResult')
 const getStorageUrl = inject('getStorageUrl')
+const detailUrl = inject('detailUrl')
 const { isAdmin, waitForAuth } = useAuth()
 
 const showFramed = ref(true)
+const showQrCode = ref(false)
+
+const pageShareUrl = computed(() => detailUrl(docId.value))
 
 const generatedImageUrl = computed(() => {
   const data = global.value.docData
@@ -46,7 +52,12 @@ const shareableImageUrl = computed(() => {
     || null
 })
 
-const actionsDisabled = computed(() => !shareableImageUrl.value)
+const framedDownloadUrl = computed(() => global.value.docData?.image_framed || null)
+
+const downloadFileName = computed(() => `photobooth-${docId.value}.png`)
+
+const shareDisabled = computed(() => !shareableImageUrl.value)
+const downloadDisabled = computed(() => !framedDownloadUrl.value)
 
 function showUnavailableDialog() {
   global.value.dialog = {
@@ -123,18 +134,39 @@ async function shareImage() {
   }
 }
 
-async function downloadImage() {
-  const url = shareableImageUrl.value
-  if (!url) return
+async function onDownloadClick(event) {
+  const url = framedDownloadUrl.value
+  if (!url) {
+    event.preventDefault()
+    return
+  }
 
-  const response = await fetch(url)
-  const blob = await response.blob()
-  const blobUrl = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = blobUrl
-  link.download = `photobooth-${docId.value}.png`
-  link.click()
-  URL.revokeObjectURL(blobUrl)
+  event.preventDefault()
+
+  try {
+    const response = await fetch(url)
+    if (!response.ok) throw new Error('Download failed')
+
+    const blob = await response.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = blobUrl
+    link.download = downloadFileName.value
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(blobUrl)
+  } catch (error) {
+    console.error('Download error:', error)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = downloadFileName.value
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  }
 }
 
 function print() {
@@ -175,7 +207,7 @@ onMounted(async () => {
   <div class="detail-page relative flex w-full flex-col items-center px-4 py-6">
     <template v-if="global.docData">
       <div
-        class="detail-image-shell print:py-16"
+        class="detail-image-shell"
         :class="{ 'detail-image-shell--clickable': canToggle }"
         @click="toggleImage"
       >
@@ -204,7 +236,7 @@ onMounted(async () => {
           class="detail-image-placeholder"
         >
           <p class="text-center text-lg font-bold">Elaborazione in corso</p>
-          <p class="mt-2 text-center text-sm opacity-70">fai refresh o attendi qualche secondo...</p>
+          <p class="mt-2 text-center opacity-70">fai refresh o attendi qualche secondo...</p>
         </div>
       </div>
 
@@ -212,30 +244,46 @@ onMounted(async () => {
         <button
           type="button"
           class="detail-action-btn"
-          :disabled="actionsDisabled"
+          :disabled="shareDisabled"
           @click="shareImage"
         >
           <ShareIcon class="detail-action-icon" aria-hidden="true" />
           Condividi
         </button>
-        <button
-          type="button"
+        <a
+          :href="framedDownloadUrl || undefined"
+          :download="downloadFileName"
           class="detail-action-btn"
-          :disabled="actionsDisabled"
-          @click="downloadImage"
+          :class="{ 'detail-action-btn--disabled': downloadDisabled }"
+          :aria-disabled="downloadDisabled ? 'true' : undefined"
+          @click="onDownloadClick"
         >
           <ArrowDownTrayIcon class="detail-action-icon" aria-hidden="true" />
           Scarica
+        </a>
+        <button
+          type="button"
+          class="detail-action-btn detail-action-btn--icon"
+          aria-label="Mostra codice QR"
+          @click="showQrCode = true"
+        >
+          <QrCodeIcon class="detail-action-icon" aria-hidden="true" />
         </button>
         <button
           type="button"
-          class="detail-action-btn"
+          class="detail-action-btn detail-action-btn--icon"
+          aria-label="Stampa"
           @click="print"
         >
           <PrinterIcon class="detail-action-icon" aria-hidden="true" />
-          Stampa
         </button>
       </div>
+
+      <QrCode
+        v-if="showQrCode"
+        :url="pageShareUrl"
+        @close="showQrCode = false"
+      />
     </template>
   </div>
 </template>
@@ -311,16 +359,25 @@ onMounted(async () => {
   line-height: 1.25;
   padding: 0.75rem 1.25rem;
   white-space: nowrap;
+  text-decoration: none;
   transition: filter 0.2s ease;
 }
 
-.detail-action-btn:hover:not(:disabled) {
+.detail-action-btn:hover:not(:disabled):not(.detail-action-btn--disabled) {
   filter: brightness(0.95);
 }
 
-.detail-action-btn:disabled {
+.detail-action-btn:disabled,
+.detail-action-btn--disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
+}
+
+.detail-action-btn--icon {
+  padding: 0.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
 }
 
 .detail-action-icon {
@@ -330,12 +387,39 @@ onMounted(async () => {
 }
 
 @media print {
+  .detail-page {
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  .detail-image-shell {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .detail-image-hint,
+  .detail-actions,
+  .detail-image-placeholder {
+    display: none !important;
+  }
+
   .detail-image--interactive {
-    display: none;
+    display: none !important;
   }
 
   .detail-image--print {
-    display: block;
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 100vh;
+    object-fit: contain;
+    page-break-before: avoid;
+    page-break-after: avoid;
+    page-break-inside: avoid;
   }
 }
 </style>
