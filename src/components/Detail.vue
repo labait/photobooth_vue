@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import {
   ShareIcon,
   ArrowDownTrayIcon,
@@ -100,6 +100,31 @@ async function downloadImage() {
 function print() {
   window.print()
 }
+
+const LEAVE_DIALOG_TEXT = 'Stai per uscire da questa pagina. Se non hai salvato l\'immagine o l\'indirizzo, non sarà facile recuperare l\'immagine generata. Sei sicuro?'
+
+function confirmLeavePage() {
+  return new Promise((resolve) => {
+    global.value.dialog = {
+      title: 'Attenzione',
+      text: LEAVE_DIALOG_TEXT,
+      cancelText: 'Annulla',
+      confirmText: 'OK',
+      onCancel: () => {
+        global.value.dialog = {}
+        resolve(false)
+      },
+      onConfirm: () => {
+        global.value.dialog = {}
+        resolve(true)
+      },
+    }
+  })
+}
+
+onBeforeRouteLeave(async () => {
+  return confirmLeavePage()
+})
 
 onMounted(async () => {
   await loadData()
