@@ -15,7 +15,7 @@ import Dialog from './components/Dialog.vue'
 import MaintenanceNotice from './components/MaintenanceNotice.vue'
 import { posterServerPath } from './images.js'
 import { itemStoragePath, ITEM_IMAGE_FILES } from './itemStorage.js'
-import { isTrue } from './composables/useUtils'
+import { isTrue, timeframeHuman } from './composables/useUtils'
 import { useAuth } from './composables/useAuth'
 import { useGenerationCounts } from './composables/useGenerationCounts'
 
@@ -71,7 +71,7 @@ function recordGeneration() {
 function showLimitDialog(title, limitNumber, limitTimeframe) {
   global.value.dialog = {
     title,
-    text: `max ${limitNumber} generazioni in ${limitTimeframe} secondi`,
+    text: `max ${limitNumber} generazioni in ${timeframeHuman(limitTimeframe)}\ntorna a visitarci e riprova più tardi`,
     confirmText: 'OK',
     onConfirm: () => {
       global.value.dialog = {}

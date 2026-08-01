@@ -244,25 +244,10 @@ async function shot() {
       {{ countDown }}
     </div>
 
-    <div class="relative z-10 flex w-full max-w-lg flex-col items-center gap-6 md:gap-8">
-      <div
-        class="cam-frame relative w-full max-w-[483px] bg-white shadow-[0px_18px_13px_-14px_rgba(0,0,0,0.05),0px_30px_20px_-20px_rgba(0,0,0,0.05)]"
-        style="aspect-ratio: 483 / 627"
-      >
-        <div class="cam-viewport absolute bg-black">
-          <video
-            ref="video"
-            class="cam h-full w-full object-cover"
-            autoplay
-            playsinline
-            muted
-          />
-        </div>
-      </div>
-
+    <div class="relative z-10 flex w-full max-w-lg flex-col items-center gap-5 md:gap-6">
       <div
         v-if="videoDevices.length > 1"
-        class="cam-select-field w-full max-w-md"
+        class="cam-select-field w-full max-w-[483px]"
       >
         <label for="cam-device" class="cam-select-label">
           Fotocamera
@@ -286,6 +271,30 @@ async function shot() {
         </div>
       </div>
 
+      <div
+        class="cam-frame relative w-full max-w-[483px] bg-white shadow-[0px_18px_13px_-14px_rgba(0,0,0,0.05),0px_30px_20px_-20px_rgba(0,0,0,0.05)]"
+        style="aspect-ratio: 483 / 627"
+      >
+        <div class="cam-viewport absolute bg-black">
+          <video
+            ref="video"
+            class="cam h-full w-full object-cover"
+            autoplay
+            playsinline
+            muted
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-btl-primary cam-shot-btn cursor-pointer"
+        :disabled="isUploading || !selectedDevice || !consentsAccepted"
+        @click="shotPrepare"
+      >
+        {{ isUploading ? 'Caricamento...' : 'Scatta' }}
+      </button>
+
       <div class="flex flex-wrap items-center justify-center gap-5">
         <router-link
           to="/posters"
@@ -294,14 +303,6 @@ async function shot() {
         >
           Torna indietro
         </router-link>
-        <button
-          type="button"
-          class="btn-btl-primary cursor-pointer"
-          :disabled="isUploading || !selectedDevice || !consentsAccepted"
-          @click="shotPrepare"
-        >
-          {{ isUploading ? 'Caricamento...' : 'Scatta' }}
-        </button>
       </div>
 
       <button
@@ -393,5 +394,22 @@ async function shot() {
   cursor: not-allowed;
   opacity: 0.6;
   background-color: #f5f5f5;
+}
+
+.cam-shot-btn {
+  width: 100%;
+  max-width: 483px;
+  padding: 1.125rem 2rem;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  min-height: 3.75rem;
+}
+
+@media (min-width: 640px) {
+  .cam-shot-btn {
+    font-size: 1.5rem;
+    min-height: 4rem;
+  }
 }
 </style>
