@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
-import { useRoute, onBeforeRouteLeave } from 'vue-router'
+import { useRoute, onBeforeRouteLeave, useRouter } from 'vue-router'
 import {
   ShareIcon,
   ArrowDownTrayIcon,
@@ -9,17 +9,19 @@ import {
 
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase'
+import { isDetailStatusPublic } from '../itemStorage.js'
+import { useAuth } from '../composables/useAuth'
 
 const route = useRoute()
+const router = useRouter()
 const docId = ref(route.params.docId)
 
 const global = inject('global')
 const getResult = inject('getResult')
 const getStorageUrl = inject('getStorageUrl')
+const { isAdmin, waitForAuth } = useAuth()
 
 const showFramed = ref(true)
-
-const framedImageUrl = computed(() => global.value.docData?.image_framed || null)
 
 const generatedImageUrl = computed(() => {
   const data = global.value.docData
@@ -46,9 +48,35 @@ const shareableImageUrl = computed(() => {
 
 const actionsDisabled = computed(() => !shareableImageUrl.value)
 
+function showUnavailableDialog() {
+  global.value.dialog = {
+    title: 'Errore',
+    text: 'Immagine non disponibile',
+    confirmText: 'OK',
+    onConfirm: () => {
+      global.value.dialog = {}
+      router.push('/')
+    },
+  }
+}
+
 const loadData = async () => {
+  await waitForAuth()
+
   const docRef = doc(db, 'items', docId.value)
-  global.value.docData = (await getDoc(docRef)).data()
+  const snapshot = await getDoc(docRef)
+
+  if (!snapshot.exists()) {
+    showUnavailableDialog()
+    return
+  }
+
+  global.value.docData = snapshot.data()
+
+  if (!isAdmin.value && !isDetailStatusPublic(global.value.docData?.status)) {
+    showUnavailableDialog()
+    return
+  }
 
   if (!global.value.docData?.image_processed) {
     global.value.startGenerationProgress()
@@ -96,7 +124,7 @@ async function shareImage() {
 }
 
 async function downloadImage() {
-  const url = framedImageUrl.value
+  const url = shareableImageUrl.value
   if (!url) return
 
   const response = await fetch(url)

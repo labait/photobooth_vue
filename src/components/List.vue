@@ -43,7 +43,9 @@ onMounted(async () => {
       image_source: await getStorageUrl(item.image_source),
       image_processed: await getStorageUrl(item.image_processed),
     })))
-    items.value = items.value.filter((item) => item.image_processed)
+    items.value = items.value.filter(
+      (item) => item.status === 'processed' && item.image_processed,
+    )
 
     if (!items.value.length) return
 

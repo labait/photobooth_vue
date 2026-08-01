@@ -21,3 +21,21 @@ export function isFrameEnabled(frameEnv) {
 
   return true;
 }
+
+export const ITEM_STATUS = {
+  CREATED: 'created',
+  PROCESSING: 'processing',
+  PROCESSED: 'processed',
+  FAILED: 'failed',
+  HIDDEN: 'hidden',
+};
+
+export const DETAIL_PUBLIC_STATUSES = [
+  ITEM_STATUS.PROCESSED,
+  ITEM_STATUS.PROCESSING,
+  ITEM_STATUS.CREATED,
+];
+
+export function isDetailStatusPublic(status) {
+  return DETAIL_PUBLIC_STATUSES.includes(status);
+}

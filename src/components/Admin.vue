@@ -1,12 +1,15 @@
 <script setup>
 import { ref, computed, onMounted, inject, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { ref as storageRef, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import Pagination from './Pagination.vue';
+import { ITEM_STATUS } from '../itemStorage.js';
 
 const EDITION_STORE_KEY = 'admin-filter-edition';
+const STATUS_STORE_KEY = 'admin-filter-status';
+const ALL_STATUS = 'All';
 
 const route = useRoute();
 const router = useRouter();
@@ -15,6 +18,7 @@ const getStorageUrl = inject('getStorageUrl');
 
 const allItems = ref([]);
 const selectedEdition = ref(null);
+const selectedStatus = ref(ALL_STATUS);
 const isLoading = ref(true);
 const currentPage = ref(1);
 const itemsPerPage = 10;
@@ -37,11 +41,32 @@ const editions = computed(() => {
     .map(({ edition }) => edition);
 });
 
+const statuses = computed(() => {
+  const unique = new Set();
+
+  for (const item of allItems.value) {
+    if (item.status != null && item.status !== '') {
+      unique.add(item.status);
+    }
+  }
+
+  return [ALL_STATUS, ...[...unique].sort()];
+});
+
 const filteredItems = computed(() => {
-  if (selectedEdition.value === null) return allItems.value;
-  return allItems.value.filter(
-    (item) => (item.edition ?? '') === selectedEdition.value
-  );
+  let items = allItems.value;
+
+  if (selectedEdition.value !== null) {
+    items = items.filter(
+      (item) => (item.edition ?? '') === selectedEdition.value
+    );
+  }
+
+  if (selectedStatus.value !== ALL_STATUS) {
+    items = items.filter((item) => item.status === selectedStatus.value);
+  }
+
+  return items;
 });
 
 const totalPages = computed(() =>
@@ -67,6 +92,14 @@ const initEditionFilter = () => {
     stored !== null && list.includes(stored) ? stored : list[0];
 };
 
+const initStatusFilter = () => {
+  const list = statuses.value;
+  const stored = global.value.storeValue(STATUS_STORE_KEY);
+
+  selectedStatus.value =
+    stored !== null && list.includes(stored) ? stored : ALL_STATUS;
+};
+
 const goToPage = (page) => {
   const pageNum = Math.max(1, Math.min(page, totalPages.value));
   currentPage.value = pageNum;
@@ -80,8 +113,9 @@ const formatTimestamp = (ts) => {
 };
 
 const statusClass = (status) => {
-  if (status === 'processed') return 'bg-[#ceeaee] text-[#201c28]';
-  if (status === 'failed') return 'bg-[#f9cade] text-[#201c28]';
+  if (status === ITEM_STATUS.PROCESSED) return 'bg-[#ceeaee] text-[#201c28]';
+  if (status === ITEM_STATUS.FAILED) return 'bg-[#f9cade] text-[#201c28]';
+  if (status === ITEM_STATUS.HIDDEN) return 'bg-[#e5e5e5] text-[#525252]';
   return 'bg-[#cfcfcf] text-[#201c28]';
 };
 
@@ -137,6 +171,7 @@ const loadItems = async () => {
   });
 
   initEditionFilter();
+  initStatusFilter();
   isLoading.value = false;
   syncPageFromUrl();
 };
@@ -151,6 +186,13 @@ watch(selectedEdition, (value) => {
   });
 });
 
+watch(selectedStatus, (value, oldValue) => {
+  if (isLoading.value || value === oldValue) return;
+  global.value.storeValue(STATUS_STORE_KEY, value);
+  currentPage.value = 1;
+  loadItems();
+});
+
 watch(editions, (list) => {
   if (!list.length) {
     selectedEdition.value = null;
@@ -158,6 +200,12 @@ watch(editions, (list) => {
   }
   if (!list.includes(selectedEdition.value)) {
     selectedEdition.value = list[0];
+  }
+});
+
+watch(statuses, (list) => {
+  if (!list.includes(selectedStatus.value)) {
+    selectedStatus.value = ALL_STATUS;
   }
 });
 
@@ -175,6 +223,38 @@ watch(
     }
   }
 );
+
+const hideItem = async (item) => {
+  try {
+    await updateDoc(doc(db, 'items', item.id), {
+      status: ITEM_STATUS.HIDDEN,
+    })
+
+    const localItem = allItems.value.find((i) => i.id === item.id)
+    if (localItem) {
+      localItem.status = ITEM_STATUS.HIDDEN
+    }
+  } catch (err) {
+    console.error('Errore hide:', err)
+    alert('Errore durante l\'operazione')
+  }
+}
+
+const unhideItem = async (item) => {
+  try {
+    await updateDoc(doc(db, 'items', item.id), {
+      status: ITEM_STATUS.PROCESSED,
+    })
+
+    const localItem = allItems.value.find((i) => i.id === item.id)
+    if (localItem) {
+      localItem.status = ITEM_STATUS.PROCESSED
+    }
+  } catch (err) {
+    console.error('Errore unhide:', err)
+    alert('Errore durante l\'operazione')
+  }
+}
 
 const deleteItem = async (item) => {
   if (!confirm('Sei sicuro di voler eliminare questo elemento?')) return;
@@ -256,10 +336,25 @@ onMounted(loadItems);
             {{ editionLabel(edition) }}
           </option>
         </select>
+        <select
+          v-if="!isLoading && statuses.length"
+          v-model="selectedStatus"
+          class="w-full sm:w-auto sm:min-w-[200px] rounded-lg border border-black/10 bg-white px-3 py-2  font-medium text-[var(--text-primary)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
+          aria-label="Filtra per status"
+        >
+          <option
+            v-for="status in statuses"
+            :key="status"
+            :value="status"
+          >
+            {{ status }}
+          </option>
+        </select>
       </div>
       <p v-if="!isLoading" class="mt-1  text-[var(--text-primary)]/60">
         {{ filteredItems.length }} elementi
         <span v-if="selectedEdition !== null"> · {{ editionLabel(selectedEdition) }}</span>
+        <span v-if="selectedStatus !== ALL_STATUS"> · {{ selectedStatus }}</span>
       </p>
     </header>
 
@@ -275,7 +370,7 @@ onMounted(loadItems);
         v-if="filteredItems.length === 0"
         class="py-16 text-center text-[var(--text-primary)]/60"
       >
-        Nessun elemento per questa edition.
+        Nessun elemento per i filtri selezionati.
       </p>
 
       <template v-else>
@@ -351,13 +446,31 @@ onMounted(loadItems);
               </div>
             </div>
 
-            <button
-              type="button"
-              class="self-start  font-medium text-[#ec1874] hover:underline"
-              @click="deleteItem(item)"
-            >
-              Elimina
-            </button>
+            <div class="flex flex-wrap items-center gap-4">
+              <button
+                v-if="item.status !== ITEM_STATUS.HIDDEN"
+                type="button"
+                class="font-medium text-neutral-600 hover:underline"
+                @click="hideItem(item)"
+              >
+                Hide
+              </button>
+              <button
+                v-else
+                type="button"
+                class="font-medium text-neutral-600 hover:underline"
+                @click="unhideItem(item)"
+              >
+                Unhide
+              </button>
+              <button
+                type="button"
+                class="font-medium text-[#ec1874] hover:underline"
+                @click="deleteItem(item)"
+              >
+                Elimina
+              </button>
+            </div>
           </article>
         </div>
 

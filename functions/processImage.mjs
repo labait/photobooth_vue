@@ -131,7 +131,7 @@ export default async (request, context) => {
     data.result = result;
     // update doc with result
     await updateDoc(doc(db, 'items', docId), {
-      status: 'created',
+      status: 'processing',
       image_processed: null,
       process_result: result,
     });
