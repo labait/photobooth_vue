@@ -463,12 +463,20 @@ onMounted(loadItems);
               >
                 Unhide
               </button>
+              <router-link
+                :to="{ path: `/detail/${item.id}`, query: { print: '' } }"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-medium text-neutral-600 hover:underline"
+              >
+                Print
+              </router-link>
               <button
                 type="button"
                 class="font-medium text-[#ec1874] hover:underline"
                 @click="deleteItem(item)"
               >
-                Elimina
+                Delete
               </button>
             </div>
           </article>

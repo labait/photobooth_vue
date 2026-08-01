@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue'
+import { ref, computed, onMounted, inject, nextTick } from 'vue'
 import { useRoute, onBeforeRouteLeave, useRouter } from 'vue-router'
 import {
   ShareIcon,
@@ -173,6 +173,22 @@ function print() {
   window.print()
 }
 
+function triggerAutoPrint() {
+  const img = document.querySelector('.detail-image--print')
+  if (!img) {
+    print()
+    return
+  }
+
+  if (img.complete) {
+    print()
+    return
+  }
+
+  img.addEventListener('load', print, { once: true })
+  img.addEventListener('error', print, { once: true })
+}
+
 const LEAVE_DIALOG_TEXT = 'Stai per uscire da questa pagina. Se non hai salvato l\'immagine o l\'indirizzo, non sarà facile recuperare l\'immagine generata. Sei sicuro?'
 
 function confirmLeavePage() {
@@ -195,11 +211,17 @@ function confirmLeavePage() {
 }
 
 onBeforeRouteLeave(async () => {
+  if (route.query.print != null) return true
   return confirmLeavePage()
 })
 
 onMounted(async () => {
   await loadData()
+
+  if (route.query.print != null) {
+    await nextTick()
+    triggerAutoPrint()
+  }
 })
 </script>
 

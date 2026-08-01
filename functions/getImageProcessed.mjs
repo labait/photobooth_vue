@@ -5,8 +5,10 @@ import {
   itemStoragePath,
   ITEM_IMAGE_FILES,
   isFrameEnabled,
+  isWatermarkEnabled,
 } from '../src/itemStorage.js';
 import { composeFramedImage } from './lib/composeFramedImage.mjs';
+import { composeProcessedImage } from './lib/composeProcessedImage.mjs';
 
 function predictionErrorMessage(processResult) {
   return processResult?.error || `Prediction ${processResult?.status || 'failed'}`;
@@ -80,11 +82,21 @@ export default async (request) => {
       const blob = await imageResponse.blob();
       const photoBuffer = Buffer.from(await blob.arrayBuffer());
 
+      let processedBuffer = photoBuffer;
+      if (isWatermarkEnabled(process.env.VITE_WATERMARK_AI)) {
+        console.log('apply watermark', docData.image_id);
+        processedBuffer = await composeProcessedImage(
+          photoBuffer,
+          process.env.VITE_WATERMARK_AI,
+          process.env.VITE_WATERMARK_AI_OFFSET,
+        );
+      }
+
       const processedRef = storageRef(
         storage,
         itemStoragePath(edition, imageId, ITEM_IMAGE_FILES.processed),
       );
-      await uploadBytes(processedRef, photoBuffer, { contentType: 'image/png' });
+      await uploadBytes(processedRef, processedBuffer, { contentType: 'image/png' });
       const image_processed = await getDownloadURL(processedRef);
 
       const updates = {

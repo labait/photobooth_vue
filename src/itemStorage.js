@@ -22,6 +22,10 @@ export function isFrameEnabled(frameEnv) {
   return true;
 }
 
+export function isWatermarkEnabled(watermarkEnv) {
+  return isFrameEnabled(watermarkEnv);
+}
+
 export const ITEM_STATUS = {
   CREATED: 'created',
   PROCESSING: 'processing',
