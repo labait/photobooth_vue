@@ -216,8 +216,10 @@ async function shot() {
     global.value.isLoading = true
     const result = await uploadImage(image.value, imageId)
     if (result) {
-      await getResult(global.value.docId)
-      router.push(`/detail/${global.value.docId}`)
+      const data = await getResult(global.value.docId)
+      if (data?.process_result?.status === 'succeeded') {
+        router.push(`/detail/${global.value.docId}`)
+      }
     }
   } catch (error) {
     console.error('Error processing image:', error)

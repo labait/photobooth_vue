@@ -18,6 +18,7 @@ import { itemStoragePath, ITEM_IMAGE_FILES } from './itemStorage.js'
 import { isTrue, timeframeHuman } from './composables/useUtils'
 import { useAuth } from './composables/useAuth'
 import { useGenerationCounts } from './composables/useGenerationCounts'
+import * as Sentry from '@sentry/vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -71,6 +72,26 @@ function showLimitDialog(title, limitNumber, limitTimeframe) {
   global.value.dialog = {
     title,
     text: `max ${limitNumber} generazioni in ${timeframeHuman(limitTimeframe)}\ntorna a visitarci e riprova più tardi`,
+    confirmText: 'OK',
+    onConfirm: () => {
+      global.value.dialog = {}
+      router.push('/')
+    },
+  }
+}
+
+function showGenerationErrorDialog(errorMessage, context = {}) {
+  const detail = String(errorMessage ?? 'Errore sconosciuto')
+
+  Sentry.captureException(new Error(detail), {
+    extra: context,
+    tags: { source: 'generation' },
+  })
+
+  global.value.dialog = {
+    title: 'Errore',
+    text: 'Si è verificato un errore nella generazione immagine, abbiamo allertato chi di dovere, riprova più tardi',
+    errorDetail: detail,
     confirmText: 'OK',
     onConfirm: () => {
       global.value.dialog = {}
@@ -256,14 +277,29 @@ const getResult = (docId) => {
     const check = async () => {
       const docRef = doc(db, 'items', docId)
       const docData = await getDoc(docRef)
-      let checkCount = docData.check_count || 0;
+      let checkCount = docData.data()?.check_count || 0;
 
-      // call process function
       const getImageProcessedUrl = `/.netlify/functions/getImageProcessed?docId=${docId}`;
       console.log(`getImageProcessedUrl ${docId}, checkCount ${checkCount}`, getImageProcessedUrl);
-      const response = await fetch(getImageProcessedUrl);
-      const data = await response.json()
-      console.log('getResult data', data)
+
+      let data
+      try {
+        const response = await fetch(getImageProcessedUrl);
+        data = await response.json()
+        console.log('getResult data', data)
+      } catch (error) {
+        showGenerationErrorDialog(error, { docId, phase: 'fetch' })
+        global.value.isLoading = false
+        resolve(null)
+        return
+      }
+
+      if (data?.error) {
+        showGenerationErrorDialog(data.error, { docId, checkCount })
+        global.value.isLoading = false
+        resolve(null)
+        return
+      }
 
       checkCount = checkCount + 1;
       await updateDoc(docRef, {
@@ -273,16 +309,16 @@ const getResult = (docId) => {
       if (data?.process_result?.status == "succeeded") {
         global.value.docData = data;
         console.log('docData', data)
-        resolve(data); // pronto: solo ora il chiamante riceve il risultato
+        resolve(data);
       } else {
         if (checkCount < maxChecks) {
-          setTimeout(check, 5000) // riprova, senza risolvere ancora
+          setTimeout(check, 5000)
         } else {
           console.log(`failed to get result after ${maxChecks} checks`)
           await updateDoc(docRef, {
             status: 'failed',
           })
-          resolve(data); // si arrende dopo maxChecks, ma comunque risolve per non bloccare per sempre
+          resolve(data);
         }
       }
     }
