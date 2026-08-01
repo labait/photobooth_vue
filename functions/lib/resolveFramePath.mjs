@@ -18,7 +18,7 @@ export function normalizeFrameRelativePath(framePathEnv) {
   return relative;
 }
 
-function getPublicUrlBase() {
+export function getPublicUrlBase() {
   return (
     process.env.VITE_PUBLIC_URL
     || process.env.URL

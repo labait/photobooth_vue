@@ -14,6 +14,7 @@ import Debug from './components/Debug.vue'
 import Dialog from './components/Dialog.vue'
 import MaintenanceNotice from './components/MaintenanceNotice.vue'
 import { posterServerPath } from './images.js'
+import { editionCode, loadEdition } from './editionConfig.js'
 import { itemStoragePath, ITEM_IMAGE_FILES } from './itemStorage.js'
 import { isTrue, timeframeHuman } from './composables/useUtils'
 import { useAuth } from './composables/useAuth'
@@ -24,7 +25,7 @@ const router = useRouter()
 const route = useRoute()
 const { isAdmin, authReady } = useAuth()
 const maintenanceActive = isTrue(import.meta.env.VITE_MAINTENANCE)
-const edition = import.meta.env.VITE_EDITION
+const edition = editionCode
 const urlParams = new URLSearchParams(window.location.search);
 
 const LOCALSTORE_PREFIX = import.meta.env.VITE_LOCALSTORE_KEY_PREFIX || 'photobooth_'
@@ -205,6 +206,7 @@ function validateLimits() {
 
 const global = ref({
   countDownSeconds: 3,
+  edition: null,
   poster: null,
   isDebug: () =>{
     return urlParams.has('debug') || false;
@@ -253,9 +255,14 @@ function syncEnvForAdmin() {
     : {}
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (storeValue('generations') === null) {
     storeValue('generations', '')
+  }
+  try {
+    global.value.edition = await loadEdition()
+  } catch (error) {
+    console.error('Failed to load edition.json:', error)
   }
   generationCounts.init()
 })
@@ -298,7 +305,7 @@ const processImage = async (docId) => {
     ? posterServerPath(global.value.poster.file_path)
     : null;
   const generationsRaw = storeValue('generations') ?? ''
-  const params = new URLSearchParams({ docId, generations: generationsRaw })
+  const params = new URLSearchParams({ docId, generations: generationsRaw, edition })
   if (posterPath) params.set('poster', posterPath)
 
   const headers = {}

@@ -3,6 +3,7 @@ import { storage } from '../src/firebase';
 import { parseImageData } from './lib/FrameCompositor.mjs';
 import { composeFramedImage } from './lib/composeFramedImage.mjs';
 import { isFrameEnabled } from '../src/itemStorage.js';
+import { loadEditionJson, editionAssetStoragePath } from './lib/loadEdition.mjs';
 
 export default async (request) => {
   if (request.method === 'OPTIONS') {
@@ -27,19 +28,21 @@ export default async (request) => {
       });
     }
 
-    const framePathEnv = isFrameEnabled(process.env.VITE_IMAGE_FRAME)
-      ? process.env.VITE_IMAGE_FRAME
+    const edition = process.env.VITE_EDITION;
+    const editionJson = await loadEditionJson(edition);
+    const framePath = isFrameEnabled(editionJson.image_frame)
+      ? editionAssetStoragePath(edition, editionJson.image_frame)
       : null;
 
-    if (!framePathEnv) {
-      return new Response(JSON.stringify({ error: 'VITE_IMAGE_FRAME is not configured' }), {
+    if (!framePath) {
+      return new Response(JSON.stringify({ error: 'image_frame is not configured in edition.json' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const photoBuffer = parseImageData(image);
-    const composed = await composeFramedImage(photoBuffer, framePathEnv);
+    const composed = await composeFramedImage(photoBuffer, framePath);
 
     const fileId = `${Date.now()}`;
     const storagePath = `test/${fileId}.png`;
@@ -50,13 +53,13 @@ export default async (request) => {
 
     return new Response(
       JSON.stringify({ storagePath, url }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } },
     );
   } catch (error) {
     console.error('composeTestFrame error:', error);
     return new Response(
       JSON.stringify({ error: error.message || 'Composition failed' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
     );
   }
 };

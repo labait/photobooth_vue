@@ -9,6 +9,7 @@ import {
 } from '../src/itemStorage.js';
 import { composeFramedImage } from './lib/composeFramedImage.mjs';
 import { composeProcessedImage } from './lib/composeProcessedImage.mjs';
+import { loadEditionJson, editionAssetStoragePath } from './lib/loadEdition.mjs';
 
 function predictionErrorMessage(processResult) {
   return processResult?.error || `Prediction ${processResult?.status || 'failed'}`;
@@ -77,18 +78,20 @@ export default async (request) => {
       console.log('save image_processed', docData.image_id);
 
       const edition = docData.edition || process.env.VITE_EDITION;
+      const editionJson = await loadEditionJson(edition);
       const imageId = docData.image_id;
       const imageResponse = await fetch(processResult.output);
       const blob = await imageResponse.blob();
       const photoBuffer = Buffer.from(await blob.arrayBuffer());
 
       let processedBuffer = photoBuffer;
-      if (isWatermarkEnabled(process.env.VITE_WATERMARK_AI)) {
+      if (isWatermarkEnabled(editionJson.image_watermark_ai)) {
         console.log('apply watermark', docData.image_id);
         processedBuffer = await composeProcessedImage(
           photoBuffer,
-          process.env.VITE_WATERMARK_AI,
-          process.env.VITE_WATERMARK_AI_WIDTH,
+          editionAssetStoragePath(edition, editionJson.image_watermark_ai),
+          editionJson.image_watermark_ai_width,
+          editionJson.image_watermark_ai_offset,
         );
       }
 
@@ -104,11 +107,11 @@ export default async (request) => {
         image_processed,
       };
 
-      if (isFrameEnabled(process.env.VITE_IMAGE_FRAME)) {
+      if (isFrameEnabled(editionJson.image_frame)) {
         console.log('save image_framed', imageId);
         const framedBuffer = await composeFramedImage(
           photoBuffer,
-          process.env.VITE_IMAGE_FRAME,
+          editionAssetStoragePath(edition, editionJson.image_frame),
         );
         const framedRef = storageRef(
           storage,

@@ -1,19 +1,18 @@
-export const edition = import.meta.env.VITE_EDITION || 'cronache_disorganiche';
+import { editionCode, loadEdition } from './editionConfig.js';
+
+export { editionCode, loadEdition, editionAssetStoragePath } from './editionConfig.js';
+export { editionJsonPublicPath } from './editionPaths.js';
 
 let imagesCache = null;
 
 /**
- * Carica images.json dell'edizione corrente da public/editions/{VITE_EDITION}/
+ * Carica le immagini poster dall'edition.json corrente.
  */
 export async function loadPosters() {
   if (imagesCache) return imagesCache;
 
-  const response = await fetch(`/editions/${edition}/images.json`);
-  if (!response.ok) {
-    throw new Error(`Impossibile caricare le immagini per l'edizione "${edition}"`);
-  }
-
-  imagesCache = await response.json();
+  const edition = await loadEdition();
+  imagesCache = edition.images ?? [];
   return imagesCache;
 }
 
@@ -26,13 +25,13 @@ function normalizeFilePath(filePath) {
  */
 export function posterPublicUrl(filePath) {
   const file = normalizeFilePath(filePath);
-  if (file.startsWith(`${edition}/`)) {
+  if (file.startsWith(`${editionCode}/`)) {
     return `/editions/${file.split('/').map(encodeURIComponent).join('/')}`;
   }
   if (file.startsWith('images/')) {
-    return `/editions/${edition}/${file.split('/').map(encodeURIComponent).join('/')}`;
+    return `/editions/${editionCode}/${file.split('/').map(encodeURIComponent).join('/')}`;
   }
-  return `/editions/${edition}/images/${encodeURIComponent(file)}`;
+  return `/editions/${editionCode}/images/${encodeURIComponent(file)}`;
 }
 
 /**
@@ -40,15 +39,15 @@ export function posterPublicUrl(filePath) {
  */
 export function posterServerPath(filePath) {
   const file = normalizeFilePath(filePath);
-  if (file.startsWith(`${edition}/`)) {
+  if (file.startsWith(`${editionCode}/`)) {
     return file;
   }
   if (file.startsWith('images/')) {
-    return `${edition}/${file}`;
+    return `${editionCode}/${file}`;
   }
-  return `${edition}/images/${file}`;
+  return `${editionCode}/images/${file}`;
 }
 
 export function imagesJsonUrl() {
-  return `/editions/${edition}/images.json`;
+  return `/editions/${editionCode}/edition.json`;
 }

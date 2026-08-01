@@ -2,7 +2,7 @@ import { FrameCompositor } from './FrameCompositor.mjs';
 import { loadFrameBuffer } from './resolveFramePath.mjs';
 
 /**
- * Composes a processed photo with the edition frame from VITE_IMAGE_FRAME.
+ * Composes a processed photo with the edition frame from edition.json (image_frame).
  * @param {Buffer} photoBuffer
  * @param {string} framePathEnv - e.g. /public/editions/totem1/frame1.png
  * @returns {Promise<Buffer>} framed PNG
