@@ -27,7 +27,7 @@ export default async () => {
     const docRef = collection(db, 'items')
     const q = query(
       docRef,
-      where('status', '==', 'processed'),
+      where('status', '==', 'accepted'),
       where('edition', '==', edition),
     )
     const docData = await getDocs(q)

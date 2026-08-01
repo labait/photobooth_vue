@@ -8,9 +8,9 @@ import {
   QrCodeIcon,
 } from '@heroicons/vue/24/outline'
 
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase'
-import { isDetailStatusPublic } from '../itemStorage.js'
+import { canViewDetail, ITEM_STATUS } from '../itemStorage.js'
 import { useAuth } from '../composables/useAuth'
 import QrCode from './QrCode.vue'
 
@@ -59,6 +59,15 @@ const downloadFileName = computed(() => `photobooth-${docId.value}.png`)
 const shareDisabled = computed(() => !shareableImageUrl.value)
 const downloadDisabled = computed(() => !framedDownloadUrl.value)
 
+const awaitingPublication = computed(
+  () => global.value.docData?.status === ITEM_STATUS.PROCESSED,
+)
+
+const showShareActions = computed(() => {
+  if (awaitingPublication.value) return false
+  return global.value.docData?.status === ITEM_STATUS.ACCEPTED || isAdmin.value
+})
+
 function showUnavailableDialog() {
   global.value.dialog = {
     title: 'Errore',
@@ -84,19 +93,15 @@ const loadData = async () => {
 
   global.value.docData = snapshot.data()
 
-  if (
-    !isAdmin.value
-    && !isDetailStatusPublic(global.value.docData?.status)
-    && !global.value.docData?.image_processed
-    && !global.value.docData?.image_framed
-  ) {
+  if (!canViewDetail(global.value.docData?.status, { isAdmin: isAdmin.value })) {
     showUnavailableDialog()
     return
   }
 
   const isGenerationComplete = Boolean(
     global.value.docData?.image_processed
-    || global.value.docData?.status === 'processed',
+    || global.value.docData?.status === ITEM_STATUS.PROCESSED
+    || global.value.docData?.status === ITEM_STATUS.ACCEPTED,
   )
 
   if (!isGenerationComplete) {
@@ -182,6 +187,56 @@ function print() {
   window.print()
 }
 
+async function updatePublicationStatus(status) {
+  const docRef = doc(db, 'items', docId.value)
+  await updateDoc(docRef, { status })
+  global.value.docData = {
+    ...global.value.docData,
+    status,
+  }
+}
+
+function showRejectPublicationDialog() {
+  global.value.dialog = {
+    title: 'Annulla pubblicazione',
+    text: 'Confermi di non voler pubblicare l\'immagine generata?',
+    cancelText: 'Annulla',
+    confirmText: 'OK',
+    onCancel: () => {
+      global.value.dialog = {}
+    },
+    onConfirm: async () => {
+      global.value.dialog = {}
+      await updatePublicationStatus(ITEM_STATUS.NOT_ACCEPTED)
+      global.value.dialog = {
+        title: 'Pubblicazione annullata',
+        text: 'L\'immagine non sarà visibile nella raccolta pubblica.',
+        confirmText: 'OK',
+        onConfirm: () => {
+          global.value.dialog = {}
+          router.push('/')
+        },
+      }
+    },
+  }
+}
+
+function showAcceptPublicationDialog() {
+  global.value.dialog = {
+    title: 'Conferma pubblicazione',
+    text: 'Confermi la pubblicazione dell\'immagine generata?',
+    cancelText: 'Annulla',
+    confirmText: 'OK',
+    onCancel: () => {
+      global.value.dialog = {}
+    },
+    onConfirm: async () => {
+      global.value.dialog = {}
+      await updatePublicationStatus(ITEM_STATUS.ACCEPTED)
+    },
+  }
+}
+
 function triggerAutoPrint() {
   const img = document.querySelector('.detail-image--print')
   if (!img) {
@@ -221,7 +276,8 @@ function confirmLeavePage() {
 
 onBeforeRouteLeave(async () => {
   if (route.query.print != null) return true
-  return confirmLeavePage()
+  if (awaitingPublication.value) return confirmLeavePage()
+  return true
 })
 
 onMounted(async () => {
@@ -271,7 +327,30 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="detail-actions print:hidden">
+      <div
+        v-if="awaitingPublication"
+        class="detail-publication-actions print:hidden"
+      >
+        <button
+          type="button"
+          class="detail-publication-btn detail-publication-btn--secondary"
+          @click="showRejectPublicationDialog"
+        >
+          Annulla
+        </button>
+        <button
+          type="button"
+          class="detail-publication-btn detail-publication-btn--primary"
+          @click="showAcceptPublicationDialog"
+        >
+          Conferma
+        </button>
+      </div>
+
+      <div
+        v-else-if="showShareActions"
+        class="detail-actions print:hidden"
+      >
         <button
           type="button"
           class="detail-action-btn"
@@ -363,6 +442,49 @@ onMounted(async () => {
   color: rgb(32 28 40 / 0.65);
 }
 
+.detail-publication-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: min(96vw, 42rem);
+  max-width: 100%;
+  margin-top: 1.25rem;
+  margin-inline: auto;
+}
+
+.detail-publication-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  max-width: 12rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  padding: 0.875rem 1.5rem;
+  white-space: nowrap;
+  transition: filter 0.2s ease;
+}
+
+.detail-publication-btn--secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+}
+
+.detail-publication-btn--primary {
+  background-color: var(--btn-primary-color);
+  color: #fff;
+}
+
+.detail-publication-btn:hover {
+  filter: brightness(0.95);
+}
+
 .detail-actions {
   display: flex;
   flex-direction: row;
@@ -435,6 +557,7 @@ onMounted(async () => {
 
   .detail-image-hint,
   .detail-actions,
+  .detail-publication-actions,
   .detail-image-placeholder {
     display: none !important;
   }

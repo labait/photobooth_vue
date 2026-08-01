@@ -5,7 +5,7 @@ import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firesto
 import { ref as storageRef, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import Pagination from './Pagination.vue';
-import { ITEM_STATUS } from '../itemStorage.js';
+import { ITEM_STATUS, ALL_ITEM_STATUSES } from '../itemStorage.js';
 
 const EDITION_STORE_KEY = 'admin-filter-edition';
 const STATUS_STORE_KEY = 'admin-filter-status';
@@ -113,7 +113,9 @@ const formatTimestamp = (ts) => {
 };
 
 const statusClass = (status) => {
+  if (status === ITEM_STATUS.ACCEPTED) return 'bg-[#d4edda] text-[#201c28]';
   if (status === ITEM_STATUS.PROCESSED) return 'bg-[#ceeaee] text-[#201c28]';
+  if (status === ITEM_STATUS.NOT_ACCEPTED) return 'bg-[#e5e5e5] text-[#525252]';
   if (status === ITEM_STATUS.FAILED) return 'bg-[#f9cade] text-[#201c28]';
   if (status === ITEM_STATUS.HIDDEN) return 'bg-[#e5e5e5] text-[#525252]';
   return 'bg-[#cfcfcf] text-[#201c28]';
@@ -225,34 +227,49 @@ watch(
 );
 
 const hideItem = async (item) => {
-  try {
-    await updateDoc(doc(db, 'items', item.id), {
-      status: ITEM_STATUS.HIDDEN,
-    })
-
-    const localItem = allItems.value.find((i) => i.id === item.id)
-    if (localItem) {
-      localItem.status = ITEM_STATUS.HIDDEN
-    }
-  } catch (err) {
-    console.error('Errore hide:', err)
-    alert('Errore durante l\'operazione')
-  }
+  await applyStatusChange(item, ITEM_STATUS.HIDDEN)
 }
 
 const unhideItem = async (item) => {
+  await applyStatusChange(item, ITEM_STATUS.PROCESSED)
+}
+
+async function applyStatusChange(item, newStatus) {
   try {
     await updateDoc(doc(db, 'items', item.id), {
-      status: ITEM_STATUS.PROCESSED,
+      status: newStatus,
     })
 
     const localItem = allItems.value.find((i) => i.id === item.id)
     if (localItem) {
-      localItem.status = ITEM_STATUS.PROCESSED
+      localItem.status = newStatus
     }
   } catch (err) {
-    console.error('Errore unhide:', err)
-    alert('Errore durante l\'operazione')
+    console.error('Errore aggiornamento stato:', err)
+    alert('Errore durante l\'aggiornamento dello stato')
+  }
+}
+
+function onStatusSelect(item, event) {
+  const newStatus = event.target.value
+  const previousStatus = item.status ?? ''
+
+  if (newStatus === previousStatus) return
+
+  event.target.value = previousStatus
+
+  global.value.dialog = {
+    title: 'Cambio stato',
+    text: `Confermi di impostare lo stato ${newStatus} per l'elemento ${item.id}?`,
+    cancelText: 'Annulla',
+    confirmText: 'OK',
+    onCancel: () => {
+      global.value.dialog = {}
+    },
+    onConfirm: async () => {
+      global.value.dialog = {}
+      await applyStatusChange(item, newStatus)
+    },
   }
 }
 
@@ -435,14 +452,28 @@ onMounted(loadItems);
 
             <div class="flex flex-col gap-1.5  text-[var(--text-primary)]">
               <span class="tabular-nums">{{ formatTimestamp(item.timestamp) }}</span>
-              <div class="flex flex-wrap items-center gap-2">
-                <span
-                  v-if="item.status"
-                  class="inline-block rounded px-2 py-0.5  font-medium"
-                  :class="statusClass(item.status)"
+              <div class="flex flex-col gap-1">
+                <label
+                  :for="`status-${item.id}`"
+                  class="text-xs font-semibold uppercase tracking-wide text-[var(--text-primary)]/50"
                 >
-                  {{ item.status }}
-                </span>
+                  Stato
+                </label>
+                <select
+                  :id="`status-${item.id}`"
+                  :value="item.status ?? ''"
+                  class="w-full rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-sm font-medium text-[var(--text-primary)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
+                  :class="statusClass(item.status)"
+                  @change="onStatusSelect(item, $event)"
+                >
+                  <option
+                    v-for="status in ALL_ITEM_STATUSES"
+                    :key="status"
+                    :value="status"
+                  >
+                    {{ status }}
+                  </option>
+                </select>
               </div>
             </div>
 

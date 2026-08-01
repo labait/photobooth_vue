@@ -30,16 +30,23 @@ export const ITEM_STATUS = {
   CREATED: 'created',
   PROCESSING: 'processing',
   PROCESSED: 'processed',
+  ACCEPTED: 'accepted',
+  NOT_ACCEPTED: 'not-accepted',
   FAILED: 'failed',
   HIDDEN: 'hidden',
 };
 
-export const DETAIL_PUBLIC_STATUSES = [
-  ITEM_STATUS.PROCESSED,
-  ITEM_STATUS.PROCESSING,
-  ITEM_STATUS.CREATED,
-];
+export const ALL_ITEM_STATUSES = Object.values(ITEM_STATUS);
 
-export function isDetailStatusPublic(status) {
-  return DETAIL_PUBLIC_STATUSES.includes(status);
+/** Item visibili in home e /list */
+export function isPublicListStatus(status) {
+  return status === ITEM_STATUS.ACCEPTED;
+}
+
+/**
+ * Dettaglio per utenti non admin: accepted (pubblico) o processed (in attesa di conferma).
+ */
+export function canViewDetail(status, { isAdmin = false } = {}) {
+  if (isAdmin) return true;
+  return status === ITEM_STATUS.ACCEPTED || status === ITEM_STATUS.PROCESSED;
 }

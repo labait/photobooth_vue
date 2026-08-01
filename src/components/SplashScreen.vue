@@ -19,7 +19,7 @@ onMounted(async () => {
       ;[data[i], data[j]] = [data[j], data[i]]
     }
     strip.value = data
-      .filter((item) => item.status === 'processed' && item.image_processed)
+      .filter((item) => item.image_processed)
       .slice(0, 3)
   } catch (e) {
     console.warn('Errore caricamento anteprima home:', e)
