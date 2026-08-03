@@ -8,7 +8,7 @@ import Posters from '../components/Posters.vue'
 import Admin from '../components/Admin.vue'
 import MaintenanceView from '../components/MaintenanceView.vue'
 import OpeningView from '../components/OpeningView.vue'
-import { isTrue } from '../composables/useUtils'
+import { isTrue, hasLoginBypassQuery } from '../composables/useUtils'
 import { checkOpening, getOpeningConfig } from '../composables/useOpening'
 import { useAuth } from '../composables/useAuth'
 
@@ -67,6 +67,11 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  if (hasLoginBypassQuery(to)) {
+    next()
+    return
+  }
+
   const maintenance = isTrue(import.meta.env.VITE_MAINTENANCE)
 
   if (maintenance) {

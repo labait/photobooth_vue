@@ -15,6 +15,12 @@ export function isTrue(value) {
   return Boolean(value)
 }
 
+/** ?login presente (anche vuoto) — bypass maintenance / opening per consentire il login admin */
+export function hasLoginBypassQuery(routeOrQuery) {
+  const query = routeOrQuery?.query ?? routeOrQuery ?? {}
+  return Object.prototype.hasOwnProperty.call(query, 'login')
+}
+
 export function timeframeHuman(seconds) {
   const totalSeconds = Math.floor(Number(seconds) || 0)
 

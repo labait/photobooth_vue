@@ -17,7 +17,7 @@ import Analytics from './components/Analytics.vue'
 import { posterServerPath } from './images.js'
 import { editionCode, loadEdition } from './editionConfig.js'
 import { itemStoragePath, ITEM_IMAGE_FILES } from './itemStorage.js'
-import { isTrue, timeframeHuman } from './composables/useUtils'
+import { isTrue, timeframeHuman, hasLoginBypassQuery } from './composables/useUtils'
 import { checkOpening as isWithinOpeningHours, getOpeningConfig } from './composables/useOpening'
 import { useAuth } from './composables/useAuth'
 import { useGenerationCounts } from './composables/useGenerationCounts'
@@ -266,6 +266,7 @@ function syncEnvForAdmin() {
 }
 
 function checkOpening() {
+  if (hasLoginBypassQuery(route)) return true
   if (maintenanceActive) return true
   if (authReady.value && isAdmin.value) return true
 
@@ -300,7 +301,9 @@ onUnmounted(() => {
 
 watch([isAdmin, authReady], syncEnvForAdmin, { immediate: true })
 
-watch([isAdmin, authReady, () => route.path], () => {
+watch([isAdmin, authReady, () => route.path, () => route.query.login], () => {
+  if (hasLoginBypassQuery(route)) return
+
   if (
     maintenanceActive &&
     authReady.value &&
