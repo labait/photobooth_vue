@@ -11,7 +11,7 @@
   "image_watermark_ai": "LABEL_AI_MODIFIED_black_transparent.png",
   "image_watermark_ai_offset": 10,
   "image_watermark_ai_width": 150,
-"images": [
+  "images": [
     {
       "name": "Agnolo Bronzino",
       "file_path": "agnolo-bronzino.jpg",
@@ -24,12 +24,12 @@
     },
     {
       "name": "Angelica Kauffmann",
-      "file_path": "angelica-kauffmann.webp",
+      "file_path": "angelica-kauffmann.jpg",
       "category": "painting"
     },
     {
       "name": "Annibale Carracci",
-      "file_path": "annibale-carracci.webp",
+      "file_path": "annibale-carracci.jpg",
       "category": "painting"
     },
     {
@@ -39,7 +39,7 @@
     },
     {
       "name": "Jean-Michel Basquiat",
-      "file_path": "basquiat.jpeg",
+      "file_path": "basquiat.jpg",
       "category": "painting"
     },
     {
@@ -84,7 +84,7 @@
     },
     {
       "name": "Élisabeth Vigée Le Brun",
-      "file_path": "elisabeth-vigee-le-brun-2.jpeg",
+      "file_path": "elisabeth-vigee-le-brun-2.jpg",
       "category": "painting"
     },
     {
@@ -99,12 +99,12 @@
     },
     {
       "name": "Giotto",
-      "file_path": "giotto.png",
+      "file_path": "giotto.jpg",
       "category": "painting"
     },
     {
       "name": "Hannah Höch",
-      "file_path": "hoch.png",
+      "file_path": "hoch.jpg",
       "category": "painting"
     },
     {
@@ -134,12 +134,12 @@
     },
     {
       "name": "Roy Lichtenstein",
-      "file_path": "lichtenstein-2.png",
+      "file_path": "lichtenstein-2.jpg",
       "category": "painting"
     },
     {
       "name": "René Magritte",
-      "file_path": "magritte.jpeg",
+      "file_path": "magritte.jpg",
       "category": "painting"
     },
     {
@@ -149,7 +149,7 @@
     },
     {
       "name": "René Magritte",
-      "file_path": "magritte-3.webp",
+      "file_path": "magritte-3.jpg",
       "category": "painting"
     },
     {
@@ -174,7 +174,7 @@
     },
     {
       "name": "Parmigianino",
-      "file_path": "parmigianino.webp",
+      "file_path": "parmigianino.jpg",
       "category": "painting"
     },
     {
@@ -194,12 +194,12 @@
     },
     {
       "name": "Sandro Botticelli",
-      "file_path": "sandro-botticelli.avif",
+      "file_path": "sandro-botticelli.jpg",
       "category": "painting"
     },
     {
       "name": "Sandro Botticelli",
-      "file_path": "sandro-botticelli-2.avif",
+      "file_path": "sandro-botticelli-2.jpg",
       "category": "painting"
     },
     {
@@ -209,12 +209,12 @@
     },
     {
       "name": "Egon Schiele",
-      "file_path": "schiele-2.webp",
+      "file_path": "schiele-2.jpg",
       "category": "painting"
     },
     {
       "name": "Egon Schiele",
-      "file_path": "schiele-3.webp",
+      "file_path": "schiele-3.jpg",
       "category": "painting"
     },
     {
@@ -234,7 +234,7 @@
     },
     {
       "name": "Andy Warhol",
-      "file_path": "warhol.webp",
+      "file_path": "warhol.jpg",
       "category": "painting"
     },
     {
@@ -260,6 +260,46 @@
     {
       "name": "Jacques-Louis David",
       "file_path": "jacques-louis-david.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Frida Kahlo",
+      "file_path": "frida-kahlo.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Gustav Klimt",
+      "file_path": "gustav-klimt.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Jacques-Louis David",
+      "file_path": "jacques-louis-david-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Johannes Vermeer",
+      "file_path": "johannes-vermeer-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Leonardo da Vinci",
+      "file_path": "leonardo-da-vinci.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Mona Lisa",
+      "file_path": "mona-lisa.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Van Gogh",
+      "file_path": "van-gogh.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Andy Warhol",
+      "file_path": "warhol-2.jpg",
       "category": "painting"
     }
   ]
