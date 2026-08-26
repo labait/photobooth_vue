@@ -11,7 +11,7 @@
   "image_watermark_ai": "LABEL_AI_MODIFIED_black_transparent.png",
   "image_watermark_ai_offset": 10,
   "image_watermark_ai_width": 150,
-  "images": [
+"images": [
     {
       "name": "Agnolo Bronzino",
       "file_path": "agnolo-bronzino.jpg",
@@ -38,12 +38,12 @@
       "category": "painting"
     },
     {
-      "name": "Basquiat",
+      "name": "Jean-Michel Basquiat",
       "file_path": "basquiat.jpeg",
       "category": "painting"
     },
     {
-      "name": "Basquiat",
+      "name": "Jean-Michel Basquiat",
       "file_path": "basquiat-2.jpg",
       "category": "painting"
     },
@@ -58,12 +58,12 @@
       "category": "painting"
     },
     {
-      "name": "Cezanne",
+      "name": "Paul Cézanne",
       "file_path": "cezanne.jpg",
       "category": "painting"
     },
     {
-      "name": "Diego Velazquez",
+      "name": "Diego Velázquez",
       "file_path": "diego-velazquez.jpg",
       "category": "painting"
     },
@@ -73,27 +73,27 @@
       "category": "painting"
     },
     {
-      "name": "El Greco",
+      "name": "El Greco (Doménikos Theotokópoulos)",
       "file_path": "el-greco.jpg",
       "category": "painting"
     },
     {
-      "name": "Elisabeth Vigee Le Brun",
+      "name": "Élisabeth Vigée Le Brun",
       "file_path": "elisabeth-vigee-le-brun.jpg",
       "category": "painting"
     },
     {
-      "name": "Elisabeth Vigee Le Brun",
+      "name": "Élisabeth Vigée Le Brun",
       "file_path": "elisabeth-vigee-le-brun-2.jpeg",
       "category": "painting"
     },
     {
-      "name": "Gauguin",
+      "name": "Paul Gauguin",
       "file_path": "gauguin.jpg",
       "category": "painting"
     },
     {
-      "name": "Gauguin",
+      "name": "Paul Gauguin",
       "file_path": "gauguin-2.jpg",
       "category": "painting"
     },
@@ -103,17 +103,17 @@
       "category": "painting"
     },
     {
-      "name": "Hoch",
+      "name": "Hannah Höch",
       "file_path": "hoch.png",
       "category": "painting"
     },
     {
-      "name": "Hoch",
+      "name": "Hannah Höch",
       "file_path": "hoch-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Hoch",
+      "name": "Hannah Höch",
       "file_path": "hoch-3.jpg",
       "category": "painting"
     },
@@ -123,42 +123,42 @@
       "category": "painting"
     },
     {
-      "name": "Kahlo",
+      "name": "Frida Kahlo",
       "file_path": "kahlo.jpg",
       "category": "painting"
     },
     {
-      "name": "Lichtenstein",
+      "name": "Roy Lichtenstein",
       "file_path": "lichtenstein.jpg",
       "category": "painting"
     },
     {
-      "name": "Lichtenstein",
+      "name": "Roy Lichtenstein",
       "file_path": "lichtenstein-2.png",
       "category": "painting"
     },
     {
-      "name": "Magritte",
+      "name": "René Magritte",
       "file_path": "magritte.jpeg",
       "category": "painting"
     },
     {
-      "name": "Magritte",
+      "name": "René Magritte",
       "file_path": "magritte-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Magritte",
+      "name": "René Magritte",
       "file_path": "magritte-3.webp",
       "category": "painting"
     },
     {
-      "name": "Morisot",
+      "name": "Berthe Morisot",
       "file_path": "morisot.jpg",
       "category": "painting"
     },
     {
-      "name": "Mucha",
+      "name": "Alphonse Mucha",
       "file_path": "mucha.jpg",
       "category": "painting"
     },
@@ -183,12 +183,12 @@
       "category": "painting"
     },
     {
-      "name": "Renoir",
+      "name": "Pierre-Auguste Renoir",
       "file_path": "renoir.jpg",
       "category": "painting"
     },
     {
-      "name": "Renoir",
+      "name": "Pierre-Auguste Renoir",
       "file_path": "renoir-2.jpg",
       "category": "painting"
     },
@@ -203,17 +203,17 @@
       "category": "painting"
     },
     {
-      "name": "Schiele",
+      "name": "Egon Schiele",
       "file_path": "schiele.jpg",
       "category": "painting"
     },
     {
-      "name": "Schiele",
+      "name": "Egon Schiele",
       "file_path": "schiele-2.webp",
       "category": "painting"
     },
     {
-      "name": "Schiele",
+      "name": "Egon Schiele",
       "file_path": "schiele-3.webp",
       "category": "painting"
     },
@@ -223,17 +223,17 @@
       "category": "painting"
     },
     {
-      "name": "Toulouse-Lautrec",
+      "name": "Henri de Toulouse-Lautrec",
       "file_path": "toulouse-lautrec.jpg",
       "category": "painting"
     },
     {
-      "name": "Toulouse-Lautrec",
+      "name": "Henri de Toulouse-Lautrec",
       "file_path": "toulouse-lautrec-2.jpg",
       "category": "painting"
     },
     {
-      "name": "Warhol",
+      "name": "Andy Warhol",
       "file_path": "warhol.webp",
       "category": "painting"
     },
@@ -248,12 +248,12 @@
       "category": "painting"
     },
     {
-      "name": "Picasso",
+      "name": "Pablo Picasso",
       "file_path": "picasso.jpg",
       "category": "painting"
     },
     {
-      "name": "Picasso",
+      "name": "Pablo Picasso",
       "file_path": "picasso-2.jpg",
       "category": "painting"
     },
