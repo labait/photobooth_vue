@@ -2,17 +2,18 @@
 import { ref, inject, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Navigation } from 'swiper/modules'
+import { Keyboard } from 'swiper/modules'
 import { loadPosters, posterPublicUrl } from '../images.js'
 
 import 'swiper/css'
-import 'swiper/css/navigation'
 
 const router = useRouter()
 const route = useRoute()
 const global = inject('global')
 
-const modules = [Navigation]
+const modules = [Keyboard]
+
+const swiperInstance = ref(null)
 
 const posters = ref([])
 const isLoading = ref(true)
@@ -55,6 +56,8 @@ const categories = computed(() => [
 ])
 
 const swiperKey = computed(() => `${category.value ?? 'all'}-${shuffleSeed.value}`)
+
+const swiperLoop = computed(() => shuffledItems.value.length > 1)
 
 /** slidesPerView per breakpoint — modifica qui */
 const swiperBreakpoints = {
@@ -101,6 +104,18 @@ function selectEditionImage(image) {
   global.value.edition_image = image
   router.push('/cam')
 }
+
+function onSwiper(swiper) {
+  swiperInstance.value = swiper
+}
+
+function slidePrevInstant() {
+  swiperInstance.value?.slidePrev(0)
+}
+
+function slideNextInstant() {
+  swiperInstance.value?.slideNext(0)
+}
 </script>
 
 <template>
@@ -144,12 +159,15 @@ function selectEditionImage(image) {
     <section
       v-else
       class="carousel-band relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 overflow-x-clip overscroll-contain bg-[#2c2c2c] py-8 touch-pan-y md:py-10 lg:py-12"
+      tabindex="0"
+      aria-label="Carosello opere d'arte"
     >
       <div class="posters-carousel relative mx-auto max-w-[1693px] px-4 sm:px-8 md:px-12">
         <button
           type="button"
           class="posters-carousel-prev carousel-nav carousel-nav-prev"
           aria-label="Poster precedenti"
+          @click="slidePrevInstant"
         >
           ‹
         </button>
@@ -159,6 +177,10 @@ function selectEditionImage(image) {
           class="posters-swiper px-10 sm:px-12 md:px-14"
           :modules="modules"
           :breakpoints="swiperBreakpoints"
+          :grab-cursor="true"
+          :simulate-touch="true"
+          :loop="swiperLoop"
+          :loop-additional-slides="4"
           :touch-angle="35"
           :threshold="8"
           :touch-move-stop-propagation="true"
@@ -167,10 +189,14 @@ function selectEditionImage(image) {
           :edge-swipe-detection="true"
           :edge-swipe-threshold="24"
           :resistance-ratio="0.82"
-          :navigation="{
-            prevEl: '.posters-carousel-prev',
-            nextEl: '.posters-carousel-next',
+          :prevent-clicks="true"
+          :prevent-clicks-propagation="true"
+          :keyboard="{
+            enabled: true,
+            onlyInViewport: true,
+            speed: 0,
           }"
+          @swiper="onSwiper"
         >
           <SwiperSlide
             v-for="item in shuffledItems"
@@ -202,6 +228,7 @@ function selectEditionImage(image) {
           type="button"
           class="posters-carousel-next carousel-nav carousel-nav-next"
           aria-label="Poster successivi"
+          @click="slideNextInstant"
         >
           ›
         </button>
@@ -242,17 +269,30 @@ function selectEditionImage(image) {
 
 .posters-swiper :deep(.swiper),
 .posters-swiper :deep(.swiper-wrapper) {
-  touch-action: pan-y pinch-zoom;
+  touch-action: pan-x pan-y pinch-zoom;
   overscroll-behavior: contain;
+  cursor: grab;
+}
+
+.posters-swiper :deep(.swiper-wrapper:active) {
+  cursor: grabbing;
 }
 
 .posters-swiper :deep(.swiper-slide) {
   height: auto;
-  touch-action: pan-y pinch-zoom;
+  touch-action: pan-x pan-y pinch-zoom;
 }
 
 .poster-card {
-  touch-action: manipulation;
+  touch-action: pan-x pan-y pinch-zoom;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.poster-card img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .carousel-nav {
@@ -276,13 +316,8 @@ function selectEditionImage(image) {
   }
 }
 
-.carousel-nav:hover:not(.swiper-button-disabled) {
+.carousel-nav:hover {
   color: var(--btn-primary-color);
-}
-
-.carousel-nav.swiper-button-disabled {
-  cursor: not-allowed;
-  opacity: 0.25;
 }
 
 .carousel-nav-prev {
