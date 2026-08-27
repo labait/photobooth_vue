@@ -6,6 +6,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../src/firebase.js'
 import { Support } from './Support.mjs'
+import { isSuccessfulGeneration } from '../../src/itemStorage.js'
 
 const PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID || 'photobooth-laba-2ca9f'
 
@@ -107,8 +108,10 @@ export async function validateLimitTotal({ edition, isAdmin = false } = {}) {
   const now = Date.now()
   const windowStart = now - limitTimeframe * 1000
   const count = snapshot.docs.filter((item) => {
-    const ms = item.data().timestamp?.toMillis?.() ?? 0
-    return ms >= windowStart
+    const data = item.data()
+    const ms = data.timestamp?.toMillis?.() ?? 0
+    if (ms < windowStart) return false
+    return isSuccessfulGeneration(data)
   }).length
 
   return checkLimit(

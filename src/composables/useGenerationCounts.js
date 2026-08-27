@@ -1,5 +1,6 @@
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
+import { isSuccessfulGeneration } from '../itemStorage'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -20,6 +21,15 @@ export function useGenerationCounts({
     global.value.generations_count_user = parseGenerations(raw).length
   }
 
+  function countSuccessful(docs, minTimestampMs = 0) {
+    return docs.filter((docSnap) => {
+      const data = docSnap.data()
+      const ms = data.timestamp?.toMillis?.() ?? 0
+      if (minTimestampMs && ms < minTimestampMs) return false
+      return isSuccessfulGeneration(data)
+    }).length
+  }
+
   function updateFirebaseCounts(snapshot) {
     const now = Date.now()
     const dayAgoMs = now - DAY_MS
@@ -27,16 +37,11 @@ export function useGenerationCounts({
       ? now - limitTotalTimeframe * 1000
       : 0
 
-    global.value.generations_count_total = snapshot.size
-    global.value.generations_count_daily = snapshot.docs.filter((doc) => {
-      const ms = doc.data().timestamp?.toMillis?.() ?? 0
-      return ms >= dayAgoMs
-    }).length
-    global.value.generations_count_total_window = snapshot.docs.filter((doc) => {
-      const ms = doc.data().timestamp?.toMillis?.() ?? 0
-      if (!limitTotalTimeframe) return false
-      return ms >= totalWindowStart
-    }).length
+    global.value.generations_count_total = countSuccessful(snapshot.docs)
+    global.value.generations_count_daily = countSuccessful(snapshot.docs, dayAgoMs)
+    global.value.generations_count_total_window = limitTotalTimeframe
+      ? countSuccessful(snapshot.docs, totalWindowStart)
+      : 0
   }
 
   function subscribeFirebaseCounts() {

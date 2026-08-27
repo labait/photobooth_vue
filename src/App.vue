@@ -16,7 +16,7 @@ import MaintenanceNotice from './components/MaintenanceNotice.vue'
 import Analytics from './components/Analytics.vue'
 import { posterServerPath } from './images.js'
 import { editionCode, loadEdition } from './editionConfig.js'
-import { itemStoragePath, ITEM_IMAGE_FILES } from './itemStorage.js'
+import { itemStoragePath, ITEM_IMAGE_FILES, isSuccessfulGeneration } from './itemStorage.js'
 import { isTrue, timeframeHuman, hasLoginBypassQuery } from './composables/useUtils'
 import { checkOpening as isWithinOpeningHours, getOpeningConfig } from './composables/useOpening'
 import { useAuth } from './composables/useAuth'
@@ -69,6 +69,7 @@ function startGenerationProgress() {
 }
 
 let activeGetResultTimer = null
+const recordedGenerationDocIds = new Set()
 
 function cancelGeneration() {
   global.value.generationCancelled = true
@@ -110,7 +111,9 @@ function generationsInWindow(raw, windowStartMs) {
   return parseGenerations(raw).filter((ts) => ts >= windowStartMs)
 }
 
-function recordGeneration() {
+function recordGeneration(docId) {
+  if (docId && recordedGenerationDocIds.has(docId)) return
+
   const now = Date.now()
   const windowStart = now - (LIMIT_USER_TIMEFRAME || 0) * 1000
   const raw = storeValue('generations') ?? ''
@@ -120,6 +123,13 @@ function recordGeneration() {
   timestamps.push(now)
   storeValue('generations', timestamps.join(','))
   generationCounts.refreshUserCount()
+
+  if (docId) recordedGenerationDocIds.add(docId)
+}
+
+function maybeRecordSuccessfulGeneration(docId, data) {
+  if (!isSuccessfulGeneration(data)) return
+  recordGeneration(docId)
 }
 
 function showLimitDialog(title, limitNumber, limitTimeframe) {
@@ -378,7 +388,6 @@ const processImage = async (docId) => {
 const uploadImage = async (imageDataUrl, imageId) => {
   try {
     startGenerationProgress()
-    global.value.recordGeneration()
 
     const editionImage = global.value.edition_image
 
@@ -451,6 +460,7 @@ const getResult = (docId) => {
           global.value.loading_progress = 100
           stopGenerationProgress()
           global.value.isLoading = null
+          maybeRecordSuccessfulGeneration(docId, latestData)
           resolve(latestData)
           return
         }
@@ -490,6 +500,7 @@ const getResult = (docId) => {
       if (data?.process_result?.status == "succeeded") {
         global.value.loading_progress = 100
         global.value.docData = data;
+        maybeRecordSuccessfulGeneration(docId, data)
         console.log('docData', data)
         resolve(data);
       } else {

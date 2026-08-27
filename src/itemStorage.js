@@ -50,3 +50,15 @@ export function canViewDetail(status, { isAdmin = false } = {}) {
   if (isAdmin) return true;
   return status === ITEM_STATUS.ACCEPTED || status === ITEM_STATUS.PROCESSED;
 }
+
+/** Generazione completata con immagine prodotta (conteggio limiti). */
+export function isSuccessfulGeneration(item) {
+  if (!item) return false;
+  if (item.image_processed) return true;
+  return (
+    item.status === ITEM_STATUS.PROCESSED
+    || item.status === ITEM_STATUS.ACCEPTED
+    || item.status === ITEM_STATUS.NOT_ACCEPTED
+    || item.status === ITEM_STATUS.HIDDEN
+  );
+}
