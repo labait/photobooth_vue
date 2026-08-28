@@ -296,11 +296,6 @@
       "name": "Van Gogh",
       "file_path": "van-gogh.jpg",
       "category": "painting"
-    },
-    {
-      "name": "Andy Warhol",
-      "file_path": "warhol-2.jpg",
-      "category": "painting"
     }
   ]
 }
