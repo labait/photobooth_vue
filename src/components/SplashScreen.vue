@@ -1,9 +1,10 @@
 <script setup>
 import Polaroid from './Polaroid.vue'
-import { ref, inject, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useFeatureVisibility } from '../composables/useFeatureAccess'
 
-const global = inject('global')
 const strip = ref([])
+const { showCreateButton, showListButton } = useFeatureVisibility()
 
 const removeFromStrip = (docId) => {
   strip.value = strip.value.filter((item) => item.docId !== docId)
@@ -42,14 +43,14 @@ const rotations = [-17, 6, 12]
         />
         <div class="flex flex-wrap items-center justify-center gap-5 lg:justify-start">
           <router-link
-            v-if="global.features.camera"
+            v-if="showCreateButton"
             to="/posters"
             class="btn-btl-primary cursor-pointer"
           >
             Scopri l'esperienza
           </router-link>
           <router-link
-            v-if="global.features.list"
+            v-if="showListButton"
             to="/list"
             class="btn-btl-secondary cursor-pointer"
           >

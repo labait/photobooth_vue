@@ -11,6 +11,13 @@ import OpeningView from '../components/OpeningView.vue'
 import { isTrue, hasLoginBypassQuery } from '../composables/useUtils'
 import { checkOpening, getOpeningConfig } from '../composables/useOpening'
 import { useAuth } from '../composables/useAuth'
+import {
+  canAccessCreate,
+  canAccessList,
+  isCreateRoute,
+  isListRoute,
+  showFeatureUnavailableDialog,
+} from '../composables/useFeatureAccess'
 
 const routes = [
   {
@@ -102,6 +109,18 @@ router.beforeEach(async (to, from, next) => {
 
   if (isAdmin.value) {
     next()
+    return
+  }
+
+  if (isCreateRoute(to.path) && !canAccessCreate(false)) {
+    showFeatureUnavailableDialog(() => router.push('/'))
+    next('/')
+    return
+  }
+
+  if (isListRoute(to.path) && !canAccessList(false)) {
+    showFeatureUnavailableDialog(() => router.push('/'))
+    next('/')
     return
   }
 

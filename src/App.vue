@@ -21,6 +21,11 @@ import { isTrue, timeframeHuman, hasLoginBypassQuery } from './composables/useUt
 import { checkOpening as isWithinOpeningHours, getOpeningConfig } from './composables/useOpening'
 import { useAuth } from './composables/useAuth'
 import { useGenerationCounts } from './composables/useGenerationCounts'
+import {
+  ALLOW_CREATE,
+  ALLOW_LIST,
+  registerFeatureUnavailableDialog,
+} from './composables/useFeatureAccess'
 import * as Sentry from '@sentry/vue'
 
 const router = useRouter()
@@ -237,8 +242,8 @@ const global = ref({
   currentImage: null,
   docData: null,
   features: {
-    'list': true,
-    'camera': true,
+    list: ALLOW_LIST,
+    camera: ALLOW_CREATE,
   },
   dialog: {},
   env: {},
@@ -289,6 +294,17 @@ function checkOpening() {
   }
   return isOpen
 }
+
+registerFeatureUnavailableDialog((navigateHome) => {
+  global.value.dialog = {
+    title: 'Funzione non disponibile',
+    confirmText: 'OK',
+    onConfirm: () => {
+      global.value.dialog = {}
+      navigateHome()
+    },
+  }
+})
 
 onMounted(async () => {
   if (storeValue('generations') === null) {

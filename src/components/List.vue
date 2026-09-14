@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import Polaroid from './Polaroid.vue'
+import { LIST_CYCLE_MS, LIST_ITEMS } from '../composables/useFeatureAccess'
 
 const detailUrl = inject('detailUrl')
 const global = inject('global')
@@ -9,7 +10,7 @@ const getStorageUrl = inject('getStorageUrl')
 const maxRotation = 12
 const stagePadding = 120
 const stageTopPadding = 40
-const nextInterval = 226000
+const listCycleMs = LIST_CYCLE_MS
 const items = ref([])
 let nextTimeout
 let currentItem
@@ -36,9 +37,9 @@ onMounted(async () => {
     if (!data?.length) return
 
     shuffleArray(data)
-    items.value = data
+    const limited = data.slice(0, LIST_ITEMS)
 
-    items.value = await Promise.all(items.value.map(async (item) => ({
+    items.value = await Promise.all(limited.map(async (item) => ({
       ...item,
       image_source: await getStorageUrl(item.image_source),
       image_processed: await getStorageUrl(item.image_processed),
@@ -51,14 +52,17 @@ onMounted(async () => {
 
     setTimeout(() => {
       setupPolaroids()
-      const item = getRandomItem()
-      showPolaroid(item.docId)
+      showPolaroid(getRandomItem().docId)
     }, 0)
   } catch (error) {
     console.error('Errore caricamento list:', error)
   } finally {
     global.value.isLoading = null
   }
+})
+
+onUnmounted(() => {
+  clearTimeout(nextTimeout)
 })
 
 const getRandomItem = () => {
@@ -84,21 +88,27 @@ const setupPolaroids = () => {
   })
 }
 
+const scheduleNextPolaroid = () => {
+  clearTimeout(nextTimeout)
+  nextTimeout = setTimeout(() => {
+    showPolaroid(getRandomItem().docId)
+  }, listCycleMs)
+}
+
 const showPolaroid = (docId) => {
   currentItem = items.value.find((item) => item.docId === docId)
   currentPolaroid = document.getElementById(`item-${docId}`)
-  if (currentPolaroid || currentPolaroid !== previousPolaroid) {
-    hidePreviousPolaroid()
-    currentPolaroid.style.transform = 'translate(0, 0) rotate(0deg) scale(1.1)'
-    currentPolaroid.style.zIndex = 200
-    currentPolaroid.classList.add('active')
-    previousPolaroid = currentPolaroid
+  if (!currentPolaroid) {
+    scheduleNextPolaroid()
+    return
   }
-  clearTimeout(nextTimeout)
-  nextTimeout = setTimeout(() => {
-    const item = getRandomItem()
-    showPolaroid(item.docId)
-  }, nextInterval)
+
+  hidePreviousPolaroid()
+  currentPolaroid.style.transform = 'translate(0, 0) rotate(0deg) scale(1.1)'
+  currentPolaroid.style.zIndex = 200
+  currentPolaroid.classList.add('active')
+  previousPolaroid = currentPolaroid
+  scheduleNextPolaroid()
 }
 
 const hidePreviousPolaroid = () => {
@@ -116,6 +126,7 @@ const clickPolaroid = (item) => {
   } else {
     previousPolaroid = document.getElementById(`item-${item.docId}`)
     hidePreviousPolaroid()
+    scheduleNextPolaroid()
   }
 }
 

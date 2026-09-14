@@ -111,10 +111,6 @@ async function selectCamera(deviceId, { source = 'code', fromStorage = false } =
 }
 
 onMounted(async () => {
-  if (!global.value.features.camera) {
-    router.push('/')
-    return
-  }
   await waitForAuth()
   if (!global.value.validateLimits()) {
     return
