@@ -456,8 +456,8 @@ async function shot() {
   width: 0.5rem;
   height: 0.5rem;
   pointer-events: none;
-  border-right: 2px solid var(--text-primary);
-  border-bottom: 2px solid var(--text-primary);
+  border-right: 2px solid #201c28;
+  border-bottom: 2px solid #201c28;
   transform: translateY(-65%) rotate(45deg);
 }
 
@@ -467,7 +467,7 @@ async function shot() {
   border: 1px solid #d4d4d4;
   border-radius: 0;
   background-color: #fff;
-  color: var(--text-primary);
+  color: #201c28;
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.4;
