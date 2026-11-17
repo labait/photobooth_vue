@@ -14,6 +14,7 @@ import Debug from './components/Debug.vue'
 import Dialog from './components/Dialog.vue'
 import MaintenanceNotice from './components/MaintenanceNotice.vue'
 import Analytics from './components/Analytics.vue'
+import backgroundImage from './assets/btl/background.png'
 import { posterServerPath } from './images.js'
 import { editionCode, loadEdition } from './editionConfig.js'
 import { itemStoragePath, ITEM_IMAGE_FILES, isSuccessfulGeneration } from './itemStorage.js'
@@ -556,7 +557,16 @@ provide('getStorageUrl', getStorageUrl);
 </script>
 
 <template>
-  <main class="app-shell relative flex min-h-screen flex-col bg-[var(--page-bg)] print:min-h-0 print:bg-white">
+  <main
+    class="app-shell relative flex min-h-screen flex-col bg-[var(--page-bg)] print:min-h-0 print:bg-white"
+    :style="{
+      backgroundImage: `url(${backgroundImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundAttachment: 'fixed',
+    }"
+  >
     <Analytics />
     <MaintenanceNotice v-if="maintenanceActive && isAdmin" />
     <Loading v-if="global.isLoading != null && $route.path !== '/admin'" />
@@ -567,7 +577,7 @@ provide('getStorageUrl', getStorageUrl);
       <Auth />
     </div>
     <div class="flex flex-1 flex-col">
-      <Header />
+      <Header v-if="route.name !== 'home'" />
       <router-view class="flex flex-1 flex-col" />
       <Footer />
     </div>

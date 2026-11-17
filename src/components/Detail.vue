@@ -300,13 +300,13 @@ onMounted(async () => {
       >
         <p
           v-if="canToggle"
-          class="mb-3.5 text-center font-medium text-[#201c28]/65 print:hidden"
+          class="mb-3.5 text-center font-medium text-[var(--text-primary)]/65 print:hidden"
         >
          
           Ricordati di <strong>confermare la pubblicazione</strong> dell'immagine generata utilizzando i pulsanti in basso.
         </p>
 
-        <div class="text-center  font-medium text-[#201c28]/65 print:hidden">
+        <div class="text-center  font-medium text-[var(--text-primary)]/65 print:hidden">
           
         </div>
 

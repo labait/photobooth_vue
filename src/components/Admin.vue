@@ -342,7 +342,7 @@ onMounted(loadItems);
         <select
           v-if="!isLoading && editions.length"
           v-model="selectedEdition"
-          class="w-full sm:w-auto sm:min-w-[200px] rounded-lg border border-black/10 bg-white px-3 py-2  font-medium text-[var(--text-primary)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
+          class="w-full sm:w-auto sm:min-w-[200px] rounded-lg border border-black/10 bg-white px-3 py-2  font-medium text-[#201c28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
           aria-label="Filtra per edition"
         >
           <option
@@ -356,7 +356,7 @@ onMounted(loadItems);
         <select
           v-if="!isLoading && statuses.length"
           v-model="selectedStatus"
-          class="w-full sm:w-auto sm:min-w-[200px] rounded-lg border border-black/10 bg-white px-3 py-2  font-medium text-[var(--text-primary)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
+          class="w-full sm:w-auto sm:min-w-[200px] rounded-lg border border-black/10 bg-white px-3 py-2  font-medium text-[#201c28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
           aria-label="Filtra per status"
         >
           <option
@@ -462,7 +462,7 @@ onMounted(loadItems);
                 <select
                   :id="`status-${item.id}`"
                   :value="item.status ?? ''"
-                  class="w-full rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-sm font-medium text-[var(--text-primary)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
+                  class="w-full rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-sm font-medium text-[#201c28] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FF7230]"
                   :class="statusClass(item.status)"
                   @change="onStatusSelect(item, $event)"
                 >
