@@ -35,12 +35,22 @@ const rotations = [-17, 6, 12]
     <div
       class="splash-content mx-auto flex w-full max-w-[1400px] flex-col items-center gap-10 px-4 py-8 md:px-10 lg:flex-row lg:items-center lg:justify-between lg:gap-12 xl:gap-20"
     >
-      <div class="splash-side flex w-full max-w-md flex-col items-center gap-8 lg:max-w-[398px] lg:shrink-0 lg:items-start">
+      <div class="splash-side flex w-full max-w-md flex-col items-center gap-8 lg:max-w-[440px] lg:shrink-0 lg:items-start">
         <img
-          src="../assets/btl/logo-iniziativa.png"
-          alt="La tua energia creativa dai forma al futuro"
-          class="w-full max-w-[min(85vw,398px)] h-auto"
+          src="../assets/logo-laba.svg"
+          alt="LABA - Libera Accademia di Belle Arti"
+          class="w-[clamp(240px,26vw,360px)] h-auto"
         />
+        <div
+          class="flex flex-col items-center gap-1.5 text-center text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:items-start lg:text-left lg:text-5xl"
+        >
+          <span class="inline-block rounded-lg bg-[#201c28] px-3 py-1 text-white">
+            La tua <span class="text-[#FF7230]">passione</span>
+          </span>
+          <span class="inline-block rounded-lg bg-[#201c28] px-3 py-1 text-white">
+            merita una <span class="text-[#FF7230]">Laurea</span>
+          </span>
+        </div>
         <div class="flex flex-wrap items-center justify-center gap-5 lg:justify-start">
           <router-link
             v-if="showCreateButton"

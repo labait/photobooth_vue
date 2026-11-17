@@ -1,2 +1,6 @@
 [tools]
 node = "22"
+
+# netlify-cli locale (npm) prima dello shim mise (globale su altre versioni node)
+[env]
+_.path = "{{config_root}}/node_modules/.bin"
