@@ -41,14 +41,19 @@ const rotations = [-17, 6, 12]
           alt="LABA - Libera Accademia di Belle Arti"
           class="w-[clamp(240px,26vw,360px)] h-auto"
         />
+        <img
+          src="../assets/btl/logo-joborienta.png"
+          alt="JOB&amp;Orienta - Salone Orientamento Scuola Formazione Lavoro"
+          class="w-[clamp(150px,16vw,230px)] h-auto"
+        />
         <div
           class="flex flex-col items-center gap-1.5 text-center text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:items-start lg:text-left lg:text-5xl"
         >
           <span class="inline-block rounded-lg bg-[#201c28] px-3 py-1 text-white">
-            La tua <span class="text-[#FF7230]">passione</span>
+            La tua <span class="text-[#FF7230]">passione</span>.
           </span>
           <span class="inline-block rounded-lg bg-[#201c28] px-3 py-1 text-white">
-            merita una <span class="text-[#FF7230]">Laurea</span>
+            Un <span class="text-[#FF7230]">capolavoro</span>.
           </span>
         </div>
         <div class="flex flex-wrap items-center justify-center gap-5 lg:justify-start">
