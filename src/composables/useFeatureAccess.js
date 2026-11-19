@@ -9,6 +9,11 @@ export const LIST_CYCLE_MS = Math.max(
   1000,
   (Number(import.meta.env.VITE_LIST_CYCLE_SECONDS) || 226) * 1000,
 )
+// Intervallo di ricarica della lista in /list (0 o assente = disattivato)
+export const LIST_REFRESH_MS = Math.max(
+  0,
+  (Number(import.meta.env.VITE_LIST_REFRESH_SECONDS) || 0) * 1000,
+)
 
 const CREATE_PATHS = new Set(['/posters', '/cam'])
 const LIST_PATHS = new Set(['/list'])

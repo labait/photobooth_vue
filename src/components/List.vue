@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted, onUnmounted, inject } from 'vue'
+import { ref, onMounted, onUnmounted, inject, nextTick } from 'vue'
 import Polaroid from './Polaroid.vue'
-import { LIST_CYCLE_MS, LIST_ITEMS } from '../composables/useFeatureAccess'
+import { LIST_CYCLE_MS, LIST_ITEMS, LIST_REFRESH_MS } from '../composables/useFeatureAccess'
 
 const detailUrl = inject('detailUrl')
 const global = inject('global')
@@ -13,6 +13,10 @@ const stageTopPadding = 40
 const listCycleMs = LIST_CYCLE_MS
 const items = ref([])
 let nextTimeout
+let refreshTimeout
+let isUnmounted = false
+// Id già ricevuti dalla function (anche se non mostrati o rimossi): evita di ri-aggiungerli
+const seenIds = new Set()
 let currentItem
 let currentPolaroid
 let previousPolaroid
@@ -25,66 +29,129 @@ function shuffleArray(array) {
   return array
 }
 
+async function fetchList() {
+  const response = await fetch('/.netlify/functions/list')
+  const data = await response.json()
+  if (!response.ok || data?.error) {
+    throw new Error(data?.error || `HTTP ${response.status}`)
+  }
+  return Array.isArray(data) ? data : []
+}
+
+async function resolveItemUrls(list) {
+  const resolved = await Promise.all(list.map(async (item) => ({
+    ...item,
+    image_source: await getStorageUrl(item.image_source),
+    image_processed: await getStorageUrl(item.image_processed),
+  })))
+  return resolved.filter((item) => item.image_processed)
+}
+
 onMounted(async () => {
   global.value.isLoading = true
   try {
-    const response = await fetch('/.netlify/functions/list')
-    const data = await response.json()
-    if (!response.ok || data?.error) {
-      console.error('Errore caricamento list:', data?.error || response.status)
-      return
-    }
-    if (!data?.length) return
-
+    const data = await fetchList()
+    data.forEach((item) => seenIds.add(item.docId))
     shuffleArray(data)
-    const limited = data.slice(0, LIST_ITEMS)
-
-    items.value = await Promise.all(limited.map(async (item) => ({
-      ...item,
-      image_source: await getStorageUrl(item.image_source),
-      image_processed: await getStorageUrl(item.image_processed),
-    })))
-    items.value = items.value.filter(
-      (item) => item.image_processed,
-    )
-
-    if (!items.value.length) return
-
-    setTimeout(() => {
-      setupPolaroids()
-      showPolaroid(getRandomItem().docId)
-    }, 0)
+    items.value = await resolveItemUrls(data.slice(0, LIST_ITEMS))
   } catch (error) {
     console.error('Errore caricamento list:', error)
   } finally {
     global.value.isLoading = null
   }
+
+  if (items.value.length) {
+    await nextTick()
+    setupPolaroids()
+    showPolaroid(getRandomItem().docId)
+  }
+  scheduleRefresh()
 })
 
 onUnmounted(() => {
+  isUnmounted = true
   clearTimeout(nextTimeout)
+  clearTimeout(refreshTimeout)
 })
+
+const scheduleRefresh = () => {
+  if (!LIST_REFRESH_MS || isUnmounted) return
+  clearTimeout(refreshTimeout)
+  refreshTimeout = setTimeout(refreshItems, LIST_REFRESH_MS)
+}
+
+// Ricarica la lista e aggiunge solo gli elementi non ancora presenti
+const refreshItems = async () => {
+  try {
+    const data = await fetchList()
+    const fresh = data.filter((item) => !seenIds.has(item.docId))
+    fresh.forEach((item) => seenIds.add(item.docId))
+    const newItems = await resolveItemUrls(fresh)
+    if (isUnmounted || !newItems.length) return
+
+    const wasEmpty = !items.value.length
+    items.value = [...items.value, ...newItems]
+    trimItems()
+
+    await nextTick()
+    newItems.forEach((item) => {
+      const el = document.getElementById(`item-${item.docId}`)
+      if (el) placePolaroid(el, 100 + items.value.indexOf(item))
+    })
+    if (wasEmpty) showPolaroid(getRandomItem().docId)
+  } catch (error) {
+    console.error('Errore aggiornamento list:', error)
+  } finally {
+    scheduleRefresh()
+  }
+}
+
+// Mantiene al massimo LIST_ITEMS elementi rimuovendo i più vecchi (mai quello in primo piano)
+const trimItems = () => {
+  const excess = items.value.length - LIST_ITEMS
+  if (excess <= 0) return
+  const toRemove = new Set(
+    [...items.value]
+      .filter((item) => item !== currentItem)
+      .sort((a, b) => timestampMs(a) - timestampMs(b))
+      .slice(0, excess)
+      .map((item) => item.docId),
+  )
+  items.value = items.value.filter((item) => !toRemove.has(item.docId))
+}
+
+const timestampMs = (item) => {
+  const ts = item.timestamp
+  if (!ts) return 0
+  if (typeof ts === 'number') return ts
+  if (typeof ts.seconds === 'number') return ts.seconds * 1000
+  if (typeof ts._seconds === 'number') return ts._seconds * 1000
+  return 0
+}
 
 const getRandomItem = () => {
   const randomIndex = Math.floor(Math.random() * items.value.length)
   return items.value[randomIndex]
 }
 
-const setupPolaroids = () => {
+const placePolaroid = (polaroid, zIndex) => {
   const stage = document.querySelector('.polaroids-stage')
   if (!stage) return
 
   const stageWidth = stage.clientWidth - stagePadding
   const stageHeight = stage.clientHeight - stagePadding - stageTopPadding
+  const randomRotation = -maxRotation + Math.random() * maxRotation
+  const randomLeft = -stageWidth / 2 + stageWidth * Math.random()
+  const randomTop = stageTopPadding + (-stageHeight / 2 + stageHeight * Math.random())
+  const transform = `translate(${randomLeft}px, ${randomTop}px) rotate(${randomRotation}deg) scale(0.5)`
+  polaroid.style.zIndex = polaroid.style.zIndex_previous = zIndex
+  polaroid.style.transform = transform
+  polaroid.style.transform_previous = transform
+}
 
+const setupPolaroids = () => {
   document.querySelectorAll('.polaroid').forEach((polaroid, index) => {
-    const randomRotation = -maxRotation + Math.random() * maxRotation
-    const randomLeft = -stageWidth / 2 + stageWidth * Math.random()
-    const randomTop = stageTopPadding + (-stageHeight / 2 + stageHeight * Math.random())
-    const transform = `translate(${randomLeft}px, ${randomTop}px) rotate(${randomRotation}deg) scale(0.5)`
-    polaroid.style.zIndex = polaroid.style.zIndex_previous = 100 + index
-    polaroid.style.transform = transform
-    polaroid.style.transform_previous = transform
+    placePolaroid(polaroid, 100 + index)
   })
 }
 
