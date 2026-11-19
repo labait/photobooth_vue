@@ -1,6 +1,21 @@
 @import 'tailwindcss';
 
 @layer base {
+    /* Impedisce il drag/scroll orizzontale del sito (soprattutto su mobile)
+       quando qualche elemento (es. polaroid ruotate) sborda dal viewport.
+       html: hidden viene propagato al viewport; body: clip per non renderlo
+       un contenitore scrollabile. Il pinch-zoom resta consentito. */
+    html {
+        overflow-x: hidden;
+        overscroll-behavior-x: none;
+    }
+
+    body {
+        overflow-x: clip;
+        overscroll-behavior-x: none;
+        max-width: 100%;
+    }
+
     button:not(:disabled),
     a,
     [role='button'],
