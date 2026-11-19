@@ -1,0 +1,301 @@
+{
+  "replicate_input": {
+    "allow_fallback_model": false,
+    "aspect_ratio": "4:5",
+    "output_format": "png",
+    "prompt": "Use the first image as the base artwork and the second image exclusively as the identity reference. Replace only the main subject with the person from the second image. Keep their distinctive features and identity recognizable, but fully subject them to the visual transformations present in the original artwork. The second image must provide identity only. All visual structure, stylization, and rendering must come from the first image. Recreate the face, hair, beard, and skin using the same medium, brushwork or linework, shapes, contours, palette, texture, detail level, imperfections, and material qualities of the original artwork. If the artwork distorts, simplifies, fragments, shifts, or reconstructs anatomy, perspective, or facial features, apply exactly the same type and degree of transformation to the new face. Do not correct these distortions toward realistic proportions. Use the original subject's geometry, facial-feature placement, and structural design as the template, replacing only the identity. Avoid any photographic, realistic, digital, clean, or separately rendered appearance. Keep the original pose, body, clothing, composition, background, and all other elements unchanged. The new subject must look as if it was originally created within the same artwork.",
+    "resolution": "1K",
+    "safety_filter_level": "block_only_high"
+  },
+  "image_frame": "frame1.png",
+  "image_watermark_ai": "LABEL_AI_MODIFIED_black_transparent.png",
+  "image_watermark_ai_offset": 10,
+  "image_watermark_ai_width": 150,
+  "images": [
+    {
+      "name": "Agnolo Bronzino",
+      "file_path": "agnolo-bronzino.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Agnolo Bronzino",
+      "file_path": "agnolo-bronzino-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Angelica Kauffmann",
+      "file_path": "angelica-kauffmann.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Annibale Carracci",
+      "file_path": "annibale-carracci.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Artemisia Gentileschi",
+      "file_path": "artemisia-gentileschi.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Jean-Michel Basquiat",
+      "file_path": "basquiat.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Jean-Michel Basquiat",
+      "file_path": "basquiat-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Caravaggio",
+      "file_path": "caravaggio.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Caravaggio",
+      "file_path": "caravaggio-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Paul Cézanne",
+      "file_path": "cezanne.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Diego Velázquez",
+      "file_path": "diego-velazquez.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Edgar Degas",
+      "file_path": "edgar-degas.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "El Greco (Doménikos Theotokópoulos)",
+      "file_path": "el-greco.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Élisabeth Vigée Le Brun",
+      "file_path": "elisabeth-vigee-le-brun.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Élisabeth Vigée Le Brun",
+      "file_path": "elisabeth-vigee-le-brun-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Paul Gauguin",
+      "file_path": "gauguin.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Paul Gauguin",
+      "file_path": "gauguin-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Giotto",
+      "file_path": "giotto.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Hannah Höch",
+      "file_path": "hoch.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Hannah Höch",
+      "file_path": "hoch-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Hannah Höch",
+      "file_path": "hoch-3.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Johannes Vermeer",
+      "file_path": "johannes-vermeer.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Frida Kahlo",
+      "file_path": "kahlo.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Roy Lichtenstein",
+      "file_path": "lichtenstein.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Roy Lichtenstein",
+      "file_path": "lichtenstein-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "René Magritte",
+      "file_path": "magritte.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "René Magritte",
+      "file_path": "magritte-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "René Magritte",
+      "file_path": "magritte-3.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Berthe Morisot",
+      "file_path": "morisot.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Alphonse Mucha",
+      "file_path": "mucha.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Paolo Veronese",
+      "file_path": "paolo-veronese.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Paolo Veronese",
+      "file_path": "paolo-veronese-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Parmigianino",
+      "file_path": "parmigianino.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Parmigianino",
+      "file_path": "parmigianino-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Pierre-Auguste Renoir",
+      "file_path": "renoir.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Pierre-Auguste Renoir",
+      "file_path": "renoir-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Sandro Botticelli",
+      "file_path": "sandro-botticelli.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Sandro Botticelli",
+      "file_path": "sandro-botticelli-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Egon Schiele",
+      "file_path": "schiele.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Egon Schiele",
+      "file_path": "schiele-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Egon Schiele",
+      "file_path": "schiele-3.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Tiziano Vecellio",
+      "file_path": "tiziano-vecellio-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Henri de Toulouse-Lautrec",
+      "file_path": "toulouse-lautrec.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Henri de Toulouse-Lautrec",
+      "file_path": "toulouse-lautrec-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Andy Warhol",
+      "file_path": "warhol.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "William Hogarth",
+      "file_path": "william-hogarth.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Ambrogio Lorenzetti",
+      "file_path": "ambrogio-lorenzetti.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Pablo Picasso",
+      "file_path": "picasso.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Pablo Picasso",
+      "file_path": "picasso-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Jacques-Louis David",
+      "file_path": "jacques-louis-david.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Frida Kahlo",
+      "file_path": "frida-kahlo.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Gustav Klimt",
+      "file_path": "gustav-klimt.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Jacques-Louis David",
+      "file_path": "jacques-louis-david-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Johannes Vermeer",
+      "file_path": "johannes-vermeer-2.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Leonardo da Vinci",
+      "file_path": "leonardo-da-vinci.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Mona Lisa",
+      "file_path": "mona-lisa.jpg",
+      "category": "painting"
+    },
+    {
+      "name": "Van Gogh",
+      "file_path": "van-gogh.jpg",
+      "category": "painting"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { getOpeningConfig } from '../composables/useOpening'
-import logo from '../assets/opening.png'
+import logoLaba from '../assets/logo-laba.svg'
+import logoJobOrienta from '../assets/btl/logo-joborienta.png'
 
 const opening = computed(() => getOpeningConfig())
 </script>
@@ -13,11 +14,18 @@ const opening = computed(() => getOpeningConfig())
     aria-live="polite"
   >
     <div class="text-center text-white">
-      <img
-        :src="logo"
-        alt="LABA"
-        class="mx-auto mb-8 w-auto max-w-[min(80vw,420px)]"
-      />
+      <div class="mx-auto mb-10 flex flex-col items-center gap-8">
+        <img
+          :src="logoLaba"
+          alt="LABA - Libera Accademia di Belle Arti"
+          class="h-auto w-[min(70vw,380px)] brightness-0 invert"
+        />
+        <img
+          :src="logoJobOrienta"
+          alt="JOB&amp;Orienta - Salone Orientamento Scuola Formazione Lavoro"
+          class="h-auto w-[min(50vw,260px)]"
+        />
+      </div>
       <div
         v-if="opening.customText"
         class="whitespace-pre-line text-[5vw] sm:text-[4vw] md:text-[3vw] lg:text-[3vw] max-w-[60vw] mx-auto font-normal"
