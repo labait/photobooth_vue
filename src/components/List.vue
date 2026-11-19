@@ -242,7 +242,11 @@ const openDetail = (item) => {
   flex: 1;
   min-height: 0;
   width: 100%;
-  overflow: visible;
+  /* Le polaroid posizionate/ruotate a caso possono uscire dai bordi laterali:
+     clip (non hidden) evita la scrollbar orizzontale senza creare un contenitore
+     scrollabile e lascia libero l'overflow verticale */
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .polaroids-stage {
